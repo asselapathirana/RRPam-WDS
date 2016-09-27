@@ -16,7 +16,7 @@ Overview
       - |version| |downloads| |wheel| |supported-versions| |supported-implementations|
 
 .. |docs| image:: https://readthedocs.org/projects/RRPam-WDS/badge/?style=flat
-    :target: https://readthedocs.org/projects/RRPam-WDS
+    :target: https://RRPam-WDS.readthedocs.io
     :alt: Documentation Status
 
 .. |travis| image:: https://travis-ci.org/asselapathirana/RRPam-WDS.svg?branch=master
@@ -33,7 +33,7 @@ Overview
 
 .. |coveralls| image:: https://coveralls.io/repos/asselapathirana/RRPam-WDS/badge.svg?branch=master&service=github
     :alt: Coverage Status
-    :target: https://coveralls.io/r/asselapathirana/RRPam-WDS
+    :target: https://coveralls.io/github/asselapathirana/RRPam-WDS
 
 .. |version| image:: https://img.shields.io/pypi/v/rrpam-wds.svg?style=flat
     :alt: PyPI Package latest release

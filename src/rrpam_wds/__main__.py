@@ -10,5 +10,6 @@ Why does this file exist, and why __main__? For more info, read:
 """
 from rrpam_wds.cli import main
 
+# pragma: no cover
 if __name__ == "__main__":
     main()
