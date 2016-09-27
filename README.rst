@@ -16,7 +16,7 @@ Overview
       - |version| |downloads| |wheel| |supported-versions| |supported-implementations|
 
 .. |docs| image:: https://readthedocs.org/projects/RRPam-WDS/badge/?style=flat
-    :target: https://readthedocs.org/projects/RRPam-WDS/badge/
+    :target: https://readthedocs.org/projects/RRPam-WDS/badge/?version=latest
     :alt: Documentation Status
 
 .. |travis| image:: https://travis-ci.org/asselapathirana/RRPam-WDS.svg?branch=master
