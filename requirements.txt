@@ -1,0 +1,4 @@
+epanetools>0.7.1
+mock
+pytest
+pytest-travis-fold
