@@ -7,9 +7,8 @@ from rrpam_wds.cli import main
 
 
 def test_main():
-    assert main([])==0
-    
-    
-    
-if __name__ == "__main__": # pragma: no cover
+    assert main([]) == 0
+
+
+if __name__ == "__main__":  # pragma: no cover
     test_main()

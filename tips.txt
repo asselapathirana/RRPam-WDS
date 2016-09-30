@@ -1,0 +1,12 @@
+install check-manifest
+then check-manifest 
+pip install flake8
+- checking formatting
+flake8 setup.py tests src |cat -n
+- fixing them
+autopep8 --in-place --recursive --max-line-length=100 src tests setup.py -v -a
+
+fixing isort errors: 
+isort <filename> 
+
+

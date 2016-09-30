@@ -64,7 +64,14 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
+    setup_rquires=[
+        "numpy",
+        "epanettools>=0.7.2",
+        
+    ],
     install_requires=[
+        "numpy",
+        "epanettools>=0.7.2",
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
     extras_require={
