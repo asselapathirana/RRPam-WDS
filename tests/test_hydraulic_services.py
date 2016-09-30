@@ -1,72 +1,61 @@
-import pytest
-
-from mock import MagicMock
-
-from  epanettools import epanettools as ep
-from  epanettools.epanettools import Node
+import unittest
+from mock import patch
+import rrpam_wds.examples as ex
+from  epanettools.epanettools import EPANetSimulation 
 
 from rrpam_wds import hydraulic_services as hs
 
-class MockEPANetSimulation(object):
-    
-    def __init__(self,filename):
-        self.filename=filename
-        pass
-    def run(self):
-        self._run=true
 
-class MockNetwork(object):
-    
-    def __init__(self):
-        pass
-    
+class Testhydraulicservices(unittest.TestCase):    
 
-class MockNodes(ep.index_id_type):
-    
-    pass
-    
-class MockLinks(ep.index_id_type):
-    
-    pass    
-
-class Testhydraulicservices:    
-
-    @classmethod
-    def setup_class(cls):
-        print("Setup")
-        mock_EPANetSimulation=MockEPANetSimulation("Foo my file")
-        mock_EPANetSimulation.network=MockNetwork()
-        mock_EPANetSimulation.network.tsteps=[.5,.8,.3]
-        mock_EPANetSimulation.network.nodes=MockNodes()
-        mock_EPANetSimulation.network.links=MockLinks()
-        d=Node.value_type["EN_DEMAND"]
-        NNODES=5
-        for i in range(NNODES+1):
-            mock_EPANetSimulation.network.nodes[i]=Node(network)
-            mock_EPANetSimulation.network.nodes[0].results[]
-        mock_EPANetSimulation.network.nodes[0].results[d]=[1,2,3]
-        mock_EPANetSimulation.network.nodes[1].results[d]=[2,3,4]
-        mock_EPANetSimulation.network.nodes[2].results[d]=[.8,1,2]    
-    
-        def mock_open_network(self,filename):
-            self.es=MockEPANetSimulation(filename)
         
-        hs.pdd_service.open_network=mock_open_network
+    def setUp(self):
+        self.e0=hs.pdd_service(ex.networks[0])
+        self.e1=hs.pdd_service(ex.networks[1])
+        self.e2=hs.pdd_service(ex.networks[2])
+
+        
+    def tearDown(self):
+        pass
+    
     
     #@pytest.mark.skip(reason="no way of currently testing this")
     #def test_total_demand_returns_sum_of_nodal_demands():
         #assert False 
     
-    def test_pdd_service_object_creation_calls_EPANetSimulation_with_filename():
-        file="Mynetwork3.inp"  # any name
-        pd=hs.pdd_service(file)
-        mock_EPANetSimulation.assert_called_once_with(file)
-        
-    def test_pdd_service_get_total_demand_calls_run_in_EPANetSimulation():
-        file="Mynetwork3.inp"  # any name
+    def test_pdd_service_get_total_demand_calls_run_in_EPANetSimulation(self):
+        with patch.object(EPANetSimulation, 'run', autospec=True) as mock_run:
+            self.assertFalse(mock_run.called)
+            self.e0.get_total_demand()        
+            self.assertTrue(mock_run.called)
     
-        pd=hs.pdd_service(file)
-        assert abs(pd.get_total_demand()-5)==.0001
+    def test_pdd_service_get_total_demand_will_not_make_initialize_in_EPANetSimulation_called(self):    
+        with patch.object(EPANetSimulation, 'initialize', autospec=True) as mock_run:        
+            self.e0.get_total_demand()
+            self.assertFalse(mock_run.called)
+            
+    def test_pdd_service_object_creation_will_make_initialize_in_EPANetSimulation_called_with_pdd_True(self):    
+        with patch.object(EPANetSimulation, 'initialize', autospec=True) as mock_run:        
+            pdds=hs.pdd_service(ex.networks[1])
+            mock_run.assert_called_once_with(pdds.es,ex.networks[1],pdd=True)    
+        
+    def test_total_demand_returns_correct_value_ex1(self):
+        print(self.e0.es.OriginalInputFileName)
+        self.assertAlmostEqual( self.e0.get_total_demand(),95045830.,delta=100000)
+        
+
+    def test_total_demand_returns_correct_value_ex2(self):
+        print(self.e1.es.OriginalInputFileName)
+        self.assertAlmostEqual( self.e1.get_total_demand(),955466043,delta=100000)
+
+        
+    def test_total_demand_returns_correct_value_ex3(self):
+        print(self.e2.es.OriginalInputFileName)
+        self.assertAlmostEqual( self.e2.get_total_demand(),965890,delta=10000)        
+        
+        
+if __name__ == '__main__':
+    unittest.main(verbosity=2)    
     
     
     

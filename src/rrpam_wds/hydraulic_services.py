@@ -8,14 +8,15 @@ class pdd_service(object):
         self.open_network(epanet_network)
 
     def open_network(self, epanet_network):
-        self.es=EPANetSimulation(epanet_network)
+        self.es=EPANetSimulation(epanet_network,pdd=True)
     
     
     def get_total_demand(self):
         self.es.run()
         total=0.0
         st=self.es.network.tsteps
-        for i,node in self.es.network.nodes.items():
+        j=Node.node_types['JUNCTION']
+        for (i,node) in [(i,x) for i,x in self.es.network.nodes.items() if x.node_type==j]:
             d=Node.value_type["EN_DEMAND"]
             dem=[x*y for x,y in zip(node.results[d],st)]
             total=total+sum(dem)
