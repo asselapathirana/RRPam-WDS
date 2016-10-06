@@ -51,5 +51,5 @@ class Testhydraulicservices(unittest.TestCase):
         self.assertAlmostEqual(self.e2.get_total_demand(), 965890, delta=10000)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     unittest.main(verbosity=2)

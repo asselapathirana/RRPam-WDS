@@ -66,7 +66,7 @@ setup(
     ],
     setup_rquires=[
         "epanettools>=0.8.0",
-        
+
     ],
     install_requires=[
         "epanettools>=0.8.0",
