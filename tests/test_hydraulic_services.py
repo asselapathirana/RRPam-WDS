@@ -6,6 +6,9 @@ from mock import patch
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
 
+TOTAL_DEMAND_EX1 = 95045830.
+TOTAL_DEMAND_EX2 = 955466043.
+TOTAL_DEMAND_EX3 = 965890.
 
 class Testhydraulicservices(unittest.TestCase):
 
@@ -40,15 +43,18 @@ class Testhydraulicservices(unittest.TestCase):
 
     def test_total_demand_returns_correct_value_ex1(self):
         print(self.e0.es.OriginalInputFileName)
-        self.assertAlmostEqual(self.e0.get_total_demand(), 95045830., delta=100000)
+        self.assertAlmostEqual(self.e0.get_total_demand(), TOTAL_DEMAND_EX1, delta=TOTAL_DEMAND_EX1/100.)
 
     def test_total_demand_returns_correct_value_ex2(self):
         print(self.e1.es.OriginalInputFileName)
-        self.assertAlmostEqual(self.e1.get_total_demand(), 955466043, delta=100000)
+        self.assertAlmostEqual(self.e1.get_total_demand(), TOTAL_DEMAND_EX2, delta=TOTAL_DEMAND_EX2/100.)
 
     def test_total_demand_returns_correct_value_ex3(self):
         print(self.e2.es.OriginalInputFileName)
-        self.assertAlmostEqual(self.e2.get_total_demand(), 965890, delta=10000)
+        self.assertAlmostEqual(self.e2.get_total_demand(), TOTAL_DEMAND_EX3, delta=TOTAL_DEMAND_EX3/100.)
+        
+    def test_after_closing_a_pipe_pipe_closed_demand_returns_correct_value_ex1_1(self):
+        self.assertAlmostEqual(self.e0.get_pipe_closed_demand()-TOTAL_DEMAND_EX1,1000,delta=TOTAL_DEMAND_EX1/100.)
 
 
 if __name__ == '__main__': # pragma: no cover
