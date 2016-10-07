@@ -101,17 +101,19 @@ environment:
       PYTHON_VERSION: '3.5'
       PYTHON_ARCH: '64'
 
-    - TOXENV: '3.5-nocov'
-      TOXPYTHON: C:\Python35\python.exe
-      PYTHON_HOME: C:\Python35
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.5-nocov'
-      TOXPYTHON: C:\Python35-x64\python.exe
-      PYTHON_HOME: C:\Python35-x64
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '64'
+#   NOTE: epanettools does not support python3.5 on windows just yet
+#         until some sort of mingwpy becomes available for py3.5!
+#    - TOXENV: '3.5-nocov'
+#      TOXPYTHON: C:\Python35\python.exe
+#      PYTHON_HOME: C:\Python35
+#      PYTHON_VERSION: '3.5'
+#      PYTHON_ARCH: '32'
+#
+#    - TOXENV: '3.5-nocov'
+#      TOXPYTHON: C:\Python35-x64\python.exe
+#      PYTHON_HOME: C:\Python35-x64
+#      PYTHON_VERSION: '3.5'
+#      PYTHON_ARCH: '64'
 
 init:
   - ps: echo $env:TOXENV

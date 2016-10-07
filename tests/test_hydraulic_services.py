@@ -54,7 +54,7 @@ class Testhydraulicservices(unittest.TestCase):
         self.assertAlmostEqual(self.e2.get_total_demand(), TOTAL_DEMAND_EX3, delta=TOTAL_DEMAND_EX3/100.)
         
     def test_after_closing_a_pipe_pipe_closed_demand_returns_correct_value_ex1_1(self):
-        self.assertAlmostEqual(self.e0.get_pipe_closed_demand()-TOTAL_DEMAND_EX1,1000,delta=TOTAL_DEMAND_EX1/100.)
+        self.assertAlmostEqual(self.e0.get_pipe_closed_demand(1),1000,delta=TOTAL_DEMAND_EX1/100.)
 
 
 if __name__ == '__main__': # pragma: no cover
