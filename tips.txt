@@ -1,5 +1,5 @@
 install check-manifest
-then check-manifest 
+then check-manifest  
 pip install flake8
 - checking formatting
 flake8 setup.py tests src |cat -n
