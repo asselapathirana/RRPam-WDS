@@ -6,12 +6,28 @@ from epanettools.epanettools import Node, Link
 
 class pdd_service(object):
 
-    def __init__(self, epanet_network):
+    def __init__(self, epanet_network,diafact=5.0):
+        self.diafact=diafact        
         self.open_network(epanet_network)
         self.orig_networkfile=epanet_network
 
     def open_network(self, epanet_network):
         self.es = EPANetSimulation(epanet_network, pdd=True)
+        self.es.adfcalc(diafact=self.diafact)
+        self._set_static_values()
+        # set nodes, links for easy access!
+        self.nodes=self.es.network.nodes
+        self.links=self.es.network.links
+        
+    def _set_static_values(self):
+        """ Adds attibutes of length, diameter for easy access."""
+        for i,link in self.es.network.links.items():
+            d = Link.value_type['EN_DIAMETER']
+            l = Link.value_type['EN_LENGTH']
+            link.diameter=link.results[d][0]
+            link.length = link.results[l][0]
+
+            
 
     def get_total_demand(self):
         self.es.run()
