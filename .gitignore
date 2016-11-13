@@ -64,3 +64,5 @@ docs/_build
 *.bak
 
 junk
+
+?.inp
