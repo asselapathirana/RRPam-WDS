@@ -6,7 +6,7 @@ from epanettools.epanettools import Node, Link
 
 class pdd_service(object):
 
-    def __init__(self, epanet_network,diafact=5.0):
+    def __init__(self, epanet_network,diafact=10.0):
         self.diafact=diafact        
         self.open_network(epanet_network)
         self.orig_networkfile=epanet_network
