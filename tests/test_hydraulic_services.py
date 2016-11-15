@@ -39,12 +39,12 @@ class Testhydraulicservices(unittest.TestCase):
 
     @SkipTest
     def test_pdd_service_object_creation_will_make_initialize_in_EPANetSimulation_called_with_pdd_True(
-            self):
+            self): # pragma: no cover
         with patch.object(EPANetSimulation, 'initialize', autospec=True) as mock_run:
             pdds = hs.pdd_service(ex.networks[1])
             mock_run.assert_called_once_with(pdds.es, ex.networks[1], pdd=True)
 
-    def test_total_demand_returns_correct_value_ex1(self):
+    def test_total_demand_returns_correct_value_ex1(self): 
         print(self.e1.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e1.get_total_demand(),
@@ -64,7 +64,8 @@ class Testhydraulicservices(unittest.TestCase):
             self.e3.get_total_demand(),
             TOTAL_DEMAND_EX3,
             delta=TOTAL_DEMAND_EX3 / 100.)
-
+        
+    
     def test_after_closing_a_pipe_pipe_closed_demand_returns_correct_value_ex1_1(self):
         """ We try 2 links in A,B,A pattern, to make sure there are no residual errors
         (like keeping pipe A closed when closing B). """
@@ -78,7 +79,9 @@ class Testhydraulicservices(unittest.TestCase):
             self.e1.get_pipe_closed_demand(1,100)/TOTAL_DEMAND_EX1,
             0.2975,delta=.01)
     
-    def test_after_closing_a_pipe_pipe_closed_demand_returns_correct_value_ex2_1(self):
+    @SkipTest # too heavy & not needed anymore
+    def test_after_closing_a_pipe_pipe_closed_demand_returns_correct_value_ex2_1(self): # pragma: no cover
+        
         """ We try 2 links in A,B,A pattern, to make sure there are no residual errors
         (like keeping pipe A closed when closing B). """
         self.assertAlmostEqual(
