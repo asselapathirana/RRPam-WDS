@@ -46,7 +46,7 @@ class pdd_service(object):
         except:
             r = vals
             results = None
-        if(r != 0): # pragma: no cover
+        if(r != 0):   # pragma: no cover
             raise Exception("epanettools error!")
         return results
 
