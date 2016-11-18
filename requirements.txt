@@ -1,3 +1,11 @@
 pytest
 pytest-travis-fold
 EPANETTOOLS >= 0.9.2
+guiqwt >= 3.0.3 
+pyqt4 >= 5.5.0
+PythonQwt >=0.5
+guidata >=1.7
+Numpy
+Scipy
+Pillow
+ 
