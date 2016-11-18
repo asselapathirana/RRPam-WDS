@@ -38,6 +38,11 @@ class mdi_graph_test(unittest.TestCase):
                               panels=None)
         
         self.aw.addSubWindow(self.graph)
+        
+    def runTest(self): 
+        """ otherwise python 2.7 returns an error 
+        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+        pass
     
 def drive(test=True): # pragma: no cover
     if(test):
