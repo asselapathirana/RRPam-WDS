@@ -3,12 +3,14 @@ import sys
 import time
 import unittest
 
-from guiqwt import tests
-from guiqwt.plot import CurveDialog
-
 from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QApplication
+
+from guiqwt import tests
+from guiqwt.plot import CurveDialog
+
+
 
 from rrpam_wds.gui.dialogs import MainWindow
 
@@ -40,7 +42,7 @@ class mdi_graph_test(unittest.TestCase):
         
         self.aw.addSubWindow(self.graph)
     
-def test(test=True):
+def drive(test=True): # pragma: no cover
     if(test):
         unittest.main(verbosity=2) 
     else:
@@ -51,4 +53,4 @@ def test(test=True):
         sys.exit(ot.app.exec_())
         
 if __name__ == '__main__':  # pragma: no cover
-    test(False)
+    drive(False)

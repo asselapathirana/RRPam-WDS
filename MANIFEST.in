@@ -19,7 +19,7 @@ include requirements.txt
 include tox.ini .travis.yml appveyor.yml
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib 
-exclude junk
+recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude tests ?.inp
 recursive-exclude tests log.txt

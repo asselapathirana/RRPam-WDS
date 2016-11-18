@@ -1,6 +1,6 @@
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QMdiArea
+from PyQt4 import QtCore
+from PyQt4.QtGui import QMainWindow, QMdiArea
 
 
 class ApplicationWindow(QMainWindow):
