@@ -3,14 +3,11 @@ import sys
 import time
 import unittest
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QApplication
-
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
-
-
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication
+from PyQt4.QtTest import QTest
 
 from rrpam_wds.gui.dialogs import MainWindow
 
