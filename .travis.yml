@@ -44,7 +44,7 @@ install:
   - echo  $PY $PYN
   - echo  "$PY" "$PYN"
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -y -c anaconda --name $PYN python=$PY pyqt=4.11  numpy scipy pillow Cython pytest-cov 
+  - conda create -y -c anaconda --name $PYN python=$PY pyqt=4.11  numpy scipy pillow Cython  
   - source activate $PYN 
   - python ./conda/installreq.py
   - python setup.py install
