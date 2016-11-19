@@ -43,8 +43,10 @@ install:
   - export PY=$TRAVIS_PYTHON_VERSION 
   - export PYN=py${PY:0:1}${PY:2:1}
   - export YML=./conda/conda-${PY}.yml 
+  - echo $YML $PY $PYN
+  - echo "$YML" "$PY" "$PYN"
   # Replace dep1 dep2 ... with your dependencies
-  - conda create  -f $YML 
+  - conda env create  -f $YML 
   - source activate $PYN 
   - pip install -r requirements.txt
   - python setup.py install
