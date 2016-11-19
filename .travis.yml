@@ -52,13 +52,15 @@ install:
   - python setup.py install
     # Builds Complete
 
-  #- pip install tox
+  - pip install tox
   - virtualenv --version
   - easy_install --version
   - pip --version
   - pytest --version
+  - tox --version
 script:
-  - travis_wait 30 pytest -v
+  #- travis_wait 30 pytest -v
+   - travis_wait 30 tox -v
 after_failure:
   #- more .tox/log/* | cat
   #- more .tox/*/log/* | cat
