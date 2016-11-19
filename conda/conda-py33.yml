@@ -1,0 +1,35 @@
+name: py33 
+channels: !!python/tuple
+- defaults
+dependencies:
+- anaconda::cython=0.22.1=py33_0
+- anaconda::fontconfig=2.11.1=6
+- anaconda::freetype=2.5.5=1
+- anaconda::jbig=2.1=0
+- anaconda::jpeg=8d=2
+- anaconda::libpng=1.6.22=0
+- anaconda::libtiff=4.0.6=1
+- anaconda::libxml2=2.9.2=0
+- anaconda::numpy=1.9.2=py33_0
+- anaconda::openssl=1.0.1k=1
+- anaconda::pillow=3.0.0=py33_1
+- anaconda::pip=8.0.3=py33_0
+- anaconda::pyqt=4.11.3=py33_1
+- anaconda::python=3.3.5=4
+- anaconda::qt=4.8.6=3
+- anaconda::readline=6.2=2
+- anaconda::scipy=0.16.0=np19py33_0
+- anaconda::setuptools=20.1.1=py33_0
+- anaconda::sip=4.16.5=py33_0
+- anaconda::sqlite=3.13.0=0
+- anaconda::system=5.8=2
+- anaconda::tk=8.5.18=0
+- anaconda::wheel=0.29.0=py33_0
+- anaconda::xz=5.0.5=1
+- anaconda::zlib=1.2.8=3
+- pip:
+  - guidata==1.7.6
+  - guiqwt==3.0.3
+  - pythonqwt==0.5.5
+prefix: /home/user/miniconda3/envs/w3.3
+

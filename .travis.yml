@@ -11,15 +11,15 @@ env:
     #- TOXENV=docs
 
     - TOXENV=2.7-cover,coveralls
-    - TOXENV=2.7-nocov
+    - TOXENV=py27
     - TOXENV=3.3-cover,coveralls
-    - TOXENV=3.3-nocov
+    - TOXENV=py33
     - TOXENV=3.4-cover,coveralls
-    - TOXENV=3.4-nocov
+    - TOXENV=py34
     - TOXENV=3.5-cover,coveralls
-    - TOXENV=3.5-nocov
+    - TOXENV=py35
     - TOXENV=pypy-cover,coveralls
-    - TOXENV=pypy-nocov
+    - TOXENV=pypy
 before_install:
   - python --version
   - uname -a
@@ -40,20 +40,23 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-
+  - export PY=$TRAVIS_PYTHON_VERSION 
+  - export PYN=py${PY:0:1}${PY:2:1}
+  - export YML=./conda/conda-${PY}.yml 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION guiqwt 
-  - source activate test-environment
+  - conda create  -f $YML 
+  - source activate $PYN 
+  - pip install -r requirements.txt
   - python setup.py install
     # Builds Complete
 
-  - pip install tox
+  #- pip install tox
   - virtualenv --version
   - easy_install --version
   - pip --version
   - tox --version
 script:
-  - tox -v
+  - pytest -v
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat

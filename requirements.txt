@@ -2,11 +2,8 @@ pytest
 pytest-travis-fold
 EPANETTOOLS >= 0.9.2
 PythonQwt
-#sip - needed but don't install via pip!
-#PyQt4 - needed but don't install via pip!
 guidata 
-numpy
-Scipy
-Pillow
 guiqwt
- 
+ctox 
+mock 
+
