@@ -10,7 +10,7 @@ do
        echo "environment $env already exist. Reusing ... "
     fi
     source activate $env
-    pip install -r requirements.txt 
+    python ./conda/installreq.py 
     # ctox -v -e $env  
     source deactivate
 done

@@ -48,7 +48,7 @@ install:
   # Replace dep1 dep2 ... with your dependencies
   - conda env create  -f $YML 
   - source activate $PYN 
-  - pip install -r requirements.txt
+  - python ./conda/installreq.py
   - python setup.py install
     # Builds Complete
 
