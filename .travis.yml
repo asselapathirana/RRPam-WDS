@@ -7,16 +7,16 @@ env:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
     - SEGFAULT_SIGNALS=all
   matrix:
-    - TOXENV=3.5-check
+    #- TOXENV=3.5-check
     #- TOXENV=docs
 
-    - TOXENV=2.7-cover,3.5-coveralls
+    #- TOXENV=2.7-cover,3.5-coveralls
     - TOXENV=2.7-nocover
-    - TOXENV=3.3-cover,3.5-coveralls
+    #- TOXENV=3.3-cover,3.5-coveralls
     - TOXENV=3.3-nocover
-    - TOXENV=3.4-cover,3.5-coveralls
+    #- TOXENV=3.4-cover,3.5-coveralls
     - TOXENV=3.4-nocover
-    - TOXENV=3.5-cover,3.5-coveralls
+    #- TOXENV=3.5-cover,3.5-coveralls
     - TOXENV=3.5-nocover
 before_install:
   - python --version
@@ -56,9 +56,13 @@ install:
   - pip --version
   - pytest --version
   - tox --version
+before-script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
 script:
-  #- travis_wait 30 pytest -v
-   - travis_wait 30 tox -v
+  - pytest -v
+  # - travis_wait 30 tox -v
 after_failure:
   #- more .tox/log/* | cat
   #- more .tox/*/log/* | cat
