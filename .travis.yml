@@ -56,12 +56,12 @@ install:
   - virtualenv --version
   - easy_install --version
   - pip --version
-  - tox --version
+  - pytest --version
 script:
   - pytest -v
 after_failure:
-  - more .tox/log/* | cat
-  - more .tox/*/log/* | cat
+  #- more .tox/log/* | cat
+  #- more .tox/*/log/* | cat
 before_cache:
   - rm -rf $HOME/.cache/pip/log
 cache:
