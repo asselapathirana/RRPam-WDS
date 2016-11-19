@@ -64,7 +64,7 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    setup_rquires=[
+    setup_requires=[
         "epanettools>=0.8.0",
 
     ],

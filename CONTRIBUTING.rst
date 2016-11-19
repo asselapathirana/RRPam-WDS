@@ -49,9 +49,16 @@ To set up `RRPam-WDS` for local development:
 
    Now you can make your changes locally.
 
-4. When you're done making changes, run all the checks, doc builder and spell checker with `tox <http://tox.readthedocs.io/en/latest/install.html>`_ one command::
+4. When you're done making changes, run all the checks, doc builder and spell checker. 
 
-    tox
+	(a) First make sure that miniconda `http://conda.pydata.org/miniconda.html` is installed (following command should work) ::
+
+   conda
+
+	(b) Then, from the top directory (where setup.py is)  run the command::
+
+   ./conda/test.bash           
+
 
 5. Commit your changes and push your branch to GitHub::
 

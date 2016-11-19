@@ -1,0 +1,6 @@
+pyqt=4.11  numpy scipy pillow Cython  
+# we use `cat -n1 ` to read this file. So, it reads only the first line!. Have all the requirements in that line 
+# seperate by space
+# Beofre adding to this, make sure that anaconda provides the package. 
+# To install from pypi with pip, add to requirements.txt
+# (however pyqt4 famously does not work with pip!)

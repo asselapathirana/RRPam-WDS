@@ -23,3 +23,7 @@ recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude tests ?.inp
 recursive-exclude tests log.txt
+
+recursive-include conda *.bash
+recursive-include conda *.py
+
