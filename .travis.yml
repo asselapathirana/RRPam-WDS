@@ -58,7 +58,7 @@ install:
   - pip --version
   - pytest --version
 script:
-  - pytest -v
+  - travis_wait 30 pytest -v
 after_failure:
   #- more .tox/log/* | cat
   #- more .tox/*/log/* | cat
