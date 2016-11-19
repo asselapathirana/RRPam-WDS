@@ -10,13 +10,13 @@ env:
     - TOXENV=check
     #- TOXENV=docs
 
-    - TOXENV=2.7-cover,coveralls
+    - TOXENV=2.7-cover,3.5-coveralls
     - TOXENV=2.7-nocver
-    - TOXENV=3.3-cover,coveralls
+    - TOXENV=3.3-cover,3.5-coveralls
     - TOXENV=3.3-nocover
-    - TOXENV=3.4-cover,coveralls
+    - TOXENV=3.4-cover,3.5-coveralls
     - TOXENV=3.4-nocover
-    - TOXENV=3.5-cover,coveralls
+    - TOXENV=3.5-cover,3.5-coveralls
     - TOXENV=3.5-nocover
 before_install:
   - python --version
