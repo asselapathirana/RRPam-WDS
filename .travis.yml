@@ -38,7 +38,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - export PY=${TOXENV:0:1}${TOXENV:3:1}
+  - export PY=${TOXENV:0:1}.${TOXENV:2:1}
   - export PYN=py${PY:0:1}${PY:2:1}
   - export YML=./conda/conda-${PYN}.yml 
   - echo $YML $PY $PYN
