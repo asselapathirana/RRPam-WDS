@@ -34,5 +34,5 @@ dependencies:
 - anaconda::wheel=0.29.0=py35_0
 - anaconda::xz=5.2.2=0
 - anaconda::zlib=1.2.8=3
-prefix: /home/user/miniconda3/envs/w3.5
+#prefix: /home/user/miniconda3/envs/w3.5
 

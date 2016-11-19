@@ -27,9 +27,9 @@ dependencies:
 - anaconda::wheel=0.29.0=py33_0
 - anaconda::xz=5.0.5=1
 - anaconda::zlib=1.2.8=3
-- pip:
-  - guidata==1.7.6
-  - guiqwt==3.0.3
-  - pythonqwt==0.5.5
-prefix: /home/user/miniconda3/envs/w3.3
+#- pip:
+#  - guidata==1.7.6
+#  - guiqwt==3.0.3
+#  - pythonqwt==0.5.5
+#prefix: /home/user/miniconda3/envs/w3.3
 
