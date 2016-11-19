@@ -1,3 +1,4 @@
+#NOTE: Some requirements are directly installed with "conda env create" 
 # pip install -r requirements would not work for this. 
 #use ./conda/installreq.py instead
 pytest
@@ -10,4 +11,5 @@ guidata
 guiqwt
 ctox 
 mock 
+coveralls
 
