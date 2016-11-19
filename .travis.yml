@@ -44,7 +44,7 @@ install:
   - echo  $PY $PYN
   - echo  "$PY" "$PYN"
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -y -c anaconda --name $PYN python=$PY pyqt=4.11  numpy scipy pillow Cython
+  - conda create -y -c anaconda --name $PYN python=$PY pyqt=4.11  numpy scipy pillow Cython pytest-cov coveralls
   - source activate $PYN 
   - python ./conda/installreq.py
   - python setup.py install
@@ -62,6 +62,11 @@ before-script:
   - sleep 3 # give xvfb some time to start
 script:
   - pytest -v
+  - pytest --cov --cov-report=term-missing -vv
+  -  coverage combine --append
+  -  coverage report
+  -  coveralls []
+
   # - travis_wait 30 tox -v
 after_failure:
   #- more .tox/log/* | cat
