@@ -1,6 +1,6 @@
 #NOTE: 
 # 1. Some requirements are directly installed with "conda env create" 
-#    they are mainatined in requirements-conda.txt file (its a hack, need to have only one line with requiremets in it!)
+#    they are mainatined in requirements_conda.txt file (its a hack, need to have only one line with requiremets in it!)
 #
 # 2.  pip install -r requirements would not work for this. 
 #     use ./conda/installreq.py instead

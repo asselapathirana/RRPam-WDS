@@ -44,7 +44,7 @@ install:
   - echo  $PY $PYN
   - echo  "$PY" "$PYN"
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -y -c anaconda --name $PYN python=$PY `head -n1 requirements-conda.txt`	
+  - conda create -y -c anaconda --name $PYN python=$PY `head -n1 requirements_conda.txt`	
   - source activate $PYN 
   - python ./conda/installreq.py
   - python setup.py install

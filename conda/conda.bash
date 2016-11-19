@@ -9,7 +9,7 @@ then
 fi
 python=${1}
 name=${2}
-conda create -y -c anaconda --name $name python=$python `head -n1 requirements-conda.txt`	
+conda create -y -c anaconda --name $name python=$python `head -n1 requirements_conda.txt`	
 source activate $name  
 pip install guidata
 pip install PythonQwt
