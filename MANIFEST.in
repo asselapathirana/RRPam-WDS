@@ -16,14 +16,21 @@ include CONTRIBUTING.rst
 include LICENSE
 include README.rst
 include requirements.txt
+include requirements_conda.txt
 include tox.ini .travis.yml appveyor.yml
+include docs/mydictionary.txt
+
+exclude BUILDING.txt
+exclude conda 
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib 
 recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude tests ?.inp
 recursive-exclude tests log.txt
+recursive-exclude conda *
 
-recursive-include conda *.bash
-recursive-include conda *.py
+
+
+
 

@@ -7,13 +7,14 @@ then
    exit 1
 fi
 
-python setup.py check --strict --metadata --restructuredtext
-check-manifest 
-flake8 src tests conda setup.py 
-isort --verbose --check-only --diff --recursive src tests setup.py
+if [ $# -lt 1 ] 
+then 
+   echo "Usage : $0 <env1> <env2> ..."
+   echo "Available values py27, py33, py35, py34"
+   exit 1
+fi
 
-
-for env in py35 py34 py33 p27
+for env in "$@" 
 do 
     if [[ -z `conda env list|awk '{print $1}'|grep $env` ]]
     then   
@@ -22,6 +23,20 @@ do
        echo "environment $env already exist. Reusing ... "
     fi
     source activate $env
+    pip install  -r ./docs/requirements.txt
+    pip install    sphinxcontrib-spelling
+    pip install    pyenchant
+    export SPELLCHECK=1
+    sphinx-build -b spelling docs dist/docs
+    python setup.py check --strict --metadata --restructuredtext
+    sphinx-build -b html docs dist/docs
+    sphinx-build -b linkcheck docs dist/docs
+
+
+    check-manifest 
+    flake8 src tests conda setup.py 
+    isort --verbose --check-only --diff --recursive src tests setup.py
+
     python ./conda/installreq.py 
     pytest  --cov --cov-report=term-missing -vv
     coverage combine --append
