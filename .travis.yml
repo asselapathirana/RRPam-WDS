@@ -65,7 +65,7 @@ script:
   - pytest --cov --cov-report=term-missing -vv
   -  coverage combine --append
   -  coverage report
-  -  coveralls []
+  -  coveralls 
 
   # - travis_wait 30 tox -v
 after_failure:
