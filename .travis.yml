@@ -11,15 +11,13 @@ env:
     #- TOXENV=docs
 
     - TOXENV=2.7-cover,coveralls
-    - TOXENV=py27
+    - TOXENV=2.7-nocver
     - TOXENV=3.3-cover,coveralls
-    - TOXENV=py33
+    - TOXENV=3.3-nocover
     - TOXENV=3.4-cover,coveralls
-    - TOXENV=py34
+    - TOXENV=3.4-nocover
     - TOXENV=3.5-cover,coveralls
-    - TOXENV=py35
-    - TOXENV=pypy-cover,coveralls
-    - TOXENV=pypy
+    - TOXENV=3.5-nocover
 before_install:
   - python --version
   - uname -a
@@ -40,7 +38,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - export PY=$TRAVIS_PYTHON_VERSION 
+  - export PY=${TOXENV:0:1}${TOXENV:3:1}
   - export PYN=py${PY:0:1}${PY:2:1}
   - export YML=./conda/conda-${PYN}.yml 
   - echo $YML $PY $PYN
