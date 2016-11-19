@@ -29,7 +29,8 @@ class mdi_graph_test(unittest.TestCase):
         print("\ncalculation took %0.2f seconds." % (stop-start))
         pass    
     
-    def test_just_graph_in_mdi(self):
+    
+    def boo__test_just_graph_in_mdi(self):
         #self.graph=CurveDialog(wintitle="guiqwt plot", #icon="guiqwt.svg", 
         #                      edit=False, 
         #                     toolbar=True, 
