@@ -6,3 +6,4 @@ miniconda
 conda
 Indices
 changelog
+tox

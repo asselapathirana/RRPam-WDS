@@ -77,9 +77,9 @@ https://RRPam-WDS.readthedocs.io/
 Development
 ===========
 
-To run the all tests run::
+To run the all tests (after installing miniconda `http://conda.pydata.org/miniconda.html` in your system) run::
 
-    tox
+    ./conda/test.bash
 
 Note, to combine the coverage data from all the tox environments run:
 
