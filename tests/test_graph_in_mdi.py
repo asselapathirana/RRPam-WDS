@@ -1,19 +1,14 @@
-print ("Starting 1")
 import os
-print ("2")
 import sys
-print ("2")
 import time
-print ("2")
 import unittest
-print ("2")
 
 #from guiqwt import tests
 #from guiqwt.plot import CurveDialog
 #from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
+#from PyQt4.QtGui import QApplication
 #from PyQt4.QtTest import QTest
-print ("3")
+
 #from rrpam_wds.gui.dialogs import MainWindow
 
 
@@ -22,17 +17,14 @@ class mdi_graph_test(unittest.TestCase):
     stop=0    
 
     def setUp(self):
-        print ("4")
         global start
-        self.app=QApplication(sys.argv)  
-        print ("5")
+        #self.app=QApplication(sys.argv)        
         start=time.time()
         #self.aw = MainWindow()
         #self.aw.setWindowTitle("Testing multi document window") 
-        
+        pass
     def tearDown(self):
         global stop
-        print ("6")
         stop=time.time()
         print("\ncalculation took %0.2f seconds." % (stop-start))
         pass    
