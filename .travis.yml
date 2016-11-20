@@ -1,6 +1,6 @@
 language: python
 python: '3.5'
-sudo: false
+sudo: required 
 #required
 env:
   global:
@@ -49,8 +49,7 @@ install:
   - python ./conda/installreq.py
   - python setup.py install
     # Builds Complete
-
-  - pip install tox
+  - python -c "import sys; from PyQt4.QtGui import QApplication; a=QApplication(sys.argv)"
   - virtualenv --version
   - easy_install --version
   - pip --version
