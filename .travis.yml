@@ -57,7 +57,7 @@ install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
-  - python -c "import sys; from PyQt4.QtGui import QApplication; a=QApplication(sys.argv)"
+  - python -c "import sys; from PyQt4.QtGui import QApplication; from PyQt4 import QtCore, QtGui, QtTest;  a=QApplication(sys.argv); print ('Done!')"
 script:
   - pytest -x --tb=long -v
   - pytest --cov --cov-report=term-missing -vv

@@ -3,13 +3,13 @@ import sys
 import time
 import unittest
 
-#from guiqwt import tests
-#from guiqwt.plot import CurveDialog
-#from PyQt4.QtCore import Qt
+from guiqwt import tests
+from guiqwt.plot import CurveDialog
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
-#from PyQt4.QtTest import QTest
+from PyQt4.QtTest import QTest
 
-#from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.gui.dialogs import MainWindow
 
 
 class mdi_graph_test(unittest.TestCase):
@@ -20,8 +20,8 @@ class mdi_graph_test(unittest.TestCase):
         global start
         self.app=QApplication(sys.argv)        
         start=time.time()
-        #self.aw = MainWindow()
-        #self.aw.setWindowTitle("Testing multi document window") 
+        self.aw = MainWindow()
+        self.aw.setWindowTitle("Testing multi document window") 
         pass
     def tearDown(self):
         global stop
@@ -29,20 +29,20 @@ class mdi_graph_test(unittest.TestCase):
         print("\ncalculation took %0.2f seconds." % (stop-start))
         pass    
     
-   # def test_just_graph_in_mdi(self):
-   #     self.graph=CurveDialog(wintitle="guiqwt plot", icon="guiqwt.svg", 
-   #                           edit=False, 
-   #                           toolbar=True, 
-   #                           options=None, 
-   #                           parent=self.aw, 
-   #                           panels=None)
-   #     
-   #     self.aw.addSubWindow(self.graph)
+    def test_just_graph_in_mdi(self):
+        self.graph=CurveDialog(wintitle="guiqwt plot", icon="guiqwt.svg", 
+                              edit=False, 
+                              toolbar=True, 
+                              options=None, 
+                              parent=self.aw, 
+                              panels=None)
         
-   # def runTest(self): 
-   #     """ otherwise python 2.7 returns an error 
-   #     ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-   #    pass
+        self.aw.addSubWindow(self.graph)
+         
+    def runTest(self): 
+        """ otherwise python 2.7 returns an error 
+        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+        pass
    
     def test_dummy(self):
         pass
