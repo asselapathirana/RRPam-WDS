@@ -6,7 +6,7 @@ import unittest
 #from guiqwt import tests
 #from guiqwt.plot import CurveDialog
 #from PyQt4.QtCore import Qt
-#from PyQt4.QtGui import QApplication
+from PyQt4.QtGui import QApplication
 #from PyQt4.QtTest import QTest
 
 #from rrpam_wds.gui.dialogs import MainWindow
