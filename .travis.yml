@@ -61,7 +61,7 @@ before-script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 script:
-  - pytest -v
+  - pytest -x --tb=long -v
   - pytest --cov --cov-report=term-missing -vv
   -  coverage combine --append
   -  coverage report
