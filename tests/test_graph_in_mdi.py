@@ -18,7 +18,7 @@ class mdi_graph_test(unittest.TestCase):
 
     def setUp(self):
         global start
-        #self.app=QApplication(sys.argv)        
+        self.app=QApplication(sys.argv)        
         start=time.time()
         #self.aw = MainWindow()
         #self.aw.setWindowTitle("Testing multi document window") 
