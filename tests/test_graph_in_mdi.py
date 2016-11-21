@@ -29,15 +29,19 @@ class mdi_graph_test(unittest.TestCase):
         print("\ncalculation took %0.2f seconds." % (stop-start))
         pass    
     
-    def test_just_graph_in_mdi(self):
-        self.graph=CurveDialog(wintitle="guiqwt plot", icon="guiqwt.svg", 
+    def test_graph_window_properly_added_to_MDI(self):
+        self.graph=CurveDialog(wintitle="XXX YYH #DKLJLKFE Kadk #kdfd", icon="guiqwt.svg", 
                               edit=False, 
                               toolbar=True, 
                               options=None, 
                               parent=self.aw, 
                               panels=None)
         
+        self.assertNotEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),self.graph.windowTitle())        
         self.aw.addSubWindow(self.graph)
+        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),self.graph.windowTitle())
+       
+       
          
     def runTest(self): 
         """ otherwise python 2.7 returns an error 
@@ -59,4 +63,4 @@ def drive(test=True): # pragma: no cover
         sys.exit(ot.app.exec_())
         
 if __name__ == '__main__':  # pragma: no cover
-    drive(True)
+    drive(test=True)
