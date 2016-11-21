@@ -38,7 +38,6 @@ class mdi_graph_test(unittest.TestCase):
                               parent=self.aw, 
                               panels=None)
         
-        self.assertNotEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),self.graph.windowTitle())        
         self.aw.addSubWindow(self.graph)
         self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),self.graph.windowTitle())
        

@@ -32,12 +32,12 @@ class MyCurveDialog(CurveDialog):
 
 class optimalTimeGraph(MyCurveDialog):
     def __init__(self,name,year,damagecost,renewalcost,units=units["EURO"],parent=None,options={}):
-        if(not options.has_key("xlabel")):
+        if(not "xlabel" in options):
             options['xlabel']="Time(years)"
-        if(not options.has_key("ylabel")):
+        if(not "ylabel" in options):
             options['ylabel']="Cost (%s)" % (units)   
 
-        if(not options.has_key("wintitle")):
+        if(not "wintitle" in options):
             options['wintitle']="Costs against time"
             
         self.curvesets=[]
