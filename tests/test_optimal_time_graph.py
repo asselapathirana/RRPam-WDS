@@ -16,64 +16,59 @@ from rrpam_wds.gui.dialogs import MainWindow, optimalTimeGraph
 
 
 class test_optimal_time_graph(unittest.TestCase):
-    start=0
-    stop=0    
+    start = 0
+    stop = 0
 
     def setUp(self):
         global start
-        self.app=QApplication(sys.argv)        
-        start=time.time()
+        self.app = QApplication(sys.argv)
+        start = time.time()
         self.aw = MainWindow()
-        self.aw.setWindowTitle("Testing optimal time graph") 
-      
+        self.aw.setWindowTitle("Testing optimal time graph")
+
         pass
-    
+
     def tearDown(self):
         global stop
-        stop=time.time()
-        print("\ncalculation took %0.2f seconds." % (stop-start))
-        pass    
- 
-         
-    def runTest(self): 
-        """ otherwise python 2.7 returns an error 
+        stop = time.time()
+        print("\ncalculation took %0.2f seconds." % (stop - start))
+        pass
+
+    def runTest(self):
+        """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
         pass
-    
-   
+
     def test_optimalTimeGraph_creates_right_three_curves(self):
         from guiqwt.curve import CurveItem
-        year=np.arange(0,50,1)
-        damagecost=year**2.1
-        renewalcost=(100-year)**1.9
-        tg1=optimalTimeGraph("set1",year,damagecost,renewalcost,parent=self.aw)          
+        year = np.arange(0, 50, 1)
+        damagecost = year**2.1
+        renewalcost = (100 - year)**1.9
+        tg1 = optimalTimeGraph("set1", year, damagecost, renewalcost, parent=self.aw)
         self.aw.addSubWindow(tg1)
-        it=[x for x in tg1.get_plot().get_items() if (isinstance(x,CurveItem))  ]
-        self.assertEqual(len(it),3)
-        assert_array_almost_equal(it[0].get_data(),(year,damagecost))
-        assert_array_almost_equal(it[1].get_data(),(year,renewalcost))
-        assert_array_almost_equal(it[2].get_data(),(year,(damagecost+renewalcost)))
-        tg1.plotCurveSet("set2",year,damagecost+2000,renewalcost*1.2)
-        it=[x for x in tg1.get_plot().get_items() if (isinstance(x,CurveItem))  ]
-        self.assertEqual(len(it),6)        
-        assert_array_almost_equal(it[3].get_data(),(year,damagecost+2000))
-        assert_array_almost_equal(it[4].get_data(),(year,renewalcost*1.2))
-        assert_array_almost_equal(it[5].get_data(),(year,(damagecost+2000+renewalcost*1.2)))        
+        it = [x for x in tg1.get_plot().get_items() if (isinstance(x, CurveItem))]
+        self.assertEqual(len(it), 3)
+        assert_array_almost_equal(it[0].get_data(), (year, damagecost))
+        assert_array_almost_equal(it[1].get_data(), (year, renewalcost))
+        assert_array_almost_equal(it[2].get_data(), (year, (damagecost + renewalcost)))
+        tg1.plotCurveSet("set2", year, damagecost + 2000, renewalcost * 1.2)
+        it = [x for x in tg1.get_plot().get_items() if (isinstance(x, CurveItem))]
+        self.assertEqual(len(it), 6)
+        assert_array_almost_equal(it[3].get_data(), (year, damagecost + 2000))
+        assert_array_almost_equal(it[4].get_data(), (year, renewalcost * 1.2))
+        assert_array_almost_equal(it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
         pass
-        
-        
-        
-       
-    
-def drive(test=True): # pragma: no cover
+
+
+def drive(test=True):  # pragma: no cover
     if(test):
-        unittest.main(verbosity=2) 
+        unittest.main(verbosity=2)
     else:
-        ot=test_optimal_time_graph()
+        ot = test_optimal_time_graph()
         ot.setUp()
         ot.test_optimalTimeGraph_creates_right_three_curves()
         ot.aw.show()
         sys.exit(ot.app.exec_())
-        
+
 if __name__ == '__main__':  # pragma: no cover
     drive(test=True)
