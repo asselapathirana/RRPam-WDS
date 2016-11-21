@@ -9,8 +9,8 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 
-from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.constants import units
+from rrpam_wds.gui.dialogs import MainWindow
 
 
 class mdi_graph_test(unittest.TestCase):
@@ -57,9 +57,9 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = mdi_graph_test()
         ot.setUp()
-        ot.test_just_graph_in_mdi()
+        ot.test_graph_window_properly_added_to_MDI()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=True)
+    drive(test=False)

@@ -10,7 +10,8 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtGui import QMainWindow
 from PyQt4.QtGui import QMdiArea
 
-from rrpam_wds.constants import units, curve_colors
+from rrpam_wds.constants import curve_colors
+from rrpam_wds.constants import units
 
 
 class MyCurveDialog(CurveDialog):

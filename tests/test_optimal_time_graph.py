@@ -2,17 +2,17 @@ import os
 import sys
 import time
 import unittest
-from numpy.testing import assert_array_almost_equal
 
 import numpy as np
-
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
+from numpy.testing import assert_array_almost_equal
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 
-from rrpam_wds.gui.dialogs import MainWindow, optimalTimeGraph
+from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.gui.dialogs import optimalTimeGraph
 
 
 class test_optimal_time_graph(unittest.TestCase):
@@ -71,4 +71,4 @@ def drive(test=True):  # pragma: no cover
         sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=True)
+    drive(test=False)
