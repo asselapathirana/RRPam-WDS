@@ -10,6 +10,7 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 
 from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.constants import units
 
 
 class mdi_graph_test(unittest.TestCase):

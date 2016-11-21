@@ -2,6 +2,7 @@ import sys
 
 from guiqwt.builder import make
 from guiqwt.plot import CurveDialog
+from guiqwt.styles import LINESTYLES
 from numpy import linspace
 from numpy import sin
 from PyQt4 import QtCore
@@ -10,12 +11,14 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtGui import QMainWindow
 from PyQt4.QtGui import QMdiArea
 
+from rrpam_wds.constants import units, curve_colors
 
 class MyCurveDialog(CurveDialog):
-
+    """"The mother dialog from which all the graph windows inherit from"""
     def __init__(self, *args, **kwargs):
         super(MyCurveDialog, self).__init__(*args, **kwargs)
         self._can_be_closed = True
+        self.get_plot().set_antialiasing(True)
 
     def setClosable(self, closable=True):
         self._can_be_closed = closable
@@ -27,8 +30,62 @@ class MyCurveDialog(CurveDialog):
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
 
+class optimalTimeGraph(MyCurveDialog):
+    def __init__(self,name,year,damagecost,renewalcost,units=units["EURO"],parent=None,options={}):
+        if(not options.has_key("xlabel")):
+            options['xlabel']="Time(years)"
+        if(not options.has_key("ylabel")):
+            options['ylabel']="Cost (%s)" % (units)   
+
+        if(not options.has_key("wintitle")):
+            options['wintitle']="Costs against time"
+            
+        self.curvesets=[]
+
+        super(optimalTimeGraph, self).__init__(edit=False, 
+                                            icon="guiqwt.svg",
+                                            toolbar=True, 
+                                            options=options, 
+                                            parent=parent, 
+                                            panels=None )
+        legend = make.legend("TR")
+        self.get_plot().add_item(legend)        
+        self.plotCurveSet(name,year,damagecost,renewalcost)
+    
+    
+    def plotCurveSet(self,name,year,damagecost,renewalcost):
+        c=curve_colors[len(self.curvesets) % len(curve_colors)]
+        dc=make.curve(year,damagecost,title="Damage Cost", color=c, linestyle="DashLine", 
+                     linewidth=3, marker=None, 
+                     markersize=None, 
+                     markerfacecolor=None, 
+                     markeredgecolor=None, shade=None, 
+                     curvestyle=None, baseline=None, 
+                     xaxis="bottom", yaxis="left")
+        self.get_plot().add_item(dc)
+        rc=make.curve(year,renewalcost,title="Renewal Cost", color=c, linestyle="DotLine", 
+                     linewidth=3, marker=None, 
+                     markersize=None, 
+                     markerfacecolor=None, 
+                     markeredgecolor=None, shade=None, 
+                     curvestyle=None, baseline=None, 
+                     xaxis="bottom", yaxis="left")
+        self.get_plot().add_item(rc)        
+        tc=make.curve(year,damagecost+renewalcost,title="Total Cost", color=c, linestyle=None, 
+                     linewidth=5, marker=None, 
+                     markersize=None, 
+                     markerfacecolor=None, 
+                     markeredgecolor=None, shade=None, 
+                     curvestyle="Lines", baseline=None, 
+                     xaxis="bottom", yaxis="left")
+        self.get_plot().add_item(tc)  
+        self.curvesets.append([name,dc,tc,rc])
+        
+    
 
 class MainWindow(QMainWindow):
+    """The maion 'container' of the application. This is a multi-document interface where all other
+    windows live in."""
     count = 0
 
     def __init__(self, parent=None):
@@ -36,7 +93,7 @@ class MainWindow(QMainWindow):
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.setMenu()
-        self.new_window(closable=False)
+        #self.new_window(closable=False)
 
     def setMenu(self):
         bar = self.menuBar()
@@ -66,6 +123,7 @@ class MainWindow(QMainWindow):
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)
+        
 
     def new_window(self, closable=True):
         win = MyCurveDialog(
