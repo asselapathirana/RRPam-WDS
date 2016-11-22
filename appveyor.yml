@@ -1,4 +1,4 @@
-# https://ci.appveyor.com/project/
+# https://ci.appveyor.com/project/asselapathirana/rrpam-wds
 
 matrix:
   fast_finish: true
@@ -15,50 +15,41 @@ environment:
     # Environment variables used by astropy helpers
     PYTHON: "C:\\conda"
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci-helpers\\appveyor\\windows_sdk.cmd"
-    PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
-                      # of 32 bit and 64 bit builds are needed, move this
-                      # to the matrix section.
-    CONDA_DEPENDENCIES: "pyqt=4.11  numpy scipy pillow Cython"
-
+    #PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
+    #                  # of 32 bit and 64 bit builds are needed, move this
+    #                  # to the matrix section.
+    CONDA_DEPENDENCIES: "pyqt=4.11  numpy scipy pillow Cython" # keep this sync with requirements_conda.txt
+    # need to automate reading in that file and remove hardcoding these!
 
   matrix:
-#    # PyQt5
-#    - PYTHON_VERSION: "3.5"
-# USE_QT_API: "PyQt5"
-#     PYTEST_QT_API: "pyqt5"
-#    - PYTHON_VERSION: "3.4"
-#      USE_QT_API: "PyQt5"
-#      PYTEST_QT_API: "pyqt5"
-#    - PYTHON_VERSION: "2.7"
-#      USE_QT_API: "PyQt5"
-#      PYTEST_QT_API: "pyqt5"
-    # PySide2
-#    - PYTHON_VERSION: "3.5"
-#      USE_QT_API: "PySide2"
-#      PYTEST_QT_API: "pyside2"
-#    - PYTHON_VERSION: "3.4"
-#      USE_QT_API: "PySide2"
-#      PYTEST_QT_API: "pyside2"
-#    - PYTHON_VERSION: "2.7"
-#      USE_QT_API: "PySide2"
-#      PYTEST_QT_API: "pyside2"
-    # PyQt4
+
+# PyQt4
 #    - PYTHON_VERSION: "3.5"
 #      USE_QT_API: "PyQt4"
 #      PYTEST_QT_API: "pyqt4v2"
-    - PYTHON_VERSION: "3.4"  # spyder does not work in this configuration ?!?
+    - PYTHON_VERSION: "3.4"  
       USE_QT_API: "PyQt4"
+      PYTHON_ARCH: "64"
       PYTEST_QT_API: "pyqt4v2"
     - PYTHON_VERSION: "2.7"
       USE_QT_API: "PyQt4"
       PYTEST_QT_API: "pyqt4v2"
+      PYTHON_ARCH: "64"
+    - PYTHON_VERSION: "3.4"  
+      USE_QT_API: "PyQt4"
+      PYTHON_ARCH: "32"
+      PYTEST_QT_API: "pyqt4v2"
+    - PYTHON_VERSION: "2.7"
+      USE_QT_API: "PyQt4"
+      PYTEST_QT_API: "pyqt4v2"
+      PYTHON_ARCH: "32"
     # PySide
 #    - PYTHON_VERSION: "2.7"
 #      USE_QT_API: "PySide"
 #      PYTEST_QT_API: "pyside"
 
-platform:
-  -x64
+#platform:
+#  -x64
 
 install:
   # If there is a newer build queued for the same PR, cancel this one.
