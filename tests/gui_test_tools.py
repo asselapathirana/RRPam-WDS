@@ -3,6 +3,8 @@ from PyQt4 import QtCore
 from PyQt4.QtGui import QMainWindow
 from PyQt4.QtGui import QMdiArea
 
+from uuid import uuid4
+
 
 class ApplicationWindow(QMainWindow):
 
@@ -19,3 +21,7 @@ class MDIWindow(ApplicationWindow):
         ApplicationWindow.__init__(self)
         self.main_widget = QMdiArea(parent)
         self.setCentralWidget(self.main_widget)
+
+
+def uniquestring():
+    return str(uuid4())

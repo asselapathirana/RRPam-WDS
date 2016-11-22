@@ -14,12 +14,12 @@ from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
 
 
-class MyCurveDialog(CurveDialog):
+class CurveDialogWithClosable(CurveDialog):
 
     """"The mother dialog from which all the graph windows inherit from"""
 
     def __init__(self, *args, **kwargs):
-        super(MyCurveDialog, self).__init__(*args, **kwargs)
+        super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
 
@@ -28,13 +28,13 @@ class MyCurveDialog(CurveDialog):
 
     def closeEvent(self, evnt):
         if self._can_be_closed:
-            super(MyCurveDialog, self).closeEvent(evnt)
+            super(CurveDialogWithClosable, self).closeEvent(evnt)
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
 
 
-class optimalTimeGraph(MyCurveDialog):
+class optimalTimeGraph(CurveDialogWithClosable):
 
     def __init__(self, name, year, damagecost, renewalcost,
                  units=units["EURO"], parent=None, options={}):
@@ -56,7 +56,10 @@ class optimalTimeGraph(MyCurveDialog):
                                                panels=None)
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
-        self.plotCurveSet(name, year, damagecost, renewalcost)
+        if( year is None or damagecost is None or renewalcost is None):
+            pass
+        else:
+            self.plotCurveSet(name, year, damagecost, renewalcost)
 
     def plotCurveSet(self, name, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
@@ -130,7 +133,7 @@ class MainWindow(QMainWindow):
         self.mdi.addSubWindow(*args, **kwargs)
 
     def new_window(self, closable=True):
-        win = MyCurveDialog(
+        win = CurveDialogWithClosable(
             edit=False, toolbar=True, wintitle="CurveDialog test",
             options=dict(title="Title", xlabel="xlabel", ylabel="ylabel"))
         win.setClosable(closable)
