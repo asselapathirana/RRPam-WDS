@@ -3,7 +3,7 @@
 matrix:
   fast_finish: true
 
-branches:
+#branches:
 #  only:
 #    - master 
 
