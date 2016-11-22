@@ -90,4 +90,4 @@ install:
 build: false
 
 test_script:
-  - py.test -v
+  - pytest -v
