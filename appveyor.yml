@@ -123,9 +123,9 @@ install:
   - '%PYTHON_HOME%\Scripts\virtualenv --version'
   - '%PYTHON_HOME%\Scripts\easy_install --version'
   - '%PYTHON_HOME%\Scripts\pip --version'
-  - '%PYTHON_HOME%\Scripts\tox --version'
+  - '%PYTHON_HOME%\Scripts\pytest --version'
 test_script:
-  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\tox'
+  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\pytest'
 
 on_failure:
   - ps: dir "env:"
