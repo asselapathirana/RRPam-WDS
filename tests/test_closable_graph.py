@@ -45,9 +45,9 @@ class mdi_graph_test(unittest.TestCase):
         self.aw.mdi.subWindowList()[-1].close()
         self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), dummytitle)
 
-    def test_closable_graph_with_cloable_false_can_not_be_closed_by_user_but_will_be_minized(self):
-        dummytitle = "dummy title %s" % (uniquestring())
-        title = "This window: %s" % (uniquestring())
+    def test_closable_graph_closable_false_minized(self):
+        dummytitle = "%s" % (uniquestring())
+        title = "%s" % (uniquestring())
         self.dummy = CurveDialogWithClosable(wintitle=dummytitle)
         self.aw.addSubWindow(self.dummy)
         self.graph = CurveDialogWithClosable(wintitle=title)
@@ -74,7 +74,7 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = mdi_graph_test()
         ot.setUp()
-        ot.test_closable_graph_with_cloable_false_can_not_be_closed_by_user_but_will_be_minized()
+        ot.test_closable_graph_closable_false_minized()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
