@@ -187,6 +187,3 @@ deps =
 
 [testenv:pypy-nocov]
 basepython = {env:TOXPYTHON:pypy}
-
-
-

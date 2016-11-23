@@ -1,0 +1,256 @@
+[TITLE]
+
+
+[JUNCTIONS]
+;ID              	Elev        	Demand      	Pattern         
+ J22             	826.0000    	0.000000    	1               	;
+ J23             	826.0000    	0.000000    	1               	;
+ J24             	822.0000    	0.000000    	1               	;
+ J25             	822.0000    	0.000000    	1               	;
+ J26             	818.0000    	0.000000    	1               	;
+ J27             	814.0000    	0.000000    	1               	;
+ J28             	810.0000    	2.380000    	1               	;
+ J32             	823.0000    	0.000000    	1               	;
+ A1              	820.0000    	0.420000    	1               	;
+ A2              	825.0000    	0.540000    	1               	;
+ J35             	824.0000    	0.000000    	1               	;
+ J36             	820.0000    	0.000000    	1               	;
+ A3              	815.0000    	0.560000    	1               	;
+ B1              	815.0000    	0.420000    	1               	;
+ J39             	822.0000    	0.000000    	1               	;
+ B2              	815.0000    	0.320000    	1               	;
+ C               	830.0000    	0.200000    	1               	;
+ D               	825.0000    	0.660000    	1               	;
+ F               	820.0000    	0.520000    	1               	;
+ E2              	820.0000    	0.300000    	1               	;
+ E1              	810.0000    	0.660000    	1               	;
+ J46             	819.0000    	0.000000    	1               	;
+ J47             	819.0000    	0.000000    	1               	;
+ E3              	820.0000    	0.300000    	1               	;
+ E6              	825.0000    	0.020000    	1               	;
+ E4              	820.0000    	0.220000    	1               	;
+ E5              	815.0000    	0.220000    	1               	;
+ J65             	818.0000    	0.000000    	1               	;
+ T1              	780.0000    	0.000000    	1               	;
+ XX              	0.0000      	0.000000    	1               	;
+
+[RESERVOIRS]
+;ID              	Head        	Pattern         
+ BH              	780.0000    	                	;
+
+[TANKS]
+;ID              	Elevation   	InitLevel   	MinLevel    	MaxLevel    	Diameter    	MinVol      	VolCurve
+ Tank            	830.0000    	16.5000     	15.0000     	18.0000     	15.7400     	2918.7077   	                	;
+
+[PIPES]
+;ID              	Node1           	Node2           	Length      	Diameter    	Roughness   	MinorLoss   	Status
+ P1              	XX              	J22             	100.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P2              	J22             	J24             	300.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P3              	J24             	J26             	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P4              	J26             	J27             	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P5              	J27             	J28             	300.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P9              	XX              	J23             	100.0000    	60.0000     	0.0200      	0.0000      	Open  	;
+ P10             	J23             	J25             	500.0000    	60.0000     	0.0200      	0.0000      	Open  	;
+ P11             	J25             	J26             	300.0000    	60.0000     	0.0200      	0.0000      	Open  	;
+ P13             	J27             	J28             	300.0000    	90.0000     	0.0200      	0.0000      	Open  	;
+ P17             	J22             	J32             	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P18             	J32             	A1              	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P19             	J32             	J35             	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P20             	J35             	A2              	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P21             	J35             	J36             	500.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P22             	J36             	A3              	300.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P23             	J24             	C               	400.0000    	63.0000     	0.0200      	0.0000      	Open  	;
+ P24             	J23             	J39             	100.0000    	90.0000     	0.0200      	0.0000      	Open  	;
+ P25             	J39             	J65             	500.0000    	90.0000     	0.0200      	0.0000      	Open  	;
+ P26             	J39             	B2              	1500.0000   	90.0000     	0.0200      	0.0000      	Open  	;
+ P27             	J25             	D               	1300.0000   	63.0000     	0.0200      	0.0000      	Open  	;
+ P28             	J26             	J46             	100.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P29             	J46             	E1              	1000.0000   	63.0000     	0.0200      	0.0000      	Open  	;
+ P30             	J46             	E2              	800.0000    	110.0000    	0.0200      	0.0000      	Open  	;
+ P31             	E2              	J47             	500.0000    	63.0000     	0.0200      	0.0000      	Open  	;
+ P32             	J47             	E3              	400.0000    	63.0000     	0.0200      	0.0000      	Open  	;
+ P33             	J47             	E4              	1000.0000   	63.0000     	0.0200      	0.0000      	Open  	;
+ P34             	E4              	E6              	2300.0000   	63.0000     	0.0200      	0.0000      	Open  	;
+ P35             	E4              	E5              	1700.0000   	63.0000     	0.0200      	0.0000      	Open  	;
+ P49             	J65             	B1              	800.0000    	63.0000     	0.0200      	0.0000      	Open  	;
+ P50             	J27             	F               	500.0000    	63.0000     	0.0200      	0.0000      	Open  	;
+ M1              	T1              	Tank            	3500.0000   	74.0000     	0.0200      	0.0000      	Open  	;
+ M2              	T1              	Tank            	3500.0000   	51.0000     	0.0200      	0.0000      	Open  	;
+ TX              	Tank            	XX              	600.0000    	100.0000    	0.0200      	0.0000      	Open  	;
+
+[PUMPS]
+;ID              	Node1           	Node2           	Parameters
+ PUMP1           	BH              	T1              	HEAD PC1	;
+ PUMP2           	BH              	T1              	HEAD PC1	;
+
+[VALVES]
+;ID              	Node1           	Node2           	Diameter    	Type	Setting     	MinorLoss   
+
+[TAGS]
+
+[DEMANDS]
+;Junction        	Demand      	Pattern         	Category
+
+[STATUS]
+;ID              	Status/Setting
+
+[PATTERNS]
+;ID              	Multipliers
+;
+ 1               	0.1000      	0.1000      	0.2000      	0.3000      	0.4000      	1.0000      
+ 1               	1.2000      	1.8000      	1.4000      	1.2000      	1.1000      	1.0000      
+ 1               	0.9000      	0.9000      	1.0000      	1.5000      	1.7000      	2.0000      
+ 1               	1.9000      	1.6000      	1.1000      	0.9000      	0.4000      	0.4000      
+
+[CURVES]
+;ID              	X-Value     	Y-Value
+;PUMP: 
+ PC1             	3.7000      	72.0000     
+
+[CONTROLS]
+
+
+[RULES]
+
+
+
+
+
+
+
+
+
+
+
+
+
+[ENERGY]
+ Global Efficiency  	75.0000
+ Global Price       	0
+ Demand Charge      	0.0000
+
+[EMITTERS]
+;Junction        	Coefficient
+
+[QUALITY]
+;Node            	InitQual
+
+[SOURCES]
+;Node            	Type        	Quality     	Pattern
+
+[REACTIONS]
+;Type     	Pipe/Tank       	Coefficient
+
+
+[REACTIONS]
+ Order Bulk            	1.00
+ Order Tank            	1.00
+ Order Wall            	1
+ Global Bulk           	0.000000
+ Global Wall           	0.000000
+ Limiting Potential    	0
+ Roughness Correlation 	0
+
+[MIXING]
+;Tank            	Model
+
+[TIMES]
+ Duration           	48:00 
+ Hydraulic Timestep 	1:00 
+ Quality Timestep   	0:05 
+ Pattern Timestep   	1:00 
+ Pattern Start      	0:00 
+ Report Timestep    	1:00 
+ Report Start       	0:00 
+ Start ClockTime    	0:00:00
+ Statistic          	NONE
+
+[REPORT]
+ Status             	No
+ Summary            	No
+ Page               	0
+
+[OPTIONS]
+ Units              	LPS
+ Headloss           	D-W
+ Specific Gravity   	1.000000
+ Viscosity          	1.000000
+ Trials             	40
+ Accuracy           	0.00100000
+ CHECKFREQ          	2
+ MAXCHECK           	10
+ DAMPLIMIT          	0.00000000
+ Unbalanced         	Continue 10
+ Pattern            	1
+ Demand Multiplier  	1.0000
+ Emitter Exponent   	0.5000
+ Quality            	NONE mg/L
+ Diffusivity        	1.000000
+ Tolerance          	0.01000000
+
+[COORDINATES]
+;Node            	X-Coord         	Y-Coord
+ J22             	-4600.00        	6600.00         
+ J23             	-4600.00        	6000.00         
+ J24             	-2000.00        	6600.00         
+ J25             	-1600.00        	6000.00         
+ J26             	600.00          	6400.00         
+ J27             	2800.00         	6400.00         
+ J28             	5000.00         	6400.00         
+ J32             	-4600.00        	8200.00         
+ A1              	-6600.00        	8200.00         
+ A2              	-6600.00        	10000.00        
+ J35             	-4600.00        	10000.00        
+ J36             	-2800.00        	10000.00        
+ A3              	-2800.00        	8000.00         
+ B1              	-8400.00        	4400.00         
+ J39             	-4600.00        	4400.00         
+ B2              	-4600.00        	2400.00         
+ C               	-2000.00        	8600.00         
+ D               	-1600.00        	4000.00         
+ F               	2800.00         	8600.00         
+ E2              	600.00          	2200.00         
+ E1              	2800.00         	4400.00         
+ J46             	600.00          	4400.00         
+ J47             	3800.00         	2200.00         
+ E3              	3800.00         	4200.00         
+ E6              	1600.00         	0.00            
+ E4              	3800.00         	0.00            
+ E5              	6000.00         	0.00            
+ J65             	-6400.00        	4400.00         
+ T1              	-9600.00        	6200.00         
+ XX              	-7038.20        	6205.87         
+ BH              	-10800.00       	6200.00         
+ Tank            	-7400.00        	6200.00         
+
+[VERTICES]
+;Link            	X-Coord         	Y-Coord
+ P1              	-6800.00        	6600.00         
+ P3              	400.00          	6600.00         
+ P4              	1000.00         	6600.00         
+ P4              	2600.00         	6600.00         
+ P5              	3200.00         	6600.00         
+ P5              	4800.00         	6600.00         
+ P9              	-6800.00        	6000.00         
+ P11             	400.00          	6000.00         
+ P13             	3200.00         	6200.00         
+ P13             	4800.00         	6200.00         
+ M1              	-9200.00        	6600.00         
+ M1              	-8000.00        	6600.00         
+ M2              	-9190.09        	5796.80         
+ M2              	-8000.00        	5800.00         
+ PUMP1           	-10431.18       	6592.72         
+ PUMP1           	-9800.00        	6600.00         
+ PUMP2           	-10400.00       	5800.00         
+ PUMP2           	-9800.00        	5800.00         
+
+[LABELS]
+;X-Coord           Y-Coord          Label & Anchor Node
+
+[BACKDROP]
+ DIMENSIONS     	-11640.00       	-500.00         	6840.00         	10500.00        
+ UNITS          	None
+ FILE           	
+ OFFSET         	0.00            	0.00            
+
+[END]

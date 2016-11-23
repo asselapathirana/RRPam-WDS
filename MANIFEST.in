@@ -15,8 +15,24 @@ include CHANGELOG.rst
 include CONTRIBUTING.rst
 include LICENSE
 include README.rst
-
+include requirements.txt
+include requirements_conda.txt
 include tox.ini .travis.yml appveyor.yml
+include docs/mydictionary.txt
+
+exclude BUILDING.txt
+exclude  *.old
+exclude service
+include freeze.py  
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib 
-exclude junk
+recursive-exclude junk *
+recursive-exclude src *.rpt
+recursive-exclude tests ?.inp
+recursive-exclude tests log.txt
+recursive-exclude service *
+
+
+
+
+

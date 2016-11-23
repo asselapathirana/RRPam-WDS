@@ -14,8 +14,15 @@ Why does this file exist, and why not put this in __main__?
 
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
-import argparse
+from rrpam_wds.gui import set_pyqt4_api   # isort:skip # NOQA
 
+import argparse
+import sys
+
+
+from PyQt5.QtWidgets import QApplication
+
+from rrpam_wds.gui.dialogs import MainWindow
 
 parser = argparse.ArgumentParser(description='Command description.')
 parser.add_argument('names', metavar='NAME', nargs=argparse.ZERO_OR_MORE,
@@ -25,4 +32,9 @@ parser.add_argument('names', metavar='NAME', nargs=argparse.ZERO_OR_MORE,
 def main(args=None):
     args = parser.parse_args(args=args)
     print(args.names)
+    app = QApplication([])
+    win = MainWindow()
+    win.show()
+    sys.exit(app.exec_())
+
     return 0

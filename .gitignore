@@ -1,5 +1,6 @@
 *.py[cod]
 
+
 # C extensions
 *.so
 
@@ -21,7 +22,7 @@ lib
 lib64
 venv*/
 pyvenv*/
-
+tests/log.txt
 # Installer logs
 pip-log.txt
 
@@ -62,5 +63,10 @@ docs/_build
 .bootstrap
 .appveyor.token
 *.bak
-
 junk
+
+?.inp
+*.rpt
+en?????? 
+log.txt
+#temporary files  created by epanet when running in POSIX

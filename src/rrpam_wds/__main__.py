@@ -8,8 +8,10 @@ Why does this file exist, and why __main__? For more info, read:
 - https://docs.python.org/2/using/cmdline.html#cmdoption-m
 - https://docs.python.org/3/using/cmdline.html#cmdoption-m
 """
+from rrpam_wds.gui import set_pyqt4_api  # isort:skip # NOQA
+
 from rrpam_wds.cli import main
 
-
 if __name__ == "__main__":   # pragma: no cover
+    print("Tweet")
     main()
