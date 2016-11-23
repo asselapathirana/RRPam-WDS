@@ -47,7 +47,7 @@ install:
   # Replace dep1 dep2 ... with your dependencies
   - conda create -y -c anaconda --name $PYN python=$PY `head -n1 requirements_conda.txt`	
   - source activate $PYN 
-  - python ./conda/installreq.py
+  - python ./service/installreq.py
   - python setup.py install
     # Builds Complete
   - virtualenv --version
