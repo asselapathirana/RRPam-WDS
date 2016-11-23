@@ -1,7 +1,7 @@
 # https://ci.appveyor.com/project/asselapathirana/rrpam-wds
 
-matrix:
-  fast_finish: true
+#matrix:
+#  fast_finish: true
 
 #branches:
 #  only:
