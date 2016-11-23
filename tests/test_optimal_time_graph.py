@@ -1,5 +1,7 @@
 import os
 import sys
+from rrpam_wds.gui import set_pyqt4_api # isort:skip
+
 import time
 import unittest
 
@@ -7,12 +9,16 @@ import numpy as np
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
 from numpy.testing import assert_array_almost_equal
+
+
+
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 
+from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.gui.dialogs import optimalTimeGraph, CurveDialogWithClosable
+from rrpam_wds.gui.dialogs import optimalTimeGraph
 
 
 class test_optimal_time_graph(unittest.TestCase):

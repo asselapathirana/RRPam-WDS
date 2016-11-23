@@ -1,4 +1,7 @@
+from rrpam_wds.gui import set_pyqt4_api # isort:skip
+
 import sys
+
 
 from guiqwt.builder import make
 from guiqwt.plot import CurveDialog
@@ -12,6 +15,8 @@ from PyQt4.QtGui import QMdiArea
 
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
+
+
 
 
 class CurveDialogWithClosable(CurveDialog):

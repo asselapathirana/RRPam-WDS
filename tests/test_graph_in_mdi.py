@@ -1,3 +1,4 @@
+from rrpam_wds.gui import set_pyqt4_api # isort:skip
 import os
 import sys
 import time
@@ -5,6 +6,8 @@ import unittest
 
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
+
+
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest

@@ -15,9 +15,15 @@ Why does this file exist, and why not put this in __main__?
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
 import argparse
-from PyQt4.QtGui import QApplication
-from rrpam_wds.gui.dialogs import MainWindow
 import sys
+
+import sip
+sip.setapi('QString', 2)
+
+
+from PyQt4.QtGui import QApplication
+
+from rrpam_wds.gui.dialogs import MainWindow
 
 parser = argparse.ArgumentParser(description='Command description.')
 parser.add_argument('names', metavar='NAME', nargs=argparse.ZERO_OR_MORE,

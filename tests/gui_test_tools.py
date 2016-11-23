@@ -1,9 +1,12 @@
 
+from uuid import uuid4
+
+import sip
+sip.setapi('QString', 2)
+
 from PyQt4 import QtCore
 from PyQt4.QtGui import QMainWindow
 from PyQt4.QtGui import QMdiArea
-
-from uuid import uuid4
 
 
 class ApplicationWindow(QMainWindow):

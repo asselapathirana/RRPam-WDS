@@ -34,7 +34,7 @@ do
 
 
     check-manifest 
-    flake8 src tests conda setup.py 
+    flake8 src service/*.py tests setup.py  freeze.py
     isort --verbose --check-only --diff --recursive src tests setup.py
 
     python ./service/installreq.py 

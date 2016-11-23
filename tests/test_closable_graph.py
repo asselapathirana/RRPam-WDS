@@ -1,11 +1,10 @@
+from rrpam_wds.gui import set_pyqt4_api # isort:skip
 import os
 import sys
 import time
 import unittest
 
-
 from gui_test_tools import uniquestring
-
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
 from PyQt4.QtCore import Qt
@@ -13,7 +12,8 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtTest import QTest
 
 from rrpam_wds.constants import units
-from rrpam_wds.gui.dialogs import MainWindow, CurveDialogWithClosable
+from rrpam_wds.gui.dialogs import CurveDialogWithClosable
+from rrpam_wds.gui.dialogs import MainWindow
 
 
 class mdi_graph_test(unittest.TestCase):
