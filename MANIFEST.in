@@ -21,14 +21,16 @@ include tox.ini .travis.yml appveyor.yml
 include docs/mydictionary.txt
 
 exclude BUILDING.txt
-exclude conda 
+exclude  *.old
+exclude service
+include freeze.py  
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib 
 recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude tests ?.inp
 recursive-exclude tests log.txt
-recursive-exclude conda *
+recursive-exclude service *
 
 
 

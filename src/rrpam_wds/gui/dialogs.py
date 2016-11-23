@@ -56,7 +56,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
                                                panels=None)
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
-        if( year is None or damagecost is None or renewalcost is None):
+        if(year is None or damagecost is None or renewalcost is None):
             pass
         else:
             self.plotCurveSet(name, year, damagecost, renewalcost)

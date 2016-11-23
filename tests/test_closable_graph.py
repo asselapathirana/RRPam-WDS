@@ -35,28 +35,28 @@ class mdi_graph_test(unittest.TestCase):
         pass
 
     def test_closable_graph_can_be_closed_by_user(self):
-        dummytitle="dummy title %s" % (uniquestring())
-        title="This window: %s" % (uniquestring())
-        self.dummy=CurveDialogWithClosable(wintitle=dummytitle)
+        dummytitle = "dummy title %s" % (uniquestring())
+        title = "This window: %s" % (uniquestring())
+        self.dummy = CurveDialogWithClosable(wintitle=dummytitle)
         self.aw.addSubWindow(self.dummy)
         self.graph = CurveDialogWithClosable(wintitle=title)
         self.aw.addSubWindow(self.graph)
-        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),title)
+        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), title)
         self.aw.mdi.subWindowList()[-1].close()
-        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),dummytitle)
-   
+        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), dummytitle)
+
     def test_closable_graph_with_cloable_false_can_not_be_closed_by_user_but_will_be_minized(self):
-        dummytitle="dummy title %s" % (uniquestring())
-        title="This window: %s" % (uniquestring())
-        self.dummy=CurveDialogWithClosable(wintitle=dummytitle)
+        dummytitle = "dummy title %s" % (uniquestring())
+        title = "This window: %s" % (uniquestring())
+        self.dummy = CurveDialogWithClosable(wintitle=dummytitle)
         self.aw.addSubWindow(self.dummy)
         self.graph = CurveDialogWithClosable(wintitle=title)
         self.graph.setClosable(False)
         self.aw.addSubWindow(self.graph)
-        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),title)
+        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), title)
         self.assertFalse(self.aw.mdi.subWindowList()[-1].isMinimized())
         self.aw.mdi.subWindowList()[-1].close()
-        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(),title)        
+        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), title)
         self.assertTrue(self.aw.mdi.subWindowList()[-1].isMinimized())
 
     def runTest(self):

@@ -32,20 +32,19 @@ class test_optimal_time_graph(unittest.TestCase):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw=None
+        self.aw = None
         pass
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
         pass
-    
+
     def test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
         tg1 = optimalTimeGraph("set1", None, None, None, parent=self.aw)
-        self.assertIsInstance(tg1,CurveDialogWithClosable)
+        self.assertIsInstance(tg1, CurveDialogWithClosable)
         self.aw.addSubWindow(tg1)
-
 
     def test_optimalTimeGraph_creates_right_three_curves(self):
         from guiqwt.curve import CurveItem

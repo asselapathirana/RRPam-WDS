@@ -16,8 +16,7 @@ Why does this file exist, and why not put this in __main__?
 """
 import argparse
 from PyQt4.QtGui import QApplication
-from PyQt4.QtTest import QTest
-from rrpam_wds.gui.dialogs import MainWindow 
+from rrpam_wds.gui.dialogs import MainWindow
 import sys
 
 parser = argparse.ArgumentParser(description='Command description.')
@@ -28,9 +27,9 @@ parser.add_argument('names', metavar='NAME', nargs=argparse.ZERO_OR_MORE,
 def main(args=None):
     args = parser.parse_args(args=args)
     print(args.names)
-    app=QApplication([])
-    win=MainWindow()
+    app = QApplication([])
+    win = MainWindow()
     win.show()
     sys.exit(app.exec_())
-    
+
     return 0
