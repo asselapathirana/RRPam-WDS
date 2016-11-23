@@ -1,4 +1,4 @@
-from rrpam_wds.gui import set_pyqt4_api # isort:skip
+from rrpam_wds.gui import set_pyqt4_api   # isort:skip # NOQA
 
 import sys
 
@@ -15,8 +15,6 @@ from PyQt4.QtGui import QMdiArea
 
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
-
-
 
 
 class CurveDialogWithClosable(CurveDialog):
@@ -68,7 +66,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
     def plotCurveSet(self, name, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
-        dc = make.curve(year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
+        dc = make.curve(
+                        year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
                         linewidth=3, marker=None,
                         markersize=None,
                         markerfacecolor=None,
@@ -76,7 +75,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
                         curvestyle=None, baseline=None,
                         xaxis="bottom", yaxis="left")
         self.get_plot().add_item(dc)
-        rc = make.curve(year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
+        rc = make.curve(
+                        year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
                         linewidth=3, marker=None,
                         markersize=None,
                         markerfacecolor=None,
@@ -84,7 +84,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
                         curvestyle=None, baseline=None,
                         xaxis="bottom", yaxis="left")
         self.get_plot().add_item(rc)
-        tc = make.curve(year, damagecost + renewalcost, title="Total Cost", color=c, linestyle=None,
+        tc = make.curve(
+                        year, damagecost + renewalcost, title="Total Cost", color=c, linestyle=None,
                         linewidth=5, marker=None,
                         markersize=None,
                         markerfacecolor=None,

@@ -14,11 +14,10 @@ Why does this file exist, and why not put this in __main__?
 
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
+from rrpam_wds.gui import set_pyqt4_api   # isort:skip # NOQA
+
 import argparse
 import sys
-
-import sip
-sip.setapi('QString', 2)
 
 
 from PyQt4.QtGui import QApplication

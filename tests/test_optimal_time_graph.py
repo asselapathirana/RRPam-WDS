@@ -1,7 +1,6 @@
+from rrpam_wds.gui import set_pyqt4_api  # isort:skip # NOQA
 import os
 import sys
-from rrpam_wds.gui import set_pyqt4_api # isort:skip
-
 import time
 import unittest
 
