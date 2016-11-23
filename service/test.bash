@@ -37,7 +37,7 @@ do
     flake8 src tests conda setup.py 
     isort --verbose --check-only --diff --recursive src tests setup.py
 
-    python ./conda/installreq.py 
+    python ./service/installreq.py 
     pytest  --cov --cov-report=term-missing -vv
     coverage combine --append
     coverage report

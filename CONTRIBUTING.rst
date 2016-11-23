@@ -57,7 +57,7 @@ To set up `RRPam-WDS` for local development:
 
 	(b) Then, from the top directory (where setup.py is)  run the command::
 
-   ./conda/test.bash           
+   ./service/test.bash           
 
 
 5. Commit your changes and push your branch to GitHub::

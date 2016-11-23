@@ -79,7 +79,7 @@ Development
 
 To run the all tests (after installing miniconda `http://conda.pydata.org/miniconda.html` in your system) run::
 
-    ./conda/test.bash
+    ./service/test.bash
 
 Note, to combine the coverage data from all the tox environments run:
 

@@ -3,7 +3,7 @@
 #    they are mainatined in requirements_conda.txt file (its a hack, need to have only one line with requiremets in it!)
 #
 # 2.  pip install -r requirements would not work for this. 
-#     use ./conda/installreq.py instead
+#     use ./service/installreq.py instead
 pytest
 pytest-travis-fold
 

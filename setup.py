@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 setup(
     name='rrpam-wds',
     version='0.1.0',
-    license='BSD',
+    license='GPLV3',
     description='Risk-based renewal planning for asset management of water distribution systems',
     long_description='%s\n%s' % (
         re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
