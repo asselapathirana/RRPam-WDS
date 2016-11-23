@@ -7,9 +7,9 @@ import unittest
 from gui_test_tools import uniquestring
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.constants import units
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
@@ -35,24 +35,27 @@ class mdi_graph_test(unittest.TestCase):
         pass
 
     def test_closable_graph_can_be_closed_by_user(self):
-        dummytitle = "dummy title %s" % (uniquestring())
-        title = "This window: %s" % (uniquestring())
+        dummytitle = uniquestring()
+        title = uniquestring()
         self.dummy = CurveDialogWithClosable(wintitle=dummytitle)
         self.aw.addSubWindow(self.dummy)
         self.graph = CurveDialogWithClosable(wintitle=title)
         self.aw.addSubWindow(self.graph)
+        self.assertNotEqual(self.graph.windowTitle, self.dummy.windowTitle)
         self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), title)
         self.aw.mdi.subWindowList()[-1].close()
-        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), dummytitle)
+        self.assertEqual(
+            self.aw.mdi.subWindowList()[-1].windowTitle(), dummytitle)
 
     def test_closable_graph_closable_false_minized(self):
-        dummytitle = "%s" % (uniquestring())
-        title = "%s" % (uniquestring())
+        dummytitle = uniquestring()
+        title = uniquestring()
         self.dummy = CurveDialogWithClosable(wintitle=dummytitle)
         self.aw.addSubWindow(self.dummy)
         self.graph = CurveDialogWithClosable(wintitle=title)
         self.graph.setClosable(False)
         self.aw.addSubWindow(self.graph)
+        self.assertNotEqual(self.graph.windowTitle, self.dummy.windowTitle)
         self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), title)
         self.assertFalse(self.aw.mdi.subWindowList()[-1].isMinimized())
         self.aw.mdi.subWindowList()[-1].close()
@@ -79,4 +82,4 @@ def drive(test=True):  # pragma: no cover
         sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    drive(test=True)

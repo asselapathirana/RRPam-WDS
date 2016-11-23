@@ -6,11 +6,9 @@ import unittest
 
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
-
-
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.constants import units
 from rrpam_wds.gui.dialogs import MainWindow
@@ -35,7 +33,8 @@ class mdi_graph_test(unittest.TestCase):
         pass
 
     def test_graph_window_properly_added_to_MDI(self):
-        self.graph = CurveDialog(wintitle="XXX YYH #DKLJLKFE Kadk #kdfd", icon="guiqwt.svg",
+        self.graph = CurveDialog(
+            wintitle="XXX YYH #DKLJLKFE Kadk #kdfd", icon="guiqwt.svg",
                                  edit=False,
                                  toolbar=True,
                                  options=None,
@@ -43,7 +42,8 @@ class mdi_graph_test(unittest.TestCase):
                                  panels=None)
 
         self.aw.addSubWindow(self.graph)
-        self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), self.graph.windowTitle())
+        self.assertEqual(self.aw.mdi.subWindowList()[
+                         -1].windowTitle(), self.graph.windowTitle())
 
     def runTest(self):
         """ otherwise python 2.7 returns an error

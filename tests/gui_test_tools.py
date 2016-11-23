@@ -1,11 +1,9 @@
 from rrpam_wds.gui import set_pyqt4_api   # isort:skip # NOQA
 from uuid import uuid4
 
-from PyQt4 import QtCore
-from PyQt4.QtGui import QMainWindow
-from PyQt4.QtGui import QMdiArea
-
-
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMdiArea
 
 
 class ApplicationWindow(QMainWindow):

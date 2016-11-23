@@ -7,11 +7,11 @@ from guiqwt.builder import make
 from guiqwt.plot import CurveDialog
 from numpy import linspace
 from numpy import sin
-from PyQt4 import QtCore
-from PyQt4.QtGui import QAction
-from PyQt4.QtGui import QApplication
-from PyQt4.QtGui import QMainWindow
-from PyQt4.QtGui import QMdiArea
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMdiArea
 
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
@@ -46,8 +46,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
         if("ylabel" not in options):
             options['ylabel'] = "Cost (%s)" % (units)
 
-        if("wintitle" not in options):
-            options['wintitle'] = "Costs against time"
+        # if("wintitle" not in options):
+        #     options['wintitle'] = "Costs against time"
 
         self.curvesets = []
 
@@ -67,31 +67,31 @@ class optimalTimeGraph(CurveDialogWithClosable):
     def plotCurveSet(self, name, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
         dc = make.curve(
-                        year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
-                        linewidth=3, marker=None,
-                        markersize=None,
-                        markerfacecolor=None,
-                        markeredgecolor=None, shade=None,
-                        curvestyle=None, baseline=None,
-                        xaxis="bottom", yaxis="left")
+            year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
+            linewidth=3, marker=None,
+            markersize=None,
+            markerfacecolor=None,
+            markeredgecolor=None, shade=None,
+            curvestyle=None, baseline=None,
+            xaxis="bottom", yaxis="left")
         self.get_plot().add_item(dc)
         rc = make.curve(
-                        year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
-                        linewidth=3, marker=None,
-                        markersize=None,
-                        markerfacecolor=None,
-                        markeredgecolor=None, shade=None,
-                        curvestyle=None, baseline=None,
-                        xaxis="bottom", yaxis="left")
+            year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
+            linewidth=3, marker=None,
+            markersize=None,
+            markerfacecolor=None,
+            markeredgecolor=None, shade=None,
+            curvestyle=None, baseline=None,
+            xaxis="bottom", yaxis="left")
         self.get_plot().add_item(rc)
         tc = make.curve(
-                        year, damagecost + renewalcost, title="Total Cost", color=c, linestyle=None,
-                        linewidth=5, marker=None,
-                        markersize=None,
-                        markerfacecolor=None,
-                        markeredgecolor=None, shade=None,
-                        curvestyle="Lines", baseline=None,
-                        xaxis="bottom", yaxis="left")
+            year, damagecost + renewalcost, title="Total Cost", color=c, linestyle=None,
+            linewidth=5, marker=None,
+            markersize=None,
+            markerfacecolor=None,
+            markeredgecolor=None, shade=None,
+            curvestyle="Lines", baseline=None,
+            xaxis="bottom", yaxis="left")
         self.get_plot().add_item(tc)
         self.curvesets.append([name, dc, tc, rc])
 

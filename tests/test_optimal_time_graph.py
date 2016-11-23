@@ -8,12 +8,9 @@ import numpy as np
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
 from numpy.testing import assert_array_almost_equal
-
-
-
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
@@ -56,19 +53,24 @@ class test_optimal_time_graph(unittest.TestCase):
         year = np.arange(0, 50, 1)
         damagecost = year**2.1
         renewalcost = (100 - year)**1.9
-        tg1 = optimalTimeGraph("set1", year, damagecost, renewalcost, parent=self.aw)
+        tg1 = optimalTimeGraph(
+            "set1", year, damagecost, renewalcost, parent=self.aw)
         self.aw.addSubWindow(tg1)
-        it = [x for x in tg1.get_plot().get_items() if (isinstance(x, CurveItem))]
+        it = [x for x in tg1.get_plot().get_items() if (
+            isinstance(x, CurveItem))]
         self.assertEqual(len(it), 3)
         assert_array_almost_equal(it[0].get_data(), (year, damagecost))
         assert_array_almost_equal(it[1].get_data(), (year, renewalcost))
-        assert_array_almost_equal(it[2].get_data(), (year, (damagecost + renewalcost)))
+        assert_array_almost_equal(
+            it[2].get_data(), (year, (damagecost + renewalcost)))
         tg1.plotCurveSet("set2", year, damagecost + 2000, renewalcost * 1.2)
-        it = [x for x in tg1.get_plot().get_items() if (isinstance(x, CurveItem))]
+        it = [x for x in tg1.get_plot().get_items() if (
+            isinstance(x, CurveItem))]
         self.assertEqual(len(it), 6)
         assert_array_almost_equal(it[3].get_data(), (year, damagecost + 2000))
         assert_array_almost_equal(it[4].get_data(), (year, renewalcost * 1.2))
-        assert_array_almost_equal(it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
+        assert_array_almost_equal(
+            it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
         pass
 
 

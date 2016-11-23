@@ -23,6 +23,7 @@ do
        echo "environment $env already exist. Reusing ... "
     fi
     source activate $env
+    pip install  -r ./requirements.txt
     pip install  -r ./docs/requirements.txt
     pip install    sphinxcontrib-spelling
     pip install    pyenchant

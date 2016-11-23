@@ -20,7 +20,7 @@ import argparse
 import sys
 
 
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
 
