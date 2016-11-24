@@ -1,5 +1,6 @@
 """ pyton 2.7 by deafult users pyqtv1 api. That runs into conflict with guidata
 so, import this file first thing to try to avoid that. """
+from PyQt5.QtCore import QObject
 import sip
 
 sip.setapi(u'QDate', 2)

@@ -1,4 +1,4 @@
-from rrpam_wds.gui import set_pyqt4_api  # isort:skip # NOQA
+from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 
 import runpy
 
