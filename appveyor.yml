@@ -76,6 +76,7 @@ install:
 #  - if "%USE_QT_API%" == "PySide" conda install qt=4.* pyside
   #- "conda install ciocheck -c conda-forge"
   - choco install -y InnoSetup
+  - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
   - "python setup.py develop"
 
 
