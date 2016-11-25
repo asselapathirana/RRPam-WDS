@@ -60,7 +60,7 @@ Overview
 
 Risk-based renewal planning for asset management of water distribution systems
 
-* Free software: BSD license
+* Free software: The GNU General Public License version 3.0
 
 Installation
 ============

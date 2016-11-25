@@ -70,3 +70,5 @@ junk
 en?????? 
 log.txt
 #temporary files  created by epanet when running in POSIX
+service/rrpamwds_setup.iss
+service/setup.exe

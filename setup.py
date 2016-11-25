@@ -14,6 +14,8 @@ from os.path import splitext
 from setuptools import find_packages
 from setuptools import setup
 
+from setupdata import *
+
 
 def read(*names, **kwargs):
     return io.open(
@@ -23,17 +25,17 @@ def read(*names, **kwargs):
 
 
 setup(
-    name='rrpam-wds',
-    version='0.1.0',
-    license='GPLV3',
-    description='Risk-based renewal planning for asset management of water distribution systems',
+    name=name,
+    version=version,
+    license=license,
+    description=description,
     long_description='%s\n%s' % (
         re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
         re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
     ),
-    author='Assela Pathirana',
-    author_email='assela@pathirana.net',
-    url='https://github.com/asselapathirana/RRPam-WDS',
+    author=author,
+    author_email=author_email,
+    url=url,
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
