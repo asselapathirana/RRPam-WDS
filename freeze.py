@@ -3,14 +3,17 @@ import os
 import shutil
 from setupdata import *
 
-qtlibloc=os.environ['QT_QPA_PLATFORM_PLUGIN_PATH']
+qtlibloc=None
+qtlibloc=os.environ.get('QT_QPA_PLATFORM_PLUGIN_PATH',None)
 if (not qtlibloc):
     p=os.path.join(sys.exec_prefix,"Library""plugins""platforms")
     print("I did not find QT_QPA_PLATFORM_PLUGIN_PATH set. So, trying usual place ...")
-    if (os.direxists(p)):
+    if (os.path.isdir(p)):
         qtlibloc=p
         os.environ['QT_QPA_PLATFORM_PLUGIN_PATH']=qtlibloc
         print ("Set QT_QPA_PLATFORM_PLUGIN_PATH=%s" %(p))
+    else: 
+        print("I can not find it!")
         
 if (not qtlibloc):
     print (" Need to define environmental variable QT_QPA_PLATFORM_PLUGIN_PATH pointing to qt dll files. ")
