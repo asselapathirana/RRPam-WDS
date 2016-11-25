@@ -87,7 +87,7 @@ test_script:
   - if "%PYTHON_VERSION%" == "3.4" python freeze.py
 
 after_test:
-  - if "%PYTHON_VERSION% == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss
+  - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss
 
 artifacts:
   - path: service\*.exe 
