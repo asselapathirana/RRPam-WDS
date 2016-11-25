@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 setup(
     name='rrpam-wds',
     version='0.1.0',
-    license='BSD',
+    license='GPLV3',
     description='Risk-based renewal planning for asset management of water distribution systems',
     long_description='%s\n%s' % (
         re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
@@ -64,7 +64,12 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
+    setup_requires=[
+        "epanettools>=0.8.0",
+
+    ],
     install_requires=[
+        "epanettools>=0.8.0",
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
     extras_require={

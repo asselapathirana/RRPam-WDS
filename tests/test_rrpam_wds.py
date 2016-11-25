@@ -1,3 +1,5 @@
+from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
+
 import runpy
 
 import pytest
@@ -5,11 +7,5 @@ import pytest
 import rrpam_wds
 from rrpam_wds.cli import main
 
-
-def test_main():
-    assert main([])==0
-    
-    
-    
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     test_main()

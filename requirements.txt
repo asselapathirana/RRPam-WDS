@@ -1,0 +1,21 @@
+#NOTE: 
+# 1. Some requirements are directly installed with "conda env create" 
+#    they are mainatined in requirements_conda.txt file (its a hack, need to have only one line with requiremets in it!)
+#
+# 2.  pip install -r requirements would not work for this. 
+#     use ./service/installreq.py instead
+pytest
+pytest-travis-fold
+
+EPANETTOOLS >= 0.9.2
+PythonQwt
+guidata 
+#guiqwt should come later than guidata
+guiqwt
+ctox 
+mock 
+coveralls
+pytest-cov
+docutils
+cx_freeze
+

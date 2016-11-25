@@ -1,136 +1,85 @@
-version: '{branch}-{build}'
-build: off
-cache:
-  - '%LOCALAPPDATA%\pip\Cache'
+# https://ci.appveyor.com/project/asselapathirana/rrpam-wds
+
+matrix:
+  fast_finish: true
+
+#branches:
+#  only:
+#    - master 
+
 environment:
   global:
-    WITH_COMPILER: 'cmd /E:ON /V:ON /C .\ci\appveyor-with-compiler.cmd'
+    # Used by qthelpers to close widgets after a defined time
+    TEST_CI: True
+    TEST_CI_APP: True
+    # Environment variables used by astropy helpers
+    PYTHON: "C:\\conda"
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci-helpers\\appveyor\\windows_sdk.cmd"
+    #PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
+    #                  # of 32 bit and 64 bit builds are needed, move this
+    #                  # to the matrix section.
+    CONDA_DEPENDENCIES: "pyqt=5.*  numpy scipy pillow Cython" # keep this sync with requirements_conda.txt
+    # need to automate reading in that file and remove hardcoding these!
+
   matrix:
-    - TOXENV: check
-      PYTHON_HOME: C:\Python27
-      PYTHON_VERSION: '2.7'
-      PYTHON_ARCH: '32'
 
-    - TOXENV: '2.7-cover'
-      TOXPYTHON: C:\Python27\python.exe
-      PYTHON_HOME: C:\Python27
-      PYTHON_VERSION: '2.7'
-      PYTHON_ARCH: '32'
+# PyQt5
+#    - PYTHON_VERSION: "3.5"
+#      USE_QT_API: "PyQt5"
+#      PYTEST_QT_API: "pyqt5"
+    - PYTHON_VERSION: "3.4"  
+      USE_QT_API: "PyQt5"
+      PYTHON_ARCH: "64"
+      PLATFORM: "x64"
+      PYTEST_QT_API: "pyqt5"
+    - PYTHON_VERSION: "2.7"
+      USE_QT_API: "PyQt5"
+      PYTEST_QT_API: "pyqt5"
+      PYTHON_ARCH: "64"
+      PLATFORM: "x64"
+    - PYTHON_VERSION: "3.4"  
+      USE_QT_API: "PyQt5"
+      PYTHON_ARCH: "32"
+      PLATFORM: "x86"
+      PYTEST_QT_API: "pyqt5"
+    - PYTHON_VERSION: "2.7"
+      USE_QT_API: "PyQt5"
+      PYTEST_QT_API: "pyqt5"
+      PYTHON_ARCH: "32"
+      PLATFORM: "x86"
 
-    - TOXENV: '2.7-cover'
-      TOXPYTHON: C:\Python27-x64\python.exe
-      WINDOWS_SDK_VERSION: v7.0
-      PYTHON_HOME: C:\Python27-x64
-      PYTHON_VERSION: '2.7'
-      PYTHON_ARCH: '64'
 
-    - TOXENV: '2.7-nocov'
-      TOXPYTHON: C:\Python27\python.exe
-      PYTHON_HOME: C:\Python27
-      PYTHON_VERSION: '2.7'
-      PYTHON_ARCH: '32'
+#platform:
+#  -x64
 
-    - TOXENV: '2.7-nocov'
-      TOXPYTHON: C:\Python27-x64\python.exe
-      WINDOWS_SDK_VERSION: v7.0
-      PYTHON_HOME: C:\Python27-x64
-      PYTHON_VERSION: '2.7'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: '3.3-cover'
-      TOXPYTHON: C:\Python33\python.exe
-      PYTHON_HOME: C:\Python33
-      PYTHON_VERSION: '3.3'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.3-cover'
-      TOXPYTHON: C:\Python33-x64\python.exe
-      WINDOWS_SDK_VERSION: v7.1
-      PYTHON_HOME: C:\Python33-x64
-      PYTHON_VERSION: '3.3'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: '3.3-nocov'
-      TOXPYTHON: C:\Python33\python.exe
-      PYTHON_HOME: C:\Python33
-      PYTHON_VERSION: '3.3'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.3-nocov'
-      TOXPYTHON: C:\Python33-x64\python.exe
-      WINDOWS_SDK_VERSION: v7.1
-      PYTHON_HOME: C:\Python33-x64
-      PYTHON_VERSION: '3.3'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: '3.4-cover'
-      TOXPYTHON: C:\Python34\python.exe
-      PYTHON_HOME: C:\Python34
-      PYTHON_VERSION: '3.4'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.4-cover'
-      TOXPYTHON: C:\Python34-x64\python.exe
-      WINDOWS_SDK_VERSION: v7.1
-      PYTHON_HOME: C:\Python34-x64
-      PYTHON_VERSION: '3.4'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: '3.4-nocov'
-      TOXPYTHON: C:\Python34\python.exe
-      PYTHON_HOME: C:\Python34
-      PYTHON_VERSION: '3.4'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.4-nocov'
-      TOXPYTHON: C:\Python34-x64\python.exe
-      WINDOWS_SDK_VERSION: v7.1
-      PYTHON_HOME: C:\Python34-x64
-      PYTHON_VERSION: '3.4'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: '3.5-cover'
-      TOXPYTHON: C:\Python35\python.exe
-      PYTHON_HOME: C:\Python35
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.5-cover'
-      TOXPYTHON: C:\Python35-x64\python.exe
-      PYTHON_HOME: C:\Python35-x64
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: '3.5-nocov'
-      TOXPYTHON: C:\Python35\python.exe
-      PYTHON_HOME: C:\Python35
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: '3.5-nocov'
-      TOXPYTHON: C:\Python35-x64\python.exe
-      PYTHON_HOME: C:\Python35-x64
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '64'
-
-init:
-  - ps: echo $env:TOXENV
-  - ps: ls C:\Python*
 install:
-  - python -u ci\appveyor-bootstrap.py
-  - '%PYTHON_HOME%\Scripts\virtualenv --version'
-  - '%PYTHON_HOME%\Scripts\easy_install --version'
-  - '%PYTHON_HOME%\Scripts\pip --version'
-  - '%PYTHON_HOME%\Scripts\tox --version'
+  # If there is a newer build queued for the same PR, cancel this one.
+  # The AppVeyor 'rollout builds' option is supposed to serve the same
+  # purpose but it is problematic because it tends to cancel builds pushed
+  # directly to master instead of just PR builds (or the converse).
+  # credits: JuliaLang developers.
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
+      https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
+      Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
+        throw "There are newer queued builds for this pull request, failing early." }
+  # Astropy ci-helpers. See https://github.com/astropy/ci-helpers
+  - "git clone git://github.com/astropy/ci-helpers.git"
+  - "powershell ci-helpers/appveyor/install-miniconda.ps1"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "activate test"
+  # Install pip dependencies.
+  - "python ./service/installreq.py " # install the rest of the dependancies using pip
+#  # Install the selected Qt version
+#  - if "%USE_QT_API%" == "PyQt5" conda install qt=5.* pyqt=5.*
+#  - if "%USE_QT_API%" == "PySide2" conda install qt=5.* pyside2
+#  - if "%USE_QT_API%" == "PyQt4" conda install qt=4.* pyqt=4.*
+#  - if "%USE_QT_API%" == "PySide" conda install qt=4.* pyside
+  #- "conda install ciocheck -c conda-forge"
+  - "python setup.py develop"
+
+
+# Not a .NET project, we build in the install step instead
+build: false
+
 test_script:
-  - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\tox'
-
-on_failure:
-  - ps: dir "env:"
-  - ps: get-content .tox\*\log\*
-artifacts:
-  - path: dist\*
-
-### To enable remote debugging uncomment this (also, see: http://www.appveyor.com/docs/how-to/rdp-to-build-worker):
-# on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - pytest -v
