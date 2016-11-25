@@ -75,6 +75,7 @@ install:
 #  - if "%USE_QT_API%" == "PyQt4" conda install qt=4.* pyqt=4.*
 #  - if "%USE_QT_API%" == "PySide" conda install qt=4.* pyside
   #- "conda install ciocheck -c conda-forge"
+  - choco install -y InnoSetup
   - "python setup.py develop"
 
 
@@ -83,3 +84,11 @@ build: false
 
 test_script:
   - pytest -v
+  - if "%PYTHON_VERSION% == "3.4" python freeze.py
+
+after_test:
+  - if "%PYTHON_VERSION% == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss
+
+artifacts:
+  - path: service\*.exe 
+
