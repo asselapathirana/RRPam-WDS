@@ -67,7 +67,6 @@ install:
   - "powershell ci-helpers/appveyor/install-miniconda.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "activate test"
-  - "python freeze.py"
   # Install pip dependencies.
   - "python ./service/installreq.py " # install the rest of the dependancies using pip
 #  # Install the selected Qt version
