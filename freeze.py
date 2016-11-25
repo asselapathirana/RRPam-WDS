@@ -7,7 +7,7 @@ qtlibloc=None
 qtlibloc=os.environ.get('QT_QPA_PLATFORM_PLUGIN_PATH',None)
 if (not qtlibloc):
     p=os.path.join(sys.exec_prefix,"Library""plugins""platforms")
-    print("I did not find QT_QPA_PLATFORM_PLUGIN_PATH set. So, trying usual place ...")
+    print("I did not find QT_QPA_PLATFORM_PLUGIN_PATH set. So, trying usual place %s ..." % (p))
     if (os.path.isdir(p)):
         qtlibloc=p
         os.environ['QT_QPA_PLATFORM_PLUGIN_PATH']=qtlibloc
