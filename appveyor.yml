@@ -86,6 +86,7 @@ build: false
 
 test_script:
   - pytest -v
+  - conda env export > service\appveyor_environment.yml
   - if "%PYTHON_VERSION%" == "3.4" python freeze.py > service\freeze.log
 
 after_test:
@@ -93,10 +94,11 @@ after_test:
 #  - if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\*mkl*.dll" .\dist\  /y
 #  - if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\conda-meta\mkl*.json" .\dist\ /y
 #end hack
-  - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss
+  - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss > service\innosetup.log
 
 artifacts:
   - path: service\*.exe 
   - path: service\*.log
+  - path: service\appveyor_environment.yml
   
 
