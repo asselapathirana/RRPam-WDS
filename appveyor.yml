@@ -89,8 +89,8 @@ test_script:
 
 after_test:
 #hack! https://sourceforge.net/p/cx-freeze/mailman/message/34924928/
-  - if "%PYTHON_VERSION%" == "3.4" c:\Program Files\Miniconda3\envs\rrpamwds34\Library\bin\*mkl*.dll .\dist\  /y
-  - if "%PYTHON_VERSION%" == "3.4" c:\Program Files\Miniconda3\envs\rrpamwds34\conda-meta\mkl*.json .\dist\ /y
+  - if "%PYTHON_VERSION%" == "3.4" C:\conda\envs\test\Library\bin\*mkl*.dll .\dist\  /y
+  - if "%PYTHON_VERSION%" == "3.4" C:\conda\envs\test\conda-meta\mkl*.json .\dist\ /y
 #end hack
   - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss
 
