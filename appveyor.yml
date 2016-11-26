@@ -18,7 +18,7 @@ environment:
     #PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
     #                  # of 32 bit and 64 bit builds are needed, move this
     #                  # to the matrix section.
-    CONDA_DEPENDENCIES: "pyqt=5.*  numpy=1.10.* scipy pillow Cython" # keep this sync with requirements_conda.txt
+    CONDA_DEPENDENCIES: "pyqt=5.*  numpy scipy pillow Cython" # keep this sync with requirements_conda.txt
     # need to automate reading in that file and remove hardcoding these!
 
   matrix:
@@ -78,6 +78,7 @@ install:
   - choco install -y InnoSetup
   - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
   - "python setup.py develop"
+  - conda search numpy
 
 
 # Not a .NET project, we build in the install step instead
