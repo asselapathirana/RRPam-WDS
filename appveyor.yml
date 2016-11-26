@@ -94,7 +94,7 @@ after_test:
 - if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\libiomp5md.dll" .\dist\  /y
 - if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\mkl_core.dll" .\dist\ /y
 #end hack
-  - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss > service\innosetup.log
+- if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss > service\innosetup.log
 
 artifacts:
   - path: service\*.exe 
