@@ -96,9 +96,8 @@ artifacts:
   - path: service\*.log
   - path: service\appveyor_environment.yml
   
-on_success:
 
-install:
+on_success:
 - ps: >-
     If ($env:HOOK_BACK -Match "True") {
       mkdir "c:\rrpam-wds"
