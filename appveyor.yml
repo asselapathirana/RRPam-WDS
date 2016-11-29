@@ -103,10 +103,10 @@ on_success:
       mkdir "c:\rrpam-wds"
       cd  "c:\rrpam-wds" 
       git config --global credential.helper store
-      ps: Add-Content "$env:USERPROFILE\.git-credentials"  "https://$($env:access_token):x-oauth-basic@github.com`n"
+      Add-Content "$env:USERPROFILE\.git-credentials"  "https://$($env:access_token):x-oauth-basic@github.com`n"
       git config --global user.email "assela@pathirana.net"
       git config --global user.name "Assela Pathirana"
-      "$env:USERPROFILE\.git-credentials"
+      Get-Content "$env:USERPROFILE\.git-credentials"
       git clone git@github.com:asselapathirana/RRPam-WDS-exetest.git
       cd rrpam-wds
       updated on %DATE% %TIME% >> log.txt
