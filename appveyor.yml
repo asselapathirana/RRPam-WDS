@@ -97,17 +97,17 @@ artifacts:
   - path: service\appveyor_environment.yml
   
 on_success:
-  - if %HOOK_BACK% == "True"  echo "Doing commit : "
-  - if %HOOK_BACK% == "True" mkdir c:\rrpam-wds
-  - if %HOOK_BACK% == cd  c:\rrpam-wds
-  - if %HOOK_BACK% == "True" git clone git@github.com:asselapathirana/RRPam-WDS-exetest.git
-  - if %HOOK_BACK% == "True" cd rrpam-wds
-  - if %HOOK_BACK% == "True" git config --global credential.helper store
-  - if %HOOK_BACK% == "True" ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-  - if %HOOK_BACK% == "True" git config --global user.email "assela@pathirana.net"
-  - if %HOOK_BACK% == "True" git config --global user.name "Assela Pathirana"
-  - if %HOOK_BACK% == "True" updated on %DATE% %TIME% >> log.txt
-  - if %HOOK_BACK% == "True" git add log.txt
-  - if %HOOK_BACK% == "True" git commmit -am "appveyor "
-  - if %HOOK_BACK% == "True" git push origin master 
+  - if "%HOOK_BACK" == "True"  echo "Doing commit : "
+  - if "%HOOK_BACK" == "True" mkdir c:\rrpam-wds
+  - if "%HOOK_BACK" == cd  c:\rrpam-wds
+  - if "%HOOK_BACK" == "True" git clone git@github.com:asselapathirana/RRPam-WDS-exetest.git
+  - if "%HOOK_BACK" == "True" cd rrpam-wds
+  - if "%HOOK_BACK" == "True" git config --global credential.helper store
+  - if "%HOOK_BACK" == "True" ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+  - if "%HOOK_BACK" == "True" git config --global user.email "assela@pathirana.net"
+  - if "%HOOK_BACK" == "True" git config --global user.name "Assela Pathirana"
+  - if "%HOOK_BACK" == "True" updated on %DATE% %TIME% >> log.txt
+  - if "%HOOK_BACK" == "True" git add log.txt
+  - if "%HOOK_BACK" == "True" git commmit -am "appveyor "
+  - if "%HOOK_BACK" == "True" git push origin master 
 
