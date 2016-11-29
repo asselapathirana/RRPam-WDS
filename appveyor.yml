@@ -98,21 +98,18 @@ artifacts:
   
 on_success:
 
+install:
 - ps: >-
-  If ($env:HOOK_BACK -Match "True") {
-  mkdir "c:\rrpam-wds"
-  cd  "c:\rrpam-wds"
-  git config --global credential.helper store
-  Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-  git config --global user.email "assela@pathirana.net"
-  git config --global user.name "Assela Pathirana"
-  git clone git@github.com:asselapathirana/RRPam-WDS-exetest.git
-  cd rrpam-wds
-  updated on %DATE% %TIME% >> log.txt
-  git add log.txt
-  git commmit -am "appveyor "
-  git push origin master 
-
-  }
+    If ($env:HOOK_BACK -Match "True") {
+      mkdir "c:\rrpam-wds"
+      cd  "c:\rrpam-wds" 
+      git config --global credential.helper store
+      Add-Content "$env:USERPROFILE\.git-credentials"  "https://$($env:access_token):x-oauth-basic@github.com`n"
+      git config --global user.email "assela@pathirana.net"
+      git config --global user.name "Assela Pathirana"
+      git clone git@github.com:asselapathirana/RRPam-WDS-exetest.git
+      cd rrpam-wds
+      updated on %DATE% %TIME% >> log.txt
+    }
 
  
