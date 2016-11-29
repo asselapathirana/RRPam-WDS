@@ -96,11 +96,10 @@ artifacts:
   - path: service\*.log
   - path: service\appveyor_environment.yml
   
-on%HOOK_BACK% _success:
+on_success:
 
 - ps: >-
-     If ($env:HOOK_BACK -Match "True") {
-
+  If ($env:HOOK_BACK -Match "True") {
   echo "Doing commit "
   mkdir "c:\rrpam-wds"
   cd  "c:\rrpam-wds"
