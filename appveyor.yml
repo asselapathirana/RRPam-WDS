@@ -110,8 +110,8 @@ on_success:
       cd RRPam-WDS-exetest
       "updated on %DATE% %TIME%" >> log.txt
       git add log.txt
-      git commit -am "appveyor"
-      git push origin master
+      git commit -am "appveyor" > tmp.txt
+      git push origin master > tmp.txt
     }
 
  
