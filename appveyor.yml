@@ -1,5 +1,9 @@
 # https://ci.appveyor.com/project/asselapathirana/rrpam-wds
 
+environment:
+  access_token:
+      secure: MD1NLo5TVq91rOlFoo4+S3ko6bkwo3cFOfNYlpZjeDh8P0exIasW+E5ErwkCbXjJ
+
 matrix:
   fast_finish: true
 
@@ -32,6 +36,7 @@ environment:
       PYTHON_ARCH: "64"
       PLATFORM: "x64"
       PYTEST_QT_API: "pyqt5"
+      HOOK_BACK: "True"
     - PYTHON_VERSION: "2.7"
       USE_QT_API: "PyQt5"
       PYTEST_QT_API: "pyqt5"
@@ -93,4 +98,13 @@ artifacts:
   - path: service\*.log
   - path: service\appveyor_environment.yml
   
+on_success:
+  - if %HOOK_BACK% == "True" git config --global credential.helper store
+  - if %HOOK_BACK% == "True" ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+  - if %HOOK_BACK% == "True" git config --global user.email "assela@pathirana.net"
+  - if %HOOK_BACK% == "True" git config --global user.name "Assela Pathirana"
+  - if %HOOK_BACK% == "True" updated on %DATE% %TIME% >> log.txt
+  - if %HOOK_BACK% == "True" git add log.txt
+  - if %HOOK_BACK% == "True" git commmit -am "appveyor "
+  - if %HOOK_BACK% == "True" git push origin master 
 
