@@ -106,7 +106,7 @@ on_success:
       Add-Content "$env:USERPROFILE\.git-credentials"  "https://$($env:access_token):x-oauth-basic@github.com`n"
       git config --global user.email "assela@pathirana.net"
       git config --global user.name "Assela Pathirana"
-      git clone git@github.com:asselapathirana/RRPam-WDS-exetest.git
+      git clone  https://github.com/asselapathirana/RRPam-WDS-exetest.git
       cd RRPam-WDS-exetest
       "updated on %DATE% %TIME%" >> log.txt
       git add log.txt
