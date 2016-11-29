@@ -100,7 +100,7 @@ on_success:
 
 - ps: >-
   If ($env:HOOK_BACK -Match "True") {
-  echo "Doing commit "
+  "Doing commit "
   mkdir "c:\rrpam-wds"
   cd  "c:\rrpam-wds"
   git config --global credential.helper store
