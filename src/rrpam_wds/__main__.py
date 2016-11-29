@@ -10,8 +10,8 @@ Why does this file exist, and why __main__? For more info, read:
 """
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 
-from rrpam_wds.cli import main
+from rrpam_wds.cli import Main
 
 if __name__ == "__main__":   # pragma: no cover
     print("Tweet")
-    main()
+    Main().show_application()
