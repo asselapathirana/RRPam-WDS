@@ -1,9 +1,5 @@
 # https://ci.appveyor.com/project/asselapathirana/rrpam-wds
 
-environment:
-  access_token:
-      secure: MD1NLo5TVq91rOlFoo4+S3ko6bkwo3cFOfNYlpZjeDh8P0exIasW+E5ErwkCbXjJ
-
 matrix:
   fast_finish: true
 
@@ -12,6 +8,8 @@ matrix:
 #    - master 
 
 environment:
+  access_token:
+      secure: MD1NLo5TVq91rOlFoo4+S3ko6bkwo3cFOfNYlpZjeDh8P0exIasW+E5ErwkCbXjJ
   global:
     # Used by qthelpers to close widgets after a defined time
     TEST_CI: True
