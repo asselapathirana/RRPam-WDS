@@ -99,6 +99,7 @@ artifacts:
 
 on_success:
 - ps: >-
+   If ($env:access_token) {
     If ($env:HOOK_BACK -Match "True") {
       mkdir "c:\rrpam-wds"
       cd  "c:\rrpam-wds" 
@@ -113,5 +114,6 @@ on_success:
       git commit -q -am "appveyor"
       git push -q origin master
     }
+   }
 
  

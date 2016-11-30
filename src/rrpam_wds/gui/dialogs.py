@@ -122,12 +122,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MDI demo")
 
     def windowaction(self, q):
-        print("triggered by :", self.sender().title())
+        print ( "triggered")
 
-        if q.text() == "New":
-            MainWindow.count = MainWindow.count + 1
-
+        if q.text() == "New guiqwt":
+            MainWindow.count = MainWindow.count+1
+            #sub = QDialog()
+            #sub.setWidget(QTextEdit())
+            
             self.new_window()
+            
+        if q.text() == "New matplotlib":
+            MainWindow.count = MainWindow.count+1
+            self.new_matplotlib_window()      
 
         if q.text() == "cascade":
             self.mdi.cascadeSubWindows()
@@ -148,6 +154,15 @@ class MainWindow(QMainWindow):
         win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
         win.show()
+        
+    def new_matplotlib_window(self, closable=True):
+        win = ApplicationWindow()
+        #win.setClosable(closable)
+        #self.plot_some_junk(win)
+         
+        win.setWindowTitle("subwindow"+str(MainWindow.count))
+        self.mdi.addSubWindow(win)
+        win.show()    
 
     def plot_some_junk(self, win):
         plot = win.get_plot()
