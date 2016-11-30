@@ -6,3 +6,5 @@ Changelog
 -----------------------------------------
 
 * First release on PyPI.
+
+* Developing network plot
