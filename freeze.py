@@ -1,9 +1,9 @@
 import os
 import shutil
 import sys
-
 import setupdata as sd
 from guidata import disthelpers as dh
+import email
 
 name = sd.name
 version = sd.version
@@ -38,12 +38,10 @@ if (not qtlibloc):
     raise Exception
 
 
-binincludes = []
-binincludes.extend(["qminimal.dll", "qoffscreen.dll", "qwindows.dll"])
 
 sys.modules["PyQt4"] = None  # block loading PyQt4 to avoid conflicts with PyQt5!
 dist = dh.Distribution()
-dist.setup(name, version, description, './src/rrpamwds.pyw')
+dist.setup(name, version, description, './src/rrpamwds.pyw', includes=[ ])
 dist.add_modules('PyQt5', 'guidata', 'guiqwt', 'matplotlib')
 dist.build_cx_freeze()  # use `build_py2exe` to use py2exe instead
 dest = "./dist/"

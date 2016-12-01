@@ -87,7 +87,9 @@ test_script:
 after_test:
 #hack! 
 - if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\libiomp5md.dll" .\dist\  /y
-- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\mkl_core.dll" .\dist\ /y
+- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\mkl_*.dll" .\dist\ /y
+- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Lib\uu.py" .\dist\ /y
+- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Lib\email" .\dist\email\ /y
 #end hack
 - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss > service\innosetup.log
 
