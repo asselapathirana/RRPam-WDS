@@ -95,6 +95,7 @@ artifacts:
   - path: service\*.exe 
   - path: service\*.log
   - path: service\appveyor_environment.yml
+  - path: '**\screenshot-*.jpg'
   
 
 on_success:

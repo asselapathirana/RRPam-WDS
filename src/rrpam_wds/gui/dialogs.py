@@ -1,17 +1,25 @@
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
+import random
 import sys
-
 
 from guiqwt.builder import make
 from guiqwt.plot import CurveDialog
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+from numpy import arange
 from numpy import linspace
+from numpy import pi
 from numpy import sin
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMdiArea
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QVBoxLayout
 
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
@@ -113,7 +121,8 @@ class MainWindow(QMainWindow):
         bar = self.menuBar()
 
         file = bar.addMenu("File")
-        file.addAction("New")
+        file.addAction("New guiqwt")
+        file.addAction("New matplotlib")
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu("View")
         file2.addAction("cascade")
@@ -122,18 +131,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MDI demo")
 
     def windowaction(self, q):
-        print ( "triggered")
+        print("triggered")
 
         if q.text() == "New guiqwt":
-            MainWindow.count = MainWindow.count+1
-            #sub = QDialog()
-            #sub.setWidget(QTextEdit())
-            
+            MainWindow.count = MainWindow.count + 1
+            # sub = QDialog()
+            # sub.setWidget(QTextEdit())
+
             self.new_window()
-            
+
         if q.text() == "New matplotlib":
-            MainWindow.count = MainWindow.count+1
-            self.new_matplotlib_window()      
+            MainWindow.count = MainWindow.count + 1
+            self.new_matplotlib_window()
 
         if q.text() == "cascade":
             self.mdi.cascadeSubWindows()
@@ -154,15 +163,15 @@ class MainWindow(QMainWindow):
         win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
         win.show()
-        
+
     def new_matplotlib_window(self, closable=True):
-        win = ApplicationWindow()
-        #win.setClosable(closable)
-        #self.plot_some_junk(win)
-         
-        win.setWindowTitle("subwindow"+str(MainWindow.count))
+        win = MatplotlibDialog()
+        # win.setClosable(closable)
+        # self.plot_some_junk(win)
+
+        win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
-        win.show()    
+        win.show()
 
     def plot_some_junk(self, win):
         plot = win.get_plot()
@@ -175,9 +184,92 @@ class MainWindow(QMainWindow):
         # if q.text() == "graph"
 
 
+class MatplotlibDialog(QDialog):
+
+    def __init__(self):
+        QDialog.__init__(self)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setWindowTitle("application main window")
+
+        # self.main_widget = QWidget(self)
+
+        l = QVBoxLayout(self)
+        sc = MyStaticMplCanvas(self, width=5, height=2, dpi=100)
+        navi_toolbar = NavigationToolbar(sc, self)
+        dc = MyDynamicMplCanvas(self, width=5, height=2, dpi=100)
+        navi_toolbar2 = NavigationToolbar(dc, self)
+        l.addWidget(sc)
+        l.addWidget(navi_toolbar)
+        l.addWidget(dc)
+        l.addWidget(navi_toolbar2)
+
+        # self.main_widget.setFocus()
+        self.resize(self.sizeHint())
+        # self.setCentralWidget(self.main_widget)
+        # self.statusBar().showMessage("All hail matplotlib!", 2000)
+
+
+class MyMplCanvas(FigureCanvas):
+
+    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+
+        self.compute_initial_figure()
+
+        #
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QSizePolicy.Expanding,
+                                   QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class MyStaticMplCanvas(MyMplCanvas):
+
+    """Simple canvas with a sine plot."""
+
+    def compute_initial_figure(self):
+        t = arange(0.0, 3.0, 0.01)
+        s = sin(2 * pi * t)
+        self.axes.plot(t, s)
+
+
+class MyDynamicMplCanvas(MyMplCanvas):
+
+    """A canvas that updates itself every second with a new plot."""
+
+    def __init__(self, *args, **kwargs):
+        MyMplCanvas.__init__(self, *args, **kwargs)
+        timer = QtCore.QTimer(self)
+        timer.timeout.connect(self.update_figure)
+        timer.start(1000)
+
+    def compute_initial_figure(self):
+        self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
+
+    def update_figure(self):
+        # Build a list of 4 random integers between 0 and 10 (both inclusive)
+        l = [random.randint(0, 10) for i in range(4)]
+
+        self.axes.plot([0, 1, 2, 3], l, 'r')
+        self.draw()
+
+
 def main():
     app = QApplication(sys.argv)
     ex = MainWindow()
+    mpl = MatplotlibDialog()
+    ex.addSubWindow(mpl)
     ex.show()
     sys.exit(app.exec_())
 

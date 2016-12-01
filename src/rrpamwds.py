@@ -9,6 +9,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
 
+
 from rrpam_wds.cli import Main
 
 
@@ -16,6 +17,7 @@ class Tester(QObject):
     finished = pyqtSignal()
     addAWindow = pyqtSignal(int)
     timetogo = pyqtSignal()
+    recordMe = pyqtSignal(str)
 
     def __init__(self, mainwindow):
         self.mainwindow = mainwindow
@@ -23,6 +25,7 @@ class Tester(QObject):
 
     @pyqtSlot()
     def do_some_testing(self):  # A slot takes no params
+
         for i in range(1, 11):
             time.sleep(1)
             self.addAWindow.emit(i)
@@ -36,11 +39,13 @@ class Tester(QObject):
 
     @pyqtSlot()
     def now_wait(self):
+        self.recordMe.emit("screenshot-1.jpg")
         print("Work done .. now biding time")
         for i in range(1, 11):
             time.sleep(1)
             print(11 - i)
         print(".. and done!")
+
         time.sleep(.1)
         QApplication.processEvents()
         if(not len(self.mainwindow.mdi.subWindowList()) == 10):
@@ -75,6 +80,7 @@ else:  # run as a test. Open, run tests and close.
     thread = QThread()
     tester.moveToThread(thread)
     tester.addAWindow.connect(main.win.new_window)
+    tester.recordMe.connect(main.screenshot)
     # tester.timetogo.connect(thread.quit)
     tester.finished.connect(thread.quit)
     # this is also needed to prevent gui from freezing upon finishing the

@@ -21,6 +21,7 @@ import sys
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
@@ -43,3 +44,12 @@ class Main(QObject):
     @pyqtSlot()
     def show_application(self):
         sys.exit(self.app.exec_())
+
+    @pyqtSlot(str)
+    def screenshot(self, filename):
+        # now take a screenshot
+        qs = QApplication.primaryScreen()
+        if (qs):
+            qs.grabWindow(self.win.winId()).save(filename, 'jpg')
+        else:
+            QPixmap().save(filename, 'jpg')

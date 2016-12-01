@@ -1,4 +1,4 @@
-pyqt=5.*  numpy scipy pillow Cython  
+pyqt=5.*  numpy scipy pillow Cython matplotlib 
 # we use `cat -n1 ` to read this file. So, it reads only the first line!. Have all the requirements in that line 
 # seperate by space
 # Beofre adding to this, make sure that anaconda provides the package. 
