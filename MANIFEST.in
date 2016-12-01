@@ -24,6 +24,8 @@ exclude BUILDING.txt
 exclude  *.old
 exclude service
 include freeze.py  
+include setupdata.py
+
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib 
 recursive-exclude junk *

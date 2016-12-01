@@ -19,7 +19,9 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 import argparse
 import sys
 
-from PyQt5.QtCore import  QObject, pyqtSlot
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
@@ -30,17 +32,24 @@ parser.add_argument('names', metavar='NAME', nargs=argparse.ZERO_OR_MORE,
 
 
 class Main(QObject):
-    def __init__(self,args=None):
+
+    def __init__(self, args=None):
         args = parser.parse_args(args=args)
         print(args.names)
         self.app = QApplication([])
         self.win = MainWindow()
         self.win.show()
         super(Main, self).__init__()
-        
+
     @pyqtSlot()
     def show_application(self):
-        sys.exit(self.app.exec_()) 
+        sys.exit(self.app.exec_())
 
-        
-    
+    @pyqtSlot(str)
+    def screenshot(self, filename):
+        # now take a screenshot
+        qs = QApplication.primaryScreen()
+        if (qs):
+            qs.grabWindow(self.win.winId()).save(filename, 'jpg')
+        else:
+            QPixmap().save(filename, 'jpg')

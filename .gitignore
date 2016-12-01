@@ -73,3 +73,5 @@ log.txt
 service/rrpamwds_setup.iss
 service/setup.exe
 service/*.log
+# screenshots created by testing
+src/screenshot-*.jpg

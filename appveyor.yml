@@ -20,7 +20,7 @@ environment:
     #PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
     #                  # of 32 bit and 64 bit builds are needed, move this
     #                  # to the matrix section.
-    CONDA_DEPENDENCIES: "pyqt=5.*  numpy scipy pillow Cython" # keep this sync with requirements_conda.txt
+    CONDA_DEPENDENCIES: "pyqt=5.*  numpy scipy pillow Cython matplotlib" # keep this sync with requirements_conda.txt
     # need to automate reading in that file and remove hardcoding these!
 
   matrix:
@@ -87,7 +87,9 @@ test_script:
 after_test:
 #hack! 
 - if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\libiomp5md.dll" .\dist\  /y
-- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\mkl_core.dll" .\dist\ /y
+- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Library\bin\mkl_*.dll" .\dist\ /y
+- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Lib\uu.py" .\dist\ /y
+- if "%PYTHON_VERSION%" == "3.4" xcopy "C:\conda\envs\test\Lib\email" .\dist\email\ /y
 #end hack
 - if "%PYTHON_VERSION%" == "3.4" iscc /VERYSILENT ./service/rrpamwds_setup.iss > service\innosetup.log
 
@@ -95,10 +97,12 @@ artifacts:
   - path: service\*.exe 
   - path: service\*.log
   - path: service\appveyor_environment.yml
+  - path: '**\screenshot-*.jpg'
   
 
 on_success:
 - ps: >-
+   If ($env:access_token) {
     If ($env:HOOK_BACK -Match "True") {
       mkdir "c:\rrpam-wds"
       cd  "c:\rrpam-wds" 
@@ -113,5 +117,6 @@ on_success:
       git commit -q -am "appveyor"
       git push -q origin master
     }
+   }
 
  
