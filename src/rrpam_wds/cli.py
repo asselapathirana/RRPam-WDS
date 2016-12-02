@@ -18,11 +18,12 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
 import argparse
 import sys
+import os
 
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, QTimer
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 from rrpam_wds.gui.dialogs import MainWindow
 
@@ -45,8 +46,22 @@ class Main(QObject):
     def show_application(self):
         sys.exit(self.app.exec_())
 
-    @pyqtSlot(str)
-    def screenshot(self, filename):
+    #@pyqtSlot(str)
+    #def screenshot(self, filename):
+        #if (getattr(sys, 'frozen', False)):
+            #p = os.path.dirname(sys.executable)
+        #else:
+            #p = os.getcwd()
+            
+        #filename=os.path.join(p,filename)
+        #msg = QMessageBox()
+        #msg.setIcon(QMessageBox.Information)
+        #msg.setText("Screenshot will be saved at : %s" % (filename)) 
+        #QTimer.singleShot(5000, msg.accept)
+        #msg.exec_()
+        
+        
+        
         # now take a screenshot
         qs = QApplication.primaryScreen()
         if (qs):

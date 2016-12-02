@@ -80,7 +80,7 @@ else:  # run as a test. Open, run tests and close.
     thread = QThread()
     tester.moveToThread(thread)
     tester.addAWindow.connect(main.win.new_window)
-    tester.recordMe.connect(main.screenshot)
+    #tester.recordMe.connect(main.screenshot)
     # tester.timetogo.connect(thread.quit)
     tester.finished.connect(thread.quit)
     # this is also needed to prevent gui from freezing upon finishing the
