@@ -1,5 +1,6 @@
-import sys
 import os
+import sys
+
 
 def set_paths():
     if (getattr(sys, 'frozen', False)):

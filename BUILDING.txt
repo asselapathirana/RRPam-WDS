@@ -8,6 +8,8 @@ autopep8 --in-place --recursive --max-line-length=100 src tests *.py -v -a
 then try 
 flake8 src *.py tests
 
+isort errors:
+isort  --check-only --diff --recursive src tests *.py service/*.py
 fixing isort errors: 
 isort <filename> 
 isort *.py tests src -rc -v

@@ -1,7 +1,6 @@
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
-from rrpam_wds import setpath # isort:skip # NOQA 
+from rrpam_wds import setpath  # isort:skip # NOQA
 # ^ above line is needed to make sure the path is correctly set (under frozen conditions)
-import os
 import sys
 import time
 
@@ -65,7 +64,7 @@ else:  # run as a test. Open, run tests and close.
     thread = QThread()
     tester.moveToThread(thread)
     tester.addAWindow.connect(main.win.new_window)
-    #tester.recordMe.connect(main.screenshot)
+    # tester.recordMe.connect(main.screenshot)
     # tester.timetogo.connect(thread.quit)
     tester.finished.connect(thread.quit)
     # this is also needed to prevent gui from freezing upon finishing the

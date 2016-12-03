@@ -34,6 +34,7 @@ recursive-exclude tests ?.inp
 recursive-exclude tests log.txt
 recursive-exclude service *
 
+global-exclude *.swp
 
 
 

@@ -75,3 +75,5 @@ service/setup.exe
 service/*.log
 # screenshots created by testing
 src/screenshot-*.jpg
+#vim 
+*.swp
