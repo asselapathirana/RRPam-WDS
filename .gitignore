@@ -1,6 +1,5 @@
 *.py[cod]
 
-
 # C extensions
 *.so
 
@@ -77,3 +76,5 @@ service/*.log
 src/screenshot-*.jpg
 #vim 
 *.swp
+
+log.txt
