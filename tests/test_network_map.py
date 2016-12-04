@@ -56,7 +56,9 @@ class test_network_map(unittest.TestCase):
         curves = [list(zip(x.data().xData(), x.data().yData()))
                   for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]
         for node in nodes:
-            self.assertIn([(node.x, node.y)], curves)
+            self.assertIn([(node.x, node.y),(node.x, node.y)], curves)
+            # ^ why we represent a node with two identical coordinates? 
+            # see dialogs.draw_nodes function to know why
 
     def draw_a_network(self, network=ex.networks[0]):
         e1 = hs.pdd_service(network, coords=True)
