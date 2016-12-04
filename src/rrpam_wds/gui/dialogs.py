@@ -87,7 +87,8 @@ class NetworkMap(CurveDialogWithClosable):
 
     def draw_nodes(self, nodes):
         for node in nodes:
-            pt = make.curve(node.x, node.y,
+            pt = make.curve([node.x,node.x], [node.y,node.y], 
+                            # ^ this is a hack. gwiqwt curve has problems when constructed with single coordinae
                             title="Nodes", marker="Ellipse", curvestyle="NoCurve")
             pt.set_selectable(False)
             # pt=make.ellipse(node.x-.1,node.y-.1,node.x+.1,node.y+.1)
