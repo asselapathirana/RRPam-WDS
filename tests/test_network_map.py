@@ -54,7 +54,7 @@ class test_network_map(unittest.TestCase):
         from guiqwt.curve import CurveItem
         pdds, nodes, nwm = self.draw_a_network()
         curves = [list(zip(x.data().xData(), x.data().yData()))
-                              for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]        
+                  for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]
         for node in nodes:
             self.assertIn([(node.x, node.y)], curves)
 

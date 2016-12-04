@@ -25,6 +25,7 @@ from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 
+
 class CurveDialogWithClosable(CurveDialog):
 
     """"The mother dialog from which all the graph windows inherit from"""
@@ -34,7 +35,7 @@ class CurveDialogWithClosable(CurveDialog):
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
         self.add_tools()
-        
+
     def add_tools(self):
         """adds the custom tools necessary"""
         self.add_tool(ResetZoomTool)
@@ -92,7 +93,7 @@ class NetworkMap(CurveDialogWithClosable):
 
     def draw_nodes(self, nodes):
         for node in nodes:
-            pt = make.curve([node.x,node.x], [node.y,node.y], 
+            pt = make.curve([node.x, node.x], [node.y, node.y],
                             # ^ this is a hack. gwiqwt curve has problems when constructed with single coordinae
                             title="Nodes", marker="Ellipse", curvestyle="NoCurve")
             pt.set_selectable(False)
