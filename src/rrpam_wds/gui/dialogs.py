@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
-
+from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 
 class CurveDialogWithClosable(CurveDialog):
 
@@ -33,6 +33,11 @@ class CurveDialogWithClosable(CurveDialog):
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
+        self.add_tools()
+        
+    def add_tools(self):
+        """adds the custom tools necessary"""
+        self.add_tool(ResetZoomTool)
 
     def setClosable(self, closable=True):
         self._can_be_closed = closable
@@ -214,6 +219,7 @@ class MainWindow(QMainWindow):
         win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
         win.show()
+        return win
 
     def new_matplotlib_window(self, closable=True):
         win = MatplotlibDialog()
