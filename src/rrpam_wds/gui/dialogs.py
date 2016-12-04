@@ -44,6 +44,56 @@ class CurveDialogWithClosable(CurveDialog):
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
 
+    def keyPressEvent(self, e):
+        if (e.key() != QtCore.Qt.Key_Escape):
+            super(CurveDialogWithClosable, self).keyPressEvent(e)
+        else:
+            pass
+
+
+class NetworkMap(CurveDialogWithClosable):
+
+    def __init__(self, name, nodes=None, links=None, parent=None, options={}):
+        pass
+        if("xlabel" not in options):
+            options['xlabel'] = "X (distance units)"
+        if("ylabel" not in options):
+            options['ylabel'] = "Y (distance units)"
+
+        gridparam = make.gridparam()
+
+        super(NetworkMap, self).__init__(edit=False,
+                                         icon="guiqwt.svg",
+                                         toolbar=True,
+                                         options=dict(gridparam=gridparam),
+                                         parent=parent,
+                                         panels=None)
+        # legend = make.legend("TR")
+        # self.get_plot().add_item(legend)
+
+        if(nodes):
+            self.draw_nodes(nodes)
+        if(links):
+            self.draw_links(links)
+        self.get_plot().do_autoscale(replot=True)
+
+    def draw_links(self, links):
+        for link in links:
+            pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
+            x = [n[0] for n in pts]
+            y = [n[1] for n in pts]
+            cu = make.curve(x, y)
+            self.get_plot().add_item(cu)
+
+    def draw_nodes(self, nodes):
+        for node in nodes:
+            pt = make.curve(node.x, node.y,
+                            title="Nodes", marker="Ellipse", curvestyle="NoCurve")
+            pt.set_selectable(False)
+            # pt=make.ellipse(node.x-.1,node.y-.1,node.x+.1,node.y+.1)
+            # pt=PointShape(x=node.x,y=node.y, color="g")
+            self.get_plot().add_item(pt)
+
 
 class optimalTimeGraph(CurveDialogWithClosable):
 

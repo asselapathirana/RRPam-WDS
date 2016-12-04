@@ -7,6 +7,7 @@ import unittest
 from gui_test_tools import uniquestring
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
+from PyQt5 import QtTest
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
@@ -62,6 +63,19 @@ class mdi_graph_test(unittest.TestCase):
         self.assertEqual(self.aw.mdi.subWindowList()[-1].windowTitle(), title)
         self.assertTrue(self.aw.mdi.subWindowList()[-1].isMinimized())
 
+    def test_presseing_esc_does_not_close_or_clear_the_closable_graph(self):
+        dummytitle = uniquestring()
+        title = uniquestring()
+        self.dummy = CurveDialogWithClosable(wintitle=dummytitle)
+        self.aw.addSubWindow(self.dummy)
+        self.graph = CurveDialogWithClosable(wintitle=title)
+        self.graph.setClosable(False)
+        self.aw.addSubWindow(self.graph)
+        self.aw.show()
+        self.assertTrue(self.graph.isVisible())
+        QTest.keyPress(self.graph, Qt.Key_Escape)
+        self.assertTrue(self.graph.isVisible())
+
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
@@ -77,9 +91,9 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = mdi_graph_test()
         ot.setUp()
-        ot.test_closable_graph_closable_false_minized()
+        ot.test_presseing_esc_does_not_close_or_clear_the_closable_graph()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=True)
+    drive(test=False)

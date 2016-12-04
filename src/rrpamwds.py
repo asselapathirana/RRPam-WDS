@@ -10,7 +10,6 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
 
-
 from rrpam_wds.cli import Main
 
 
@@ -64,10 +63,8 @@ else:  # run as a test. Open, run tests and close.
     thread = QThread()
     tester.moveToThread(thread)
     tester.addAWindow.connect(main.win.new_window)
-    # tester.recordMe.connect(main.screenshot)
-    # tester.timetogo.connect(thread.quit)
     tester.finished.connect(thread.quit)
-    # this is also needed to prevent gui from freezing upon finishing the
+    # ^ this is also needed to prevent gui from freezing upon finishing the
     # thread.
     thread.started.connect(tester.do_some_testing)
     tester.timetogo.connect(main.app.exit)
