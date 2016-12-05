@@ -99,7 +99,7 @@ class NetworkMap(CurveDialogWithClosable):
             x = [n[0] for n in pts]
             y = [n[1] for n in pts]
             x_,y_=self.interp_curve(x,y)
-            cu = make.curve(x_, y_)
+            cu = make.curve(x_, y_, title=link.id)
             self.get_plot().add_item(cu)
 
     def draw_nodes(self, nodes):

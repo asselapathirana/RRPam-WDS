@@ -7,9 +7,10 @@ from epanettools.epanettools import Node
 
 class pdd_service(object):
 
-    def __init__(self, epanet_network, diafact=10.0, coords=False):
+    def __init__(self, epanet_network, diafact=10.0, coords=False, adfcalc=True):
         self.epanet_network = epanet_network
         self.diafact = diafact
+        self.adfcalc=adfcalc
         self.open_network(epanet_network)
         if(coords):
             self.read_coordinates(epanet_network)
@@ -42,6 +43,17 @@ class pdd_service(object):
                 "There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
             print("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
             raise e
+        
+        # There is a bug in guiqwt in curve.hit_test function. It can not correctly calculate 
+        # nearest point of a straight line that is preciesly verticle. So, check if there are any
+        # verticle links. If so, shift the coordinates ever-so-slightly to walk-around that bug!
+        for i, link  in self.links.items():
+            if (link.start.x==link.end.x):
+                delta=abs(link.start.y-link.end.y)/100.
+                link.start.x=link.start.x+delta
+                link.end.x=link.end.x-delta
+        
+        
         # now extract vertices (if any)
         st = data.index("[VERTICES]")
         lines = data[st + 1:-1]
@@ -57,7 +69,8 @@ class pdd_service(object):
 
     def open_network(self, epanet_network):
         self.es = EPANetSimulation(epanet_network, pdd=True)
-        self.es.adfcalc(diafact=self.diafact)
+        if(self.adfcalc):
+            self.es.adfcalc(diafact=self.diafact)
         self._set_static_values()
         # set nodes, links for easy access!
         self.nodes = self.es.network.nodes

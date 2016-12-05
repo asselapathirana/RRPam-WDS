@@ -8,7 +8,7 @@ import numpy as np
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
 from numpy.testing import assert_array_almost_equal
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
@@ -61,11 +61,13 @@ class test_network_map(unittest.TestCase):
             # see dialogs.draw_nodes function to know why
 
     def draw_a_network(self, network=ex.networks[0]):
-        e1 = hs.pdd_service(network, coords=True)
+        e1 = hs.pdd_service(network, coords=True, adfcalc=False)
         nodes = e1.nodes.values()
         links = e1.links.values()
         nwm = NetworkMap("foo", nodes, links, parent=self.aw)
         self.aw.addSubWindow(nwm)
+        self.aw.show()
+        nwm.show()
         return e1, nodes, nwm
 
     def test_NetworkMap_scales_to_fit_network_on_creation(self):
@@ -87,7 +89,7 @@ class test_network_map(unittest.TestCase):
         pass
 
     def test_NetworkMap_has_correct_number_of_link_representations(self):
-        for i, network in enumerate(ex.networks):
+        for i, network in enumerate(ex.networks[0:1]): # only one network to make it fast
             if (i == 1):
                 continue  # this is Net3.inp - it has a coordinate missing!
             from guiqwt.curve import CurveItem
@@ -107,14 +109,43 @@ class test_network_map(unittest.TestCase):
                 self.assertIn(pts, curve_ends)
 
 
+    def clicking_close_to_a_link_will_select_it_on_the_plot(self):
+        
+        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[0])    
+        # select a link 
+        l=pdds.links[3]
+        pos=[l.start.x,l.start.y]
+        curve = [x for x in nwm.get_plot().get_items() if x.title().text()==l.id][0]
+        plot=curve.plot()
+        ax = curve.xAxis()
+        ay = curve.yAxis()
+        px = plot.transform(ax, pos[0])
+        py = plot.transform(ay, pos[1])        
+        print(pos[0],pos[1],px,py,curve.title().text())
+        QTest.mouseClick(plot,Qt.RightButton,pos=QPoint(px,py),delay=10.)
+        print(plot.get_selected_items())
+        print(nwm.get_plot().get_selected_items())
+        # this test does not work yet. 
+        # todo: fix this test to work. 
+            
+    def network_map_correctly_reports_selected_links(self):
+        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[0])    
+        # select a link 
+        l=pdds.links[3]        
+        curve = [x for x in nwm.get_plot().get_items() if x.title().text()==l.id][0]
+        plot=curve.plot()
+        curve.select()
+        self.assertEqual(len(plot.get_selected_items()),1)
+        self.assertEqual(plot.get_selected_items()[0].title().text(),l.id)
+
 def drive(test=True):  # pragma: no cover
     if(test):
         unittest.main(verbosity=2)
     else:
         ot = test_network_map()
         ot.setUp()
-        ot.test_NetworkMap_has_correct_number_of_link_representations()
-        ot.aw.show()
+        ot.network_map_correctly_reports_selected_links()
+        #ot.aw.show()
         sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
