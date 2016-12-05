@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from numpy import arange
 from numpy import linspace
 from numpy import pi
-from numpy import sin
+from numpy import sin, interp
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
@@ -82,13 +82,24 @@ class NetworkMap(CurveDialogWithClosable):
         if(links):
             self.draw_links(links)
         self.get_plot().do_autoscale(replot=True)
+        
+    def interp_curve(self,x,y):
+        # how many points in the line (say max is 5)
+        DELTA=.01
+        t=arange(len(x))
+        t_=arange(0,len(x)-1+DELTA,DELTA)
+        x_=interp(t_,t,x)
+        y_=interp(t_,t,y)
+
+        return x_,y_    
 
     def draw_links(self, links):
         for link in links:
             pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
             x = [n[0] for n in pts]
             y = [n[1] for n in pts]
-            cu = make.curve(x, y)
+            x_,y_=self.interp_curve(x,y)
+            cu = make.curve(x_, y_)
             self.get_plot().add_item(cu)
 
     def draw_nodes(self, nodes):

@@ -35,7 +35,7 @@ global-exclude  log.txt
 recursive-exclude service *
 
 global-exclude *.swp
-
+global-exclude prof.out
 
 
 

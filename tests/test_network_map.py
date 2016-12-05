@@ -93,14 +93,18 @@ class test_network_map(unittest.TestCase):
             from guiqwt.curve import CurveItem
             pdds, nodes, nwm = self.draw_a_network(network=network)
             links = pdds.links.values()
-            curves = [list(zip(x.data().xData(), x.data().yData()))
-                      for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]
-
+            # curves = [list(zip(x.data().xData(), x.data().yData()))
+            #          for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]
+            curve_ends=[((c.data().xData()[0],c.data().yData()[0]),
+                         (c.data().xData()[-1],c.data().yData()[-1])) 
+                        for c in nwm.get_plot().get_items() if(isinstance(c, CurveItem))]
             for link in links:
-                pts = link.vertices
-                pts[0:0] = [(link.start.x, link.start.y)]
-                pts.append((link.end.x, link.end.y))
-                self.assertIn(pts, curves)
+                # pts = link.vertices
+                # pts[0:0] = [(link.start.x, link.start.y)]
+                # pts.append((link.end.x, link.end.y))
+                # Just get the two ends and check its in one of the curves. 
+                pts=((link.start.x, link.start.y),(link.end.x, link.end.y))
+                self.assertIn(pts, curve_ends)
 
 
 def drive(test=True):  # pragma: no cover
