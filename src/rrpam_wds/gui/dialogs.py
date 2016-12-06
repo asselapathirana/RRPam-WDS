@@ -9,9 +9,10 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 from numpy import arange
+from numpy import interp
 from numpy import linspace
 from numpy import pi
-from numpy import sin, interp
+from numpy import sin
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
@@ -21,9 +22,13 @@ from PyQt5.QtWidgets import QMdiArea
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
 
+import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
+from rrpam_wds.gui import monkey_patch_iteml
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
+
+monkey_patch_iteml._patch_item_list()
 
 
 class CurveDialogWithClosable(CurveDialog):
@@ -82,35 +87,40 @@ class NetworkMap(CurveDialogWithClosable):
         if(links):
             self.draw_links(links)
         self.get_plot().do_autoscale(replot=True)
-        
-    def interp_curve(self,x,y):
-        # how many points in the line (say max is 5)
-        DELTA=.01
-        t=arange(len(x))
-        t_=arange(0,len(x)-1+DELTA,DELTA)
-        x_=interp(t_,t,x)
-        y_=interp(t_,t,y)
 
-        return x_,y_    
+    def interp_curve(self, x, y):
+        # how many points in the line (say max is 5)
+        DELTA = .01
+        t = arange(len(x))
+        t_ = arange(0, len(x) - 1 + DELTA, DELTA)
+        x_ = interp(t_, t, x)
+        y_ = interp(t_, t, y)
+
+        return x_, y_
 
     def draw_links(self, links):
         for link in links:
             pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
             x = [n[0] for n in pts]
             y = [n[1] for n in pts]
-            x_,y_=self.interp_curve(x,y)
-            cu = make.curve(x_, y_, title=link.id)
+            x_, y_ = self.interp_curve(x, y)
+            cu = make.curve(x_, y_, title=u.get_title(link))
+            cu.curveparam._DataSet__icon = u.get_icon(link)
+            cu.curveparam._DataSet__title = u.get_title(link)
             self.get_plot().add_item(cu)
 
     def draw_nodes(self, nodes):
+
         for node in nodes:
-            pt = make.curve([node.x, node.x], [node.y, node.y],
+            cu = make.curve([node.x, node.x], [node.y, node.y],
                             # ^ this is a hack. gwiqwt curve has problems when constructed with single coordinae
-                            title="Nodes", marker="Ellipse", curvestyle="NoCurve")
-            pt.set_selectable(False)
+                            title=u.get_title(node), marker="Ellipse", curvestyle="NoCurve")
+            cu.set_selectable(False)
             # pt=make.ellipse(node.x-.1,node.y-.1,node.x+.1,node.y+.1)
             # pt=PointShape(x=node.x,y=node.y, color="g")
-            self.get_plot().add_item(pt)
+            cu.curveparam._DataSet__icon = u.get_icon(node)
+            cu.curveparam._DataSet__title = u.get_title(node)
+            self.get_plot().add_item(cu)
 
 
 class optimalTimeGraph(CurveDialogWithClosable):
@@ -289,8 +299,6 @@ class MyMplCanvas(FigureCanvas):
         self.axes.hold(False)
 
         self.compute_initial_figure()
-
-        #
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 

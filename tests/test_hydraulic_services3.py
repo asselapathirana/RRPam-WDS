@@ -28,14 +28,16 @@ class Testhydraulicservices(unittest.TestCase):
         pass
 
     def test_pdd_service_network_nodes_have_coordinates(self):
-        self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False)
+        self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False, adfcalc=False)
         with self.assertRaises(AttributeError):
             self.e3.nodes[1].x
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=True)
-        self.assertAlmostEqual(self.e3.nodes[1].x, -4600., delta=.0001)
+        # Note: we are fudging the coordinates when read in order to walkaround a bug
+        # in guiqwt plotting (picking routines) Hence coordinates might have changed a bit
+        self.assertAlmostEqual(self.e3.nodes[1].x, -4600., delta=20.)
         self.assertAlmostEqual(self.e3.nodes[1].y, 6600., delta=.0001)
-        self.assertAlmostEqual(self.e3.nodes['E2'].x, 600., delta=.0001)
-        self.assertAlmostEqual(self.e3.nodes['E2'].y, 2200., delta=.0001)
+        self.assertAlmostEqual(self.e3.nodes['E2'].x, 600., delta=.001)
+        self.assertAlmostEqual(self.e3.nodes['E2'].y, 2200., delta=.001)
         for i, node in self.e3.nodes.items():
             self.assertIsInstance(node.y, numbers.Number)
             self.assertIsInstance(node.x, numbers.Number)
