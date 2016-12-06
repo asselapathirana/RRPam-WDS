@@ -62,6 +62,30 @@ class CurveDialogWithClosable(CurveDialog):
             pass
 
 
+class RiskMatrix(CurveDialogWithClosable):
+    SCALE=100.
+
+    def __init__(self, name="Risk Matrix", parent=None, options={}):
+        if("xlabel" not in options):
+            options['xlabel'] = "Consequence ($)"
+        if("ylabel" not in options):
+            options['ylabel'] = "Proabability(-)"
+
+        gridparam = make.gridparam()
+
+        super(RiskMatrix, self).__init__(edit=False,
+                                         icon="guiqwt.svg",
+                                         toolbar=True,
+                                         options=dict(gridparam=gridparam),
+                                         parent=parent,
+                                         panels=None)    
+
+    def plot_item(self, consequence, probability, title="Point"):
+        ci=make.ellipse(consequence-self.SCALE,probability-self.SCALE, consequence+self.SCALE, probability+self.SCALE)
+        self.get_plot().add_item(ci)
+
+
+
 class NetworkMap(CurveDialogWithClosable):
 
     def __init__(self, name, nodes=None, links=None, parent=None, options={}):
