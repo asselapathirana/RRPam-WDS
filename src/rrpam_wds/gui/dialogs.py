@@ -7,6 +7,7 @@ from guiqwt.builder import make
 from guiqwt.plot import CurveDialog
 from guiqwt.styles import style_generator
 from guiqwt.styles import update_style_attr
+from guiqwt import config
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
@@ -31,9 +32,13 @@ from rrpam_wds.constants import units
 from rrpam_wds.gui import monkey_patch_guiqwt_guidata
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 
+# there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as 
+# we need to user make.* facotry 
 monkey_patch_guiqwt_guidata._patch_all()
-
-
+# show guiqwt where the images are. 
+config.add_image_module_path("rrpam_wds.gui","images")
+config.DEFAULTS["plot"]["selection/distance"]=10.0
+config.CONF.update_defaults(config.DEFAULTS)
 STYLE = style_generator()
 
 

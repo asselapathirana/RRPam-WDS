@@ -1,7 +1,7 @@
 import os
 import sys
 
-from guidata.configtools import IMG_PATH
+#from guidata.configtools import IMG_PATH
 from guiqwt import tools
 
 if getattr(sys, 'frozen', False):
@@ -11,7 +11,7 @@ else:
     # unfrozen
     dir_ = os.path.dirname(os.path.realpath(__file__))
 
-IMG_PATH = IMG_PATH.append(os.path.join(dir_, 'images'))
+#IMG_PATH = IMG_PATH.append(os.path.join(dir_, 'images'))
 
 
 class ResetZoomTool(tools.CommandTool):

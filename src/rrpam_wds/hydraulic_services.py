@@ -44,14 +44,10 @@ class pdd_service(object):
             print("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
             raise e
 
-        # There is a bug in guiqwt in curve.hit_test function. It can not correctly calculate
-        # nearest point of a straight line that is preciesly verticle. So, check if there are any
-        # verticle links. If so, shift the coordinates ever-so-slightly to walk-around that bug!
         for i, link in self.links.items():
             if (link.start.x == link.end.x):
-                delta = abs(link.start.y - link.end.y) / 100.
-                link.start.x = link.start.x + delta
-                link.end.x = link.end.x - delta
+                link.start.x = link.start.x 
+                link.end.x = link.end.x
 
         # now extract vertices (if any)
         st = data.index("[VERTICES]")
