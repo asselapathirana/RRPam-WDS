@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 from guidata.py3compat import maxsize
 from guiqwt.curve import CurveItem
