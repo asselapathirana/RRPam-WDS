@@ -64,6 +64,10 @@ class CurveDialogWithClosable(CurveDialog):
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
         self.add_tools()
+        
+    def set_all_private(self):
+        """" Set all current items in the plot private"""
+        [x.set_private(True) for x in self.get_plot().get_items()]
 
     def set_scale(self, axes_limits=None):
         """Sets axes limits axes_limits should be a list with four float values [x0,x1,y0,y1] """
@@ -148,9 +152,14 @@ class NetworkMap(CurveDialogWithClosable):
                                          panels=None)
         # legend = make.legend("TR")
         # self.get_plot().add_item(legend)
-
+        self.set_all_private() 
         if(nodes):
             self.draw_nodes(nodes)
+
+        # we don't want users to select grid, or nodes and they should not appear in the item list. 
+        # So lock'em up. 
+        self.set_all_private()
+        
         if(links):
             self.draw_links(links)
         self.get_plot().do_autoscale(replot=True)
@@ -175,6 +184,12 @@ class NetworkMap(CurveDialogWithClosable):
             cu.curveparam._DataSet__icon = u.get_icon(link)
             cu.curveparam._DataSet__title = u.get_title(link)
             self.get_plot().add_item(cu)
+            
+            # create a label for the node and add it to the plot
+            l=int(len(x_)/2.0)
+            la= make.label(link.id,(x_[l], y_[l]), (0, 0), "C")
+            la.set_private(True)
+            self.get_plot().add_item(la)            
 
     def draw_nodes(self, nodes):
 
@@ -183,11 +198,17 @@ class NetworkMap(CurveDialogWithClosable):
                             # ^ this is a hack. gwiqwt curve has problems when constructed with single coordinae
                             title=u.get_title(node), marker="Ellipse", curvestyle="NoCurve")
             cu.set_selectable(False)
+            cu.set_private(True)
             # pt=make.ellipse(node.x-.1,node.y-.1,node.x+.1,node.y+.1)
             # pt=PointShape(x=node.x,y=node.y, color="g")
             cu.curveparam._DataSet__icon = u.get_icon(node)
             cu.curveparam._DataSet__title = u.get_title(node)
             self.get_plot().add_item(cu)
+            
+            # create a label for the node and add it to the plot
+            la= make.label(node.id,(node.x, node.y), (0, 0), "TL")
+            la.set_private(True)
+            self.get_plot().add_item(la)
 
 
 class optimalTimeGraph(CurveDialogWithClosable):
@@ -280,8 +301,6 @@ class MainWindow(QMainWindow):
 
         if q.text() == "New guiqwt":
             MainWindow.count = MainWindow.count + 1
-            # sub = QDialog()
-            # sub.setWidget(QTextEdit())
 
             self.new_window()
 

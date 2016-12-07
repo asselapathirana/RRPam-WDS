@@ -143,7 +143,7 @@ class test_network_map(unittest.TestCase):
     def test_Network_map_item_list_has_correct_icons(self):
         import rrpam_wds.gui.utils as u
         from guiqwt.curve import CurveItem
-        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[0])
+        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[2])
         # select a link
         l = pdds.links[3]
         n = pdds.nodes[4]

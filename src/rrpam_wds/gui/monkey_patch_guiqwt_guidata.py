@@ -82,6 +82,22 @@ def _patch_curve_do_autoscale():
             ay = self.get_axis_id('left')
             self.set_axis_limits(ay, self.PREFERRED_AXES_LIMITS[2], self.PREFERRED_AXES_LIMITS[3])
         except:
+            auto = self.autoReplot()
+            self.setAutoReplot(False) 
+            # ---------------------------
+            # now first call the original do_autoscale_method
             orig_do_autoscale(self)
+            # then take axis limits and add a bit.
+            for axis_id in self.AXIS_IDS if axis_id is None else [axis_id]:
+                vmin,vmax=self.get_axis_limits(axis_id)
+                dv=vmax-vmin
+                vmin -= .1*dv
+                vmax += .1*dv                
+                self.set_axis_limits(axis_id, vmin, vmax)
+            # --------------------------
+            self.setAutoReplot(auto)
+            if replot:
+                self.replot()
+            self.SIG_PLOT_AXIS_CHANGED.emit(self)            
     # now monkey patch
     CurvePlot.do_autoscale = custom_do_autoscale
