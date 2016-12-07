@@ -21,25 +21,48 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMdiArea
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtGui import QBrush, QPen, QColor
+from guiqwt.styles import style_generator, update_style_attr
 
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
-from rrpam_wds.gui import monkey_patch_iteml
+from rrpam_wds.gui import monkey_patch_guiqwt_guidata
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 
-monkey_patch_iteml._patch_item_list()
+monkey_patch_guiqwt_guidata._patch_all()
+
+
+STYLE = style_generator()
 
 
 class CurveDialogWithClosable(CurveDialog):
 
-    """"The mother dialog from which all the graph windows inherit from"""
+    """The mother dialog from which all the graph windows inherit from
+       The constructor can send 'options' keyward argument containing a dict. Following entries are 
+       possible
+                 title=None,
+                 xlabel=None, ylabel=None, xunit=None, yunit=None,
+                 section="plot", show_itemlist=False, gridparam=None,
+                 curve_antialiasing=None
+                 
+    
+    """
+
+    
 
     def __init__(self, *args, **kwargs):
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
         self._can_be_closed = True
-        self.get_plot().set_antialiasing(True)
+        self.get_plot().set_antialiasing(True) 
         self.add_tools()
+       
+        
+    def set_scale(self, axes_limits=None):
+        """Sets axes limits axes_limits should be a list with four float values [x0,x1,y0,y1] """
+        self.get_plot().PREFERRED_AXES_LIMITS=axes_limits
+        # now autoscale
+        self.get_plot().do_autoscale()
 
     def add_tools(self):
         """adds the custom tools necessary"""
@@ -63,26 +86,42 @@ class CurveDialogWithClosable(CurveDialog):
 
 
 class RiskMatrix(CurveDialogWithClosable):
-    SCALE=100.
+    SCALE=10.
 
-    def __init__(self, name="Risk Matrix", parent=None, options={}):
+    def __init__(self, name="Risk Matrix", parent=None, options={}, axes_limits=[0,15000,0,100]):
         if("xlabel" not in options):
             options['xlabel'] = "Consequence ($)"
         if("ylabel" not in options):
             options['ylabel'] = "Proabability(-)"
-
-        gridparam = make.gridparam()
+        if("gridparam" not in options):
+            options['gridparam'] = make.gridparam()
 
         super(RiskMatrix, self).__init__(edit=False,
                                          icon="guiqwt.svg",
                                          toolbar=True,
-                                         options=dict(gridparam=gridparam),
+                                         options=options,
                                          parent=parent,
-                                         panels=None)    
+                                         panels=None,
+                                         wintitle=name) 
+        self.set_scale(axes_limits)
 
     def plot_item(self, consequence, probability, title="Point"):
-        ci=make.ellipse(consequence-self.SCALE,probability-self.SCALE, consequence+self.SCALE, probability+self.SCALE)
+        global STYLE
+        ci=make.ellipse(consequence-self.SCALE, probability-self.SCALE, 
+                                  consequence+self.SCALE, probability+self.SCALE,
+                                  title=title)
+        
+        ci.shapeparam._DataSet__icon = u.get_icon('Risk')
+        ci.shapeparam._DataSet__title = title        
+        param=ci.shapeparam
+        param.fill.color=QColor('red')
+        update_style_attr('-r', param)
+        param.update_shape(ci)
         self.get_plot().add_item(ci)
+        self.get_plot().add_item(make.legend("TR"))
+        ci.plot().replot()
+        
+     
 
 
 

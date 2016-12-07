@@ -25,5 +25,4 @@ class ResetZoomTool(tools.CommandTool):
 
     def activate_command(self, plot, checked):
         """Activate tool"""
-        print("Boo")
         plot.do_autoscale()

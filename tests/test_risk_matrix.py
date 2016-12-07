@@ -56,10 +56,11 @@ class test_risk_matrix(unittest.TestCase):
         
     def test_plot_item_will_create_a_circle(self):
         pts0 = [x for x in self.rm.get_plot().get_items() if isinstance(x,EllipseShape)]
-        risk_item=[0.5,1000.0]
-        self.rm.plot_item(1000.0, 0.5, title="foo")
+        self.rm.plot_item(5000.0, 50, title="foo")
+        self.rm.plot_item(1000.0, 20, title="bar")
+        self.rm.plot_item(8000.0, 70, title="bax")
         pts1 = [x for x in self.rm.get_plot().get_items() if isinstance(x,EllipseShape)]
-        self.assertTrue(len(pts1)==len(pts0)+1)
+        self.assertEqual(len(pts1),len(pts0)+3)
         
         
 
