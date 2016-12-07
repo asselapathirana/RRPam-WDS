@@ -3,8 +3,9 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 import random
 import sys
 
-from guiqwt import config
+from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
+from guiqwt.config import CONF
 from guiqwt.plot import CurveDialog
 from guiqwt.styles import style_generator
 from guiqwt.styles import update_style_attr
@@ -36,9 +37,12 @@ from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 # we need to user make.* facotry
 monkey_patch_guiqwt_guidata._patch_all()
 # show guiqwt where the images are.
-config.add_image_module_path("rrpam_wds.gui", "images")
-config.DEFAULTS["plot"]["selection/distance"] = 10.0
-config.CONF.update_defaults(config.DEFAULTS)
+add_image_module_path("rrpam_wds.gui", "images")
+# this how we change an option
+CONF.set("plot", "selection/distance", 10.0)
+# todo: This has to be saved as project's setting file (CONF.save provides that facility)
+
+
 STYLE = style_generator()
 
 
