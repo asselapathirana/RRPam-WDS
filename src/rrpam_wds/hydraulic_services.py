@@ -46,7 +46,7 @@ class pdd_service(object):
 
         for i, link in self.links.items():
             if (link.start.x == link.end.x):
-                link.start.x = link.start.x 
+                link.start.x = link.start.x
                 link.end.x = link.end.x
 
         # now extract vertices (if any)

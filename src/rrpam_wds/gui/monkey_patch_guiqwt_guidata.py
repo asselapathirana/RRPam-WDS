@@ -1,11 +1,11 @@
-from guiqwt.curve import CurvePlot, seg_dist_v, seg_dist
+import numpy as np
+from guidata.py3compat import maxsize
+from guiqwt.curve import CurveItem
+from guiqwt.curve import CurvePlot
 from guiqwt.curve import ItemListWidget
 from guiqwt.curve import get_icon
-from guiqwt.curve import CurveItem
-from guidata.py3compat import  maxsize
-
+from guiqwt.curve import seg_dist
 from PyQt5.QtCore import QPointF
-import numpy as np
 
 
 def _patch_all():
@@ -13,8 +13,10 @@ def _patch_all():
     _patch_curve_do_autoscale()
     _patch_curveitem_hit_test()
 
-def _patch_curveitem_hit_test ():
-    orig_hit_test = CurveItem.hit_test  # save the original method
+
+def _patch_curveitem_hit_test():
+    # we are not using the original method, we completely rewrite it.
+    # orig_hit_test = CurveItem.hit_test  # save the original method
 
     def custom_hit_test(self, pos):
         """Calcul de la distance d'un point à une courbe
@@ -33,26 +35,27 @@ def _patch_curveitem_hit_test ():
            np.count_nonzero(tmpy) != len(tmpy):
             # Avoid dividing by zero warning when computing dx or dy
             return maxsize, 0, False, None
-        tmpx=tmpx*tmpx
-        tmpy=tmpy*tmpy
-      
-        v=tmpx*tmpx+tmpy*tmpy
-        i=v.argmin()
-        
+        tmpx = tmpx * tmpx
+        tmpy = tmpy * tmpy
+
+        v = tmpx * tmpx + tmpy * tmpy
+        i = v.argmin()
+
         # Recalcule la distance dans le répère du widget
         p0x = plot.transform(ax, self._x[i])
         p0y = plot.transform(ay, self._y[i])
-        if i+1 >= self._x.shape[0]:
+        if i + 1 >= self._x.shape[0]:
             p1x = p0x
             p1y = p0y
         else:
-            p1x = plot.transform(ax, self._x[i+1])
-            p1y = plot.transform(ay, self._y[i+1])
+            p1x = plot.transform(ax, self._x[i + 1])
+            p1y = plot.transform(ay, self._y[i + 1])
         distance = seg_dist(QPointF(pos), QPointF(p0x, p0y), QPointF(p1x, p1y))
-        return distance, i, False, None    
+        return distance, i, False, None
 
     # now monkey patch
     CurveItem.hit_test = custom_hit_test
+
 
 def _patch_item_list():
     orig___get_item_icon = ItemListWidget._ItemListWidget__get_item_icon  # save the original method
