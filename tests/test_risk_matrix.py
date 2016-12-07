@@ -31,7 +31,7 @@ class test_risk_matrix(unittest.TestCase):
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing risk matrix")
-        self.rm=RiskMatrix()
+        self.rm = RiskMatrix()
         self.aw.addSubWindow(self.rm)
         self.rm.show()
         pass
@@ -48,21 +48,18 @@ class test_risk_matrix(unittest.TestCase):
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
         pass
 
-   
-
     def test_Risk_Map_is_derived_from_CurveDialogWithClosable(self):
 
-        isinstance(self.rm,CurveDialogWithClosable)
-        
+        isinstance(self.rm, CurveDialogWithClosable)
+
     def test_plot_item_will_create_a_circle(self):
-        pts0 = [x for x in self.rm.get_plot().get_items() if isinstance(x,EllipseShape)]
+        pts0 = [x for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
         self.rm.plot_item(5000.0, 50, title="foo")
         self.rm.plot_item(1000.0, 20, title="bar")
         self.rm.plot_item(8000.0, 70, title="bax")
-        pts1 = [x for x in self.rm.get_plot().get_items() if isinstance(x,EllipseShape)]
-        self.assertEqual(len(pts1),len(pts0)+3)
-        
-        
+        pts1 = [x for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
+        self.assertEqual(len(pts1), len(pts0) + 3)
+
 
 def drive(test=True):  # pragma: no cover
     if(test):

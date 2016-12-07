@@ -5,6 +5,8 @@ import sys
 
 from guiqwt.builder import make
 from guiqwt.plot import CurveDialog
+from guiqwt.styles import style_generator
+from guiqwt.styles import update_style_attr
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
@@ -14,6 +16,7 @@ from numpy import linspace
 from numpy import pi
 from numpy import sin
 from PyQt5 import QtCore
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QDialog
@@ -21,8 +24,6 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMdiArea
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtGui import QBrush, QPen, QColor
-from guiqwt.styles import style_generator, update_style_attr
 
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
@@ -39,28 +40,25 @@ STYLE = style_generator()
 class CurveDialogWithClosable(CurveDialog):
 
     """The mother dialog from which all the graph windows inherit from
-       The constructor can send 'options' keyward argument containing a dict. Following entries are 
+       The constructor can send 'options' keyward argument containing a dict. Following entries are
        possible
                  title=None,
                  xlabel=None, ylabel=None, xunit=None, yunit=None,
                  section="plot", show_itemlist=False, gridparam=None,
                  curve_antialiasing=None
-                 
-    
-    """
 
-    
+
+    """
 
     def __init__(self, *args, **kwargs):
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
         self._can_be_closed = True
-        self.get_plot().set_antialiasing(True) 
+        self.get_plot().set_antialiasing(True)
         self.add_tools()
-       
-        
+
     def set_scale(self, axes_limits=None):
         """Sets axes limits axes_limits should be a list with four float values [x0,x1,y0,y1] """
-        self.get_plot().PREFERRED_AXES_LIMITS=axes_limits
+        self.get_plot().PREFERRED_AXES_LIMITS = axes_limits
         # now autoscale
         self.get_plot().do_autoscale()
 
@@ -86,9 +84,9 @@ class CurveDialogWithClosable(CurveDialog):
 
 
 class RiskMatrix(CurveDialogWithClosable):
-    SCALE=10.
+    SCALE = 10.
 
-    def __init__(self, name="Risk Matrix", parent=None, options={}, axes_limits=[0,15000,0,100]):
+    def __init__(self, name="Risk Matrix", parent=None, options={}, axes_limits=[0, 15000, 0, 100]):
         if("xlabel" not in options):
             options['xlabel'] = "Consequence ($)"
         if("ylabel" not in options):
@@ -102,27 +100,24 @@ class RiskMatrix(CurveDialogWithClosable):
                                          options=options,
                                          parent=parent,
                                          panels=None,
-                                         wintitle=name) 
+                                         wintitle=name)
         self.set_scale(axes_limits)
 
     def plot_item(self, consequence, probability, title="Point"):
         global STYLE
-        ci=make.ellipse(consequence-self.SCALE, probability-self.SCALE, 
-                                  consequence+self.SCALE, probability+self.SCALE,
-                                  title=title)
-        
+        ci = make.ellipse(consequence - self.SCALE, probability - self.SCALE,
+                          consequence + self.SCALE, probability + self.SCALE,
+                          title=title)
+
         ci.shapeparam._DataSet__icon = u.get_icon('Risk')
-        ci.shapeparam._DataSet__title = title        
-        param=ci.shapeparam
-        param.fill.color=QColor('red')
+        ci.shapeparam._DataSet__title = title
+        param = ci.shapeparam
+        param.fill.color = QColor('red')
         update_style_attr('-r', param)
         param.update_shape(ci)
         self.get_plot().add_item(ci)
         self.get_plot().add_item(make.legend("TR"))
         ci.plot().replot()
-        
-     
-
 
 
 class NetworkMap(CurveDialogWithClosable):

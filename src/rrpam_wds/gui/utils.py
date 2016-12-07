@@ -15,8 +15,8 @@ def _get_type(epanet_network_item):
         return "N:" + epanet_network_item.id, 'node.png'
     if isinstance(epanet_network_item, Link):
         return "L:" + epanet_network_item.id, 'link.png'
-    if isinstance(epanet_network_item,str):
-        if(epanet_network_item=="Risk"):
+    if isinstance(epanet_network_item, str):
+        if(epanet_network_item == "Risk"):
             return "R:", 'link.png'
-        
+
     return "None", None
