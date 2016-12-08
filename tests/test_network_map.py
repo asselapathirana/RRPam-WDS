@@ -82,11 +82,11 @@ class test_network_map(unittest.TestCase):
         plot = nwm.get_plot()
         _xmin, _xmax = plot.get_axis_limits("bottom")
         _ymin, _ymax = plot.get_axis_limits("left")
-
-        self.assertAlmostEqual(xmin, _xmin, delta=5.0)
-        self.assertAlmostEqual(xmax, _xmax, delta=5.0)
-        self.assertAlmostEqual(ymin, _ymin, delta=5.0)
-        self.assertAlmostEqual(ymax, _ymax, delta=5.0)
+        delta=20.
+        self.assertAlmostEqual(xmin-delta, _xmin, delta=delta)
+        self.assertAlmostEqual(xmax+delta, _xmax, delta=delta)
+        self.assertAlmostEqual(ymin-delta, _ymin, delta=delta)
+        self.assertAlmostEqual(ymax+delta, _ymax, delta=delta)
         pass
 
     def test_NetworkMap_has_correct_number_of_link_representations(self):
@@ -158,7 +158,7 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = test_network_map()
         ot.setUp()
-        ot.test_Network_map_item_list_has_correct_icons()
+        ot.test_NetworkMap_scales_to_fit_network_on_creation()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
