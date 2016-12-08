@@ -3,16 +3,22 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 import random
 import sys
 
+from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
+from guiqwt.config import CONF
 from guiqwt.plot import CurveDialog
+from guiqwt.styles import style_generator
+from guiqwt.styles import update_style_attr
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 from numpy import arange
+from numpy import interp
 from numpy import linspace
 from numpy import pi
 from numpy import sin
 from PyQt5 import QtCore
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QDialog
@@ -21,18 +27,57 @@ from PyQt5.QtWidgets import QMdiArea
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
 
+import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
+from rrpam_wds.gui import monkey_patch_guiqwt_guidata
+from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
+
+# there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as
+# we need to user make.* facotry
+monkey_patch_guiqwt_guidata._patch_all()
+# show guiqwt where the images are.
+add_image_module_path("rrpam_wds.gui", "images")
+# this how we change an option
+CONF.set("plot", "selection/distance", 10.0)
+# todo: This has to be saved as project's setting file (CONF.save provides that facility)
+
+
+STYLE = style_generator()
 
 
 class CurveDialogWithClosable(CurveDialog):
 
-    """"The mother dialog from which all the graph windows inherit from"""
+    """The mother dialog from which all the graph windows inherit from
+       The constructor can send 'options' keyward argument containing a dict. Following entries are
+       possible
+                 title=None,
+                 xlabel=None, ylabel=None, xunit=None, yunit=None,
+                 section="plot", show_itemlist=False, gridparam=None,
+                 curve_antialiasing=None
+
+
+    """
 
     def __init__(self, *args, **kwargs):
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
+        self.add_tools()
+
+    def set_all_private(self):
+        """" Set all current items in the plot private"""
+        [x.set_private(True) for x in self.get_plot().get_items()]
+
+    def set_scale(self, axes_limits=None):
+        """Sets axes limits axes_limits should be a list with four float values [x0,x1,y0,y1] """
+        self.get_plot().PREFERRED_AXES_LIMITS = axes_limits
+        # now autoscale
+        self.get_plot().do_autoscale()
+
+    def add_tools(self):
+        """adds the custom tools necessary"""
+        self.add_tool(ResetZoomTool)
 
     def setClosable(self, closable=True):
         self._can_be_closed = closable
@@ -43,6 +88,127 @@ class CurveDialogWithClosable(CurveDialog):
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
+
+    def keyPressEvent(self, e):
+        if (e.key() != QtCore.Qt.Key_Escape):
+            super(CurveDialogWithClosable, self).keyPressEvent(e)
+        else:
+            pass
+
+
+class RiskMatrix(CurveDialogWithClosable):
+    SCALE = 10.
+
+    def __init__(self, name="Risk Matrix", parent=None, options={}, axes_limits=[0, 15000, 0, 100]):
+        if("xlabel" not in options):
+            options['xlabel'] = "Consequence ($)"
+        if("ylabel" not in options):
+            options['ylabel'] = "Proabability(-)"
+        if("gridparam" not in options):
+            options['gridparam'] = make.gridparam()
+
+        super(RiskMatrix, self).__init__(edit=False,
+                                         icon="guiqwt.svg",
+                                         toolbar=True,
+                                         options=options,
+                                         parent=parent,
+                                         panels=None,
+                                         wintitle=name)
+        self.set_scale(axes_limits)
+
+    def plot_item(self, consequence, probability, title="Point"):
+        global STYLE
+        ci = make.ellipse(consequence - self.SCALE, probability - self.SCALE,
+                          consequence + self.SCALE, probability + self.SCALE,
+                          title=title)
+
+        ci.shapeparam._DataSet__icon = u.get_icon('Risk')
+        ci.shapeparam._DataSet__title = title
+        param = ci.shapeparam
+        param.fill.color = QColor('red')
+        update_style_attr('-r', param)
+        param.update_shape(ci)
+        self.get_plot().add_item(ci)
+        self.get_plot().add_item(make.legend("TR"))
+        ci.plot().replot()
+
+
+class NetworkMap(CurveDialogWithClosable):
+
+    def __init__(self, name, nodes=None, links=None, parent=None, options={}):
+        pass
+        if("xlabel" not in options):
+            options['xlabel'] = "X (distance units)"
+        if("ylabel" not in options):
+            options['ylabel'] = "Y (distance units)"
+
+        gridparam = make.gridparam()
+
+        super(NetworkMap, self).__init__(edit=False,
+                                         icon="guiqwt.svg",
+                                         toolbar=True,
+                                         options=dict(gridparam=gridparam),
+                                         parent=parent,
+                                         panels=None)
+        # legend = make.legend("TR")
+        # self.get_plot().add_item(legend)
+        self.set_all_private()
+        if(nodes):
+            self.draw_nodes(nodes)
+
+        # we don't want users to select grid, or nodes and they should not appear in the item list.
+        # So lock'em up.
+        self.set_all_private()
+
+        if(links):
+            self.draw_links(links)
+        self.get_plot().do_autoscale(replot=True)
+
+    def interp_curve(self, x, y):
+        # how many points in the line (say max is 5)
+        DELTA = .01
+        t = arange(len(x))
+        t_ = arange(0, len(x) - 1 + DELTA, DELTA)
+        x_ = interp(t_, t, x)
+        y_ = interp(t_, t, y)
+
+        return x_, y_
+
+    def draw_links(self, links):
+        for link in links:
+            pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
+            x = [n[0] for n in pts]
+            y = [n[1] for n in pts]
+            x_, y_ = self.interp_curve(x, y)
+            cu = make.curve(x_, y_, title=u.get_title(link))
+            cu.curveparam._DataSet__icon = u.get_icon(link)
+            cu.curveparam._DataSet__title = u.get_title(link)
+            self.get_plot().add_item(cu)
+
+            # create a label for the node and add it to the plot
+            l = int(len(x_) / 2.0)
+            la = make.label(link.id, (x_[l], y_[l]), (0, 0), "C")
+            la.set_private(True)
+            self.get_plot().add_item(la)
+
+    def draw_nodes(self, nodes):
+
+        for node in nodes:
+            cu = make.curve([node.x, node.x], [node.y, node.y],
+                            # ^ this is a hack. gwiqwt curve has problems when constructed with single coordinae
+                            title=u.get_title(node), marker="Ellipse", curvestyle="NoCurve")
+            cu.set_selectable(False)
+            cu.set_private(True)
+            # pt=make.ellipse(node.x-.1,node.y-.1,node.x+.1,node.y+.1)
+            # pt=PointShape(x=node.x,y=node.y, color="g")
+            cu.curveparam._DataSet__icon = u.get_icon(node)
+            cu.curveparam._DataSet__title = u.get_title(node)
+            self.get_plot().add_item(cu)
+
+            # create a label for the node and add it to the plot
+            la = make.label(node.id, (node.x, node.y), (0, 0), "TL")
+            la.set_private(True)
+            self.get_plot().add_item(la)
 
 
 class optimalTimeGraph(CurveDialogWithClosable):
@@ -135,8 +301,6 @@ class MainWindow(QMainWindow):
 
         if q.text() == "New guiqwt":
             MainWindow.count = MainWindow.count + 1
-            # sub = QDialog()
-            # sub.setWidget(QTextEdit())
 
             self.new_window()
 
@@ -163,6 +327,7 @@ class MainWindow(QMainWindow):
         win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
         win.show()
+        return win
 
     def new_matplotlib_window(self, closable=True):
         win = MatplotlibDialog()
@@ -220,8 +385,6 @@ class MyMplCanvas(FigureCanvas):
         self.axes.hold(False)
 
         self.compute_initial_figure()
-
-        #
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 

@@ -1,6 +1,5 @@
 *.py[cod]
 
-
 # C extensions
 *.so
 
@@ -75,3 +74,8 @@ service/setup.exe
 service/*.log
 # screenshots created by testing
 src/screenshot-*.jpg
+#vim 
+*.swp
+
+log.txt
+prof.out

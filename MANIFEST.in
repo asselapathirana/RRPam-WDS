@@ -31,10 +31,11 @@ global-exclude *.py[cod] __pycache__ *.so *.dylib
 recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude tests ?.inp
-recursive-exclude tests log.txt
+global-exclude  log.txt
 recursive-exclude service *
 
-
+global-exclude *.swp
+global-exclude prof.out
 
 
 
