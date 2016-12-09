@@ -80,7 +80,7 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = test_optimal_time_graph()
         ot.setUp()
-        ot.test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable()
+        ot.test_optimalTimeGraph_creates_right_three_curves()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
