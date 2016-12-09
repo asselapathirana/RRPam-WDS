@@ -85,9 +85,7 @@ class CurveDialogWithClosable(CurveDialog):
 
     def closeEvent(self, evnt):
         if self._can_be_closed:
-            if(self.QMdiArea()):
-                self.QMdiArea.
-            #super(CurveDialogWithClosable, self).closeEvent(evnt)
+            super(CurveDialogWithClosable, self).closeEvent(evnt)
             
         else:
             evnt.ignore()
