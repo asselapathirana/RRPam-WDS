@@ -259,7 +259,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
                                                panels=None,
                                                wintitle=name)
         if (isinstance(self.mainwindow, MainWindow)):
-            self.mainwindow.optimaltimegraphs[id(self)] = self
+            self.mainwindow.optimaltimegraphs[id(self)] = self # reference 
+            self.mainwindow.optimaltimegraphalive[id(self)] = True # flag
 
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
@@ -271,9 +272,9 @@ class optimalTimeGraph(CurveDialogWithClosable):
     def closeEvent(self, evnt):
         if (not isinstance(self.mainwindow, MainWindow)):
             _can_be_closed = True
-        elif (len(self.mainwindow.optimaltimegraphs) > 1):
+        elif (self.mainwindow.get_number_of_optimaltimegraphs() > 1):
             _can_be_closed = True
-            del(self.mainwindow.optimaltimegraphs[id(self)])
+            self.mainwindow.optimaltimegraphalive[id(self)] = False
         else:
             _can_be_closed = False
 
@@ -321,6 +322,7 @@ class MainWindow(QMainWindow):
     windows live in."""
     count = 0
     optimaltimegraphs = {}
+    optimaltimegraphalive={}
 
     class emptyclass:
         pass
@@ -340,6 +342,9 @@ class MainWindow(QMainWindow):
         self.add_networkmap()
         self.add_riskmatrix()
         self.add_optimaltimegraph()
+        
+    def get_number_of_optimaltimegraphs(self):
+        return len([x for x in self.optimaltimegraphalive.values() if x ])
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)

@@ -63,10 +63,12 @@ class test_main_window(unittest.TestCase):
         list1 = self.aw.mdi.subWindowList()
         self.aw.add_riskmatrix()
         self.aw.add_networkmap()
-        self.aw.standard_windows()
+        self.aw.standard_windows() # this will add an extra optimal time graph only
         list2 = self.aw.mdi.subWindowList()
-        self.assertEqual(list1, list2)
-
+        flist1=[x for x in list1 if (isinstance(x.widget(), RiskMatrix) or isinstance(x.widget(), NetworkMap)) ]
+        flist2=[x for x in list2 if (isinstance(x.widget(), RiskMatrix) or isinstance(x.widget(), NetworkMap)) ]
+        self.assertEqual(flist1,flist2)
+        self.assertEqual(len(list1)+1,len(list2))
     def test_attempting_to_close_will_minimize_network_map_and_risk_matrix_and_the_last_optimal_time_graph(
             self):
 
@@ -106,7 +108,7 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = test_main_window()
         ot.setUp()
-        ot.test_multiple_optimal_time_graphs_can_be_added()
+        ot.test_last_remaining_optimal_time_graph_will_not_be_deleted_but_minimized()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
