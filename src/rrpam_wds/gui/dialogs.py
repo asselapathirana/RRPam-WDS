@@ -61,6 +61,7 @@ class CurveDialogWithClosable(CurveDialog):
 
     def __init__(self, *args, **kwargs):
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
         self.add_tools()
@@ -84,7 +85,10 @@ class CurveDialogWithClosable(CurveDialog):
 
     def closeEvent(self, evnt):
         if self._can_be_closed:
-            super(CurveDialogWithClosable, self).closeEvent(evnt)
+            if(self.QMdiArea()):
+                self.QMdiArea.
+            #super(CurveDialogWithClosable, self).closeEvent(evnt)
+            
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
@@ -343,11 +347,12 @@ class MainWindow(QMainWindow):
         self.add_riskmatrix()
         self.add_optimaltimegraph()
         
+        
     def get_number_of_optimaltimegraphs(self):
         return len([x for x in self.optimaltimegraphalive.values() if x ])
 
     def add_optimaltimegraph(self):
-        wlc = optimalTimeGraph(mainwindow=self)
+        wlc = optimalTimeGraph(mainwindow=self,parent=self.mdi)
         self.mdi.addSubWindow(wlc)
         wlc.show()
 
