@@ -82,11 +82,11 @@ class test_network_map(unittest.TestCase):
         plot = nwm.get_plot()
         _xmin, _xmax = plot.get_axis_limits("bottom")
         _ymin, _ymax = plot.get_axis_limits("left")
-        delta = 20.
-        self.assertAlmostEqual(xmin - delta, _xmin, delta=delta)
-        self.assertAlmostEqual(xmax + delta, _xmax, delta=delta)
-        self.assertAlmostEqual(ymin - delta, _ymin, delta=delta)
-        self.assertAlmostEqual(ymax + delta, _ymax, delta=delta)
+        delta=20.
+        self.assertAlmostEqual(xmin-delta, _xmin, delta=delta)
+        self.assertAlmostEqual(xmax+delta, _xmax, delta=delta)
+        self.assertAlmostEqual(ymin-delta, _ymin, delta=delta)
+        self.assertAlmostEqual(ymax+delta, _ymax, delta=delta)
         pass
 
     def test_NetworkMap_has_correct_number_of_link_representations(self):

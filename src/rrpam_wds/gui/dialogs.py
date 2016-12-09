@@ -1,8 +1,8 @@
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
-import math
 import random
 import sys
+import math
 
 from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
@@ -103,10 +103,9 @@ class CurveDialogWithClosable(CurveDialog):
 class RiskMatrix(CurveDialogWithClosable):
     SCALE = 10.
 
-    def __init__(self, name="Risk Matrix", parent=None,
-                 units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
+    def __init__(self, name="Risk Matrix", parent=None, units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
         if("xlabel" not in options):
-            options['xlabel'] = "Consequence (%s)" % (units)
+            options['xlabel'] = "Consequence (%s)" %(units)
         if("ylabel" not in options):
             options['ylabel'] = "Proabability(-)"
         if("gridparam" not in options):
@@ -120,29 +119,29 @@ class RiskMatrix(CurveDialogWithClosable):
                                          panels=None,
                                          wintitle=name)
         self.setClosable(False)
-        _axes_limits = axes_limits[0], axes_limits[1] * 1.1, axes_limits[2], axes_limits[3] * 1.1
+        _axes_limits=axes_limits[0],axes_limits[1]*1.1,axes_limits[2],axes_limits[3]*1.1
         self.set_axes_limits(_axes_limits)
-
-        l = make.legend("TR")
-        self.get_plot().add_item(l)
+        
+        l=make.legend("TR")
+        self.get_plot().add_item(l)        
         self.set_all_private()
 
-    def get_ellipse_xaxis(self, consequence, probability):
-        l = self.get_plot().PREFERRED_AXES_LIMITS
+    def get_ellipse_xaxis(self,consequence, probability):
+        l=self.get_plot().PREFERRED_AXES_LIMITS
         SCALE = self.get_scale(consequence, probability, l)
         return consequence - SCALE, probability + SCALE,\
-            consequence + SCALE, probability - SCALE
+               consequence + SCALE, probability - SCALE       
 
     def get_scale(self, consequence, probability, l):
-        SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
+        SCALE=self.SCALE*math.pow(consequence*probability,.25)/math.pow((l[1]*l[3]),.25)
         return SCALE
-
+    
     def get_proper_axis_limits(self):
-        return
+        return 
 
     def plot_item(self, consequence, probability, title="Point"):
         global STYLE
-        ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
+        ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability) ,
                           title=title)
 
         ci.shapeparam._DataSet__icon = u.get_icon('Risk')
@@ -151,14 +150,15 @@ class RiskMatrix(CurveDialogWithClosable):
         param.fill.color = QColor('red')
         param.sel_fill.color = QColor('purple')
         param.sel_fill.alpha = .7
-        param.sel_symbol.Marker = "NoSymbol"
-        param.sel_symbol.Color = QColor('red')
+        param.sel_symbol.Marker="NoSymbol"
+        param.sel_symbol.Color=QColor('red')
         update_style_attr('-r', param)
         param.update_shape(ci)
         self.get_plot().add_item(ci)
         # now add a label with title
-        # ci
-        # la = make.label(title, ci.get_center(), (0, 0), "C")
+        ci
+        la = make.label(title, ci.get_center(), (0, 0), "C")
+        
 
 
 class NetworkMap(CurveDialogWithClosable):
@@ -180,7 +180,7 @@ class NetworkMap(CurveDialogWithClosable):
                                          wintitle=name,
                                          panels=None)
         self.setClosable(False)
-
+        
         # legend = make.legend("TR")
         # self.get_plot().add_item(legend)
         self.set_all_private()
@@ -244,10 +244,9 @@ class NetworkMap(CurveDialogWithClosable):
 
 class optimalTimeGraph(CurveDialogWithClosable):
 
-    def __init__(self, name="Whole life cost", mainwindow=None,
-                 year=None, damagecost=None, renewalcost=None,
+    def __init__(self, name="Whole life cost", mainwindow=None, year=None, damagecost=None, renewalcost=None,
                  units=units["EURO"], parent=None, options={}):
-        self.mainwindow = mainwindow
+        self.mainwindow=mainwindow
         if("xlabel" not in options):
             options['xlabel'] = "Time(years)"
         if("ylabel" not in options):
@@ -262,31 +261,29 @@ class optimalTimeGraph(CurveDialogWithClosable):
                                                parent=parent,
                                                panels=None,
                                                wintitle=name)
-        if (isinstance(self.mainwindow, MainWindow)):
-            self.mainwindow.optimaltimegraphs[id(self)] = self # reference 
-            self.mainwindow.optimaltimegraphalive[id(self)] = True # flag
-
+        if (isinstance(self.mainwindow,MainWindow)):
+            self.mainwindow.optimaltimegraphs[id(self)]=self
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
         if(year is None or damagecost is None or renewalcost is None):
             pass
         else:
             self.plotCurveSet(name, year, damagecost, renewalcost)
-
+            
     def closeEvent(self, evnt):
-        if (not isinstance(self.mainwindow, MainWindow)):
-            _can_be_closed = True
-        elif (self.mainwindow.get_number_of_optimaltimegraphs() > 1):
-            _can_be_closed = True
-            self.mainwindow.optimaltimegraphalive[id(self)] = False
+        if (not isinstance(self.mainwindow,MainWindow)):
+            _can_be_closed=True
+        elif (len(self.mainwindow.optimaltimegraphs) > 1):
+            _can_be_closed=True
+            del(self.mainwindow.optimaltimegraphs[id(self)])
         else:
-            _can_be_closed = False
-
+            _can_be_closed=False
+            
         if _can_be_closed:
             super(CurveDialogWithClosable, self).closeEvent(evnt)
         else:
             evnt.ignore()
-            self.setWindowState(QtCore.Qt.WindowMinimized)
+            self.setWindowState(QtCore.Qt.WindowMinimized)    
 
     def plotCurveSet(self, name, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
@@ -325,15 +322,12 @@ class MainWindow(QMainWindow):
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
     count = 0
-    optimaltimegraphs = {}
-    optimaltimegraphalive={}
-
-    class emptyclass:
-        pass
-    menuitems = emptyclass
+    optimaltimegraphs={}
+    class emptyclass: pass
+    menuitems=emptyclass
     menuitems.new_wlc = "New WLC window"
-    menuitems.cascade = "Cascade"
-    menuitems.tiled = "Tiled"
+    menuitems.cascade ="Cascade"
+    menuitems.tiled  ="Tiled"
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -341,32 +335,30 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.mdi)
         self.setMenu()
         self.standard_windows()
-
+        
     def standard_windows(self):
         self.add_networkmap()
         self.add_riskmatrix()
         self.add_optimaltimegraph()
-        
-        
-    def get_number_of_optimaltimegraphs(self):
-        return len([x for x in self.optimaltimegraphalive.values() if x ])
 
+            
     def add_optimaltimegraph(self):
-        wlc = optimalTimeGraph(mainwindow=self,parent=self.mdi)
+        wlc=optimalTimeGraph(mainwindow=self)
         self.mdi.addSubWindow(wlc)
         wlc.show()
+        
 
     def add_riskmatrix(self):
-        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), RiskMatrix)])):
-            self.riskmatrix = RiskMatrix()
+        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(),RiskMatrix)])):
+            self.riskmatrix=RiskMatrix()
             self.mdi.addSubWindow(self.riskmatrix)
             self.riskmatrix.show()
 
     def add_networkmap(self):
-        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), NetworkMap)])):
-            self.networkmap = NetworkMap("Network Map")
-            self.mdi.addSubWindow(self.networkmap)
-            self.networkmap.show()
+        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(),NetworkMap)])):
+                    self.networkmap=NetworkMap("Network Map")
+                    self.mdi.addSubWindow(self.networkmap)
+                    self.networkmap.show()        
 
     def setMenu(self):
         bar = self.menuBar()

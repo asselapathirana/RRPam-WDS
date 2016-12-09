@@ -60,8 +60,8 @@ class test_risk_matrix(unittest.TestCase):
         self.rm.plot_item(15000.0, 100, title="bax")
         pts1 = [x for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
         self.assertEqual(len(pts1), len(pts0) + 4)
-        self.assertEqual(pts1[1].get_xdiameter(), self.rm.get_ellipse_xaxis(1000., 20.))
-
+        self.assertEqual(pts1[1].get_xdiameter(),self.rm.get_ellipse_xaxis(1000.,20.))
+        
 
 def drive(test=True):  # pragma: no cover
     if(test):
