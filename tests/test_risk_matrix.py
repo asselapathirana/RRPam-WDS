@@ -31,7 +31,7 @@ class test_risk_matrix(unittest.TestCase):
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing risk matrix")
-        self.rm = RiskMatrix()
+        self.rm = RiskMatrix(mainwindow=self.aw)
         self.aw.addSubWindow(self.rm)
         self.rm.show()
         pass

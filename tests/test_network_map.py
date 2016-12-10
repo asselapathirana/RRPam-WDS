@@ -47,7 +47,7 @@ class test_network_map(unittest.TestCase):
 
     def test_NetworkMap_is_derived_from_CurveDialogWithClosable(self):
         """NetworkMaph should be derived from CurveDialogWithClosable class"""
-        nwm = NetworkMap("foo", None, None, parent=self.aw)
+        nwm = NetworkMap(name="foo", nodes=None, links=None, parent=self.aw, mainwindow=self.aw)
         self.assertIsInstance(nwm, CurveDialogWithClosable)
         self.aw.addSubWindow(nwm)
 
@@ -65,7 +65,7 @@ class test_network_map(unittest.TestCase):
         e1 = hs.pdd_service(network, coords=True, adfcalc=False)
         nodes = e1.nodes.values()
         links = e1.links.values()
-        nwm = NetworkMap("foo", nodes, links, parent=self.aw)
+        nwm = NetworkMap(name="foo", nodes=nodes, links=links, parent=self.aw, mainwindow=self.aw)
         self.aw.addSubWindow(nwm)
         self.aw.show()
 

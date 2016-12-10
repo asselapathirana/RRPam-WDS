@@ -60,11 +60,14 @@ class CurveDialogWithClosable(CurveDialog):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
+        kwargs_ = dict(kwargs)
+        del kwargs_["mainwindow"]
+        super(CurveDialogWithClosable, self).__init__(*args, **kwargs_)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
         self.add_tools()
+        self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(kwargs['mainwindow'].selected_holder)
 
     def set_all_private(self):
         """" Set all current items in the plot private"""
@@ -101,7 +104,7 @@ class CurveDialogWithClosable(CurveDialog):
 class RiskMatrix(CurveDialogWithClosable):
     SCALE = 10.
 
-    def __init__(self, name="Risk Matrix", parent=None,
+    def __init__(self, name="Risk Matrix", mainwindow=None, parent=None,
                  units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
         if("xlabel" not in options):
             options['xlabel'] = "Consequence (%s)" % (units)
@@ -116,7 +119,8 @@ class RiskMatrix(CurveDialogWithClosable):
                                          options=options,
                                          parent=parent,
                                          panels=None,
-                                         wintitle=name)
+                                         wintitle=name,
+                                         mainwindow=mainwindow)
         self.setClosable(False)
         _axes_limits = axes_limits[0], axes_limits[1] * 1.1, axes_limits[2], axes_limits[3] * 1.1
         self.set_axes_limits(_axes_limits)
@@ -161,7 +165,8 @@ class RiskMatrix(CurveDialogWithClosable):
 
 class NetworkMap(CurveDialogWithClosable):
 
-    def __init__(self, name="Network Map", nodes=None, links=None, parent=None, options={}):
+    def __init__(self, name="Network Map", mainwindow=None,
+                 nodes=None, links=None, parent=None, options={}):
         pass
         if("xlabel" not in options):
             options['xlabel'] = "X (distance units)"
@@ -176,7 +181,8 @@ class NetworkMap(CurveDialogWithClosable):
                                          options=dict(gridparam=gridparam),
                                          parent=parent,
                                          wintitle=name,
-                                         panels=None)
+                                         panels=None,
+                                         mainwindow=mainwindow)
         self.setClosable(False)
 
         # legend = make.legend("TR")
@@ -259,7 +265,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
                                                options=options,
                                                parent=parent,
                                                panels=None,
-                                               wintitle=name)
+                                               wintitle=name,
+                                               mainwindow=mainwindow)
         if (isinstance(self.mainwindow, MainWindow)):
             self.mainwindow.optimaltimegraphs[id(self)] = self
         legend = make.legend("TR")
@@ -341,6 +348,12 @@ class MainWindow(QMainWindow):
         self.add_riskmatrix()
         self.add_optimaltimegraph()
 
+    def selected_holder(self):
+        self.update_all_plots_with_selection()
+
+    def update_all_plots_with_selection(self):
+        print("selection changed!")
+
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)
         self.mdi.addSubWindow(wlc)
@@ -348,13 +361,13 @@ class MainWindow(QMainWindow):
 
     def add_riskmatrix(self):
         if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), RiskMatrix)])):
-            self.riskmatrix = RiskMatrix()
+            self.riskmatrix = RiskMatrix(mainwindow=self)
             self.mdi.addSubWindow(self.riskmatrix)
             self.riskmatrix.show()
 
     def add_networkmap(self):
         if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), NetworkMap)])):
-            self.networkmap = NetworkMap("Network Map")
+            self.networkmap = NetworkMap("Network Map", mainwindow=self)
             self.mdi.addSubWindow(self.networkmap)
             self.networkmap.show()
 
@@ -389,9 +402,9 @@ class MainWindow(QMainWindow):
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)
 
-    def new_window(self, closable=True):
+    def new_window(self, closable=True, mainwindow=None):
         win = CurveDialogWithClosable(
-            edit=False, toolbar=True, wintitle="CurveDialog test",
+            edit=False, toolbar=True, wintitle="CurveDialog test", mainwindow=mainwindow,
             options=dict(title="Title", xlabel="xlabel", ylabel="ylabel"))
         win.setClosable(closable)
         self.plot_some_junk(win)

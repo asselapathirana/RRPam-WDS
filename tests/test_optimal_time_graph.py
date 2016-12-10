@@ -44,7 +44,8 @@ class test_optimal_time_graph(unittest.TestCase):
 
     def test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
-        tg1 = optimalTimeGraph("set1", None, None, None, parent=self.aw)
+        tg1 = optimalTimeGraph(name="set1", damagecost=None, renewalcost=None,
+                               year=None, parent=self.aw, mainwindow=self.aw)
         self.assertIsInstance(tg1, CurveDialogWithClosable)
         self.aw.addSubWindow(tg1)
 
@@ -54,7 +55,8 @@ class test_optimal_time_graph(unittest.TestCase):
         damagecost = year**2.1
         renewalcost = (100 - year)**1.9
         tg1 = optimalTimeGraph(
-            "set1", year=year, damagecost=damagecost, renewalcost=renewalcost, parent=self.aw)
+            "set1", year=year, damagecost=damagecost, renewalcost=renewalcost,
+            parent=self.aw, mainwindow=self.aw)
         self.aw.addSubWindow(tg1)
         it = [x for x in tg1.get_plot().get_items() if (
             isinstance(x, CurveItem))]

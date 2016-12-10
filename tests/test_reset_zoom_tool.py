@@ -29,7 +29,7 @@ class test_reset_zoom_tool(unittest.TestCase):
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing optimal time graph")
-        self.win = self.aw.new_window()
+        self.win = self.aw.new_window(mainwindow=self.aw)
         pass
 
     def tearDown(self):
