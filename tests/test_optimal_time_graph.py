@@ -54,7 +54,7 @@ class test_optimal_time_graph(unittest.TestCase):
         damagecost = year**2.1
         renewalcost = (100 - year)**1.9
         tg1 = optimalTimeGraph(
-            "set1", year, damagecost, renewalcost, parent=self.aw)
+            "set1", year=year, damagecost=damagecost, renewalcost=renewalcost, parent=self.aw)
         self.aw.addSubWindow(tg1)
         it = [x for x in tg1.get_plot().get_items() if (
             isinstance(x, CurveItem))]
