@@ -34,6 +34,7 @@ RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
             orig___del__(self)
         except:
             print("Better to fix me later.")
+
     # now monkey patch
     CurvePlot.__del__ = custom__del__
 

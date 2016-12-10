@@ -5,10 +5,12 @@ import time
 import unittest
 
 import numpy as np
+import pytest
 from guiqwt import tests
 from guiqwt.plot import CurveDialog
 from numpy.testing import assert_array_almost_equal
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTimer
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -112,8 +114,8 @@ def drive(test=True):  # pragma: no cover
         ot = test_main_window()
         ot.setUp()
         ot.test_last_remaining_optimal_time_graph_will_not_be_deleted_but_minimized()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
+        # ot.aw.show()
+        # sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
     drive(test=False)
