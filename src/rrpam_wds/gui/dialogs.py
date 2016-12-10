@@ -279,6 +279,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             
         if _can_be_closed:
             super(CurveDialogWithClosable, self).closeEvent(evnt)
+            pass
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)    
@@ -319,8 +320,8 @@ class MainWindow(QMainWindow):
 
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
-    count = 0
-    optimaltimegraphs={}
+
+
     class emptyclass: pass
     menuitems=emptyclass
     menuitems.new_wlc = "New WLC window"
@@ -329,6 +330,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
+        self.optimaltimegraphs={}
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.setMenu()

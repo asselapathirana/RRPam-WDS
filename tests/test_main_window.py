@@ -55,12 +55,14 @@ class test_main_window(unittest.TestCase):
         self.assertTrue(len([x for x in list1 if (isinstance(x.widget(),NetworkMap)) ]),1)
         
     def test_main_window_will_not_add_more_than_one_network_map_or_risk_matrix(self):
-        self.aw.standard_windows()
-        list1=self.aw.mdi.subWindowList()
-        self.aw.add_riskmatrix()
-        self.aw.add_networkmap()
-        self.aw.standard_windows()
+        self.aw.standard_windows() # Adds riskmatrix, network map and a optimaltimegraph
+        list1=self.aw.mdi.subWindowList() # should have above three
+        self.aw.add_riskmatrix() # try adding a rm
+        self.aw.add_networkmap() # try adding a nm
+        self.aw.standard_windows()  # this will add only an extra optimaltimegraph
         list2=self.aw.mdi.subWindowList()
+        list1=[x for x in list1 if not isinstance(x.widget(),optimalTimeGraph)]
+        list2=[x for x in list2 if not isinstance(x.widget(),optimalTimeGraph)]
         self.assertEqual(list1,list2)
         
         
@@ -92,7 +94,10 @@ class test_main_window(unittest.TestCase):
         self.aw.add_optimaltimegraph() # now we have 
         self.close_all_windows()
         list2=self.aw.mdi.subWindowList() 
-        self.assertEqual(len(list1),len(list2))        
+       # print(list1)
+       # print(list2)
+        self.assertEqual(len(list1),len(list2)) 
+        
         for w in self.aw.mdi.subWindowList():
             self.assertTrue(w.isMinimized())
         
