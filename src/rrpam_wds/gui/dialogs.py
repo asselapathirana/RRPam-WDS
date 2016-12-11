@@ -4,7 +4,6 @@ import math
 import random
 import sys
 
-
 from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
 from guiqwt.config import CONF
@@ -14,7 +13,8 @@ from guiqwt.styles import update_style_attr
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from numpy import arange, array
+from numpy import arange
+from numpy import array
 from numpy import interp
 from numpy import linspace
 from numpy import pi
@@ -70,7 +70,7 @@ class CurveDialogWithClosable(CurveDialog):
         self.add_tools()
         self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(kwargs['mainwindow'].selected_holder)
         self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
-        self.myplotitems={}
+        self.myplotitems = {}
 
     def set_all_private(self):
         """" Set all current items in the plot private"""
@@ -102,26 +102,24 @@ class CurveDialogWithClosable(CurveDialog):
             super(CurveDialogWithClosable, self).keyPressEvent(e)
         else:
             pass
-        
-        
+
     def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
         raise NotImplemented
-        
 
     def add_plot_item_to_record(self, id_, item):
         """All the plot items register here by calling this method. See also: remove_plot_item_from_record"""
-        self.myplotitems[id_]=item
-        
-    def remove_plot_item_from_record(self,id_):
+        self.myplotitems[id_] = item
+
+    def remove_plot_item_from_record(self, id_):
         """When removing a plot item it should be notified to this function. See also: add_plot_item_to_record """
         del self.myplotitems[id_]
-        
+
     def __item_removed(self, goner):
-        tmplist=dict(self.myplotitems)
+        tmplist = dict(self.myplotitems)
         for id_, item in tmplist.items():
             if goner in item:
-                #first remove related items. 
-                others=[x for x in item if x!=goner]
+                # first remove related items.
+                others = [x for x in item if x != goner]
                 for i in others:
                     try:
                         self.get_plot().del_item(i)
@@ -131,9 +129,6 @@ class CurveDialogWithClosable(CurveDialog):
                     self.remove_plot_item_from_record(id_)
                 except:
                     pass
-    
-        
-        
 
 
 class RiskMatrix(CurveDialogWithClosable):
@@ -194,15 +189,12 @@ class RiskMatrix(CurveDialogWithClosable):
         param.sel_symbol.Color = QColor('red')
         update_style_attr('-r', param)
         param.update_shape(ci)
-        ci.id_=id_ # add the ide to the item before plotting.
+        ci.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(ci)
         # now add a label with title
         # ci
         # la = make.label(title, ci.get_center(), (0, 0), "C")
         self.add_plot_item_to_record(id_, [ci])
-        
-        
-        
 
 
 class NetworkMap(CurveDialogWithClosable):
@@ -266,7 +258,7 @@ class NetworkMap(CurveDialogWithClosable):
         cu = make.curve(x_, y_, title=title)
         cu.curveparam._DataSet__icon = icon
         cu.curveparam._DataSet__title = title
-        cu.id_=id_ # add the ide to the item before plotting.
+        cu.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(cu)
 
         # create a label for the node and add it to the plot
@@ -274,8 +266,8 @@ class NetworkMap(CurveDialogWithClosable):
         la = make.label(id_, (x_[l], y_[l]), (0, 0), "C")
         la.set_private(True)
         self.get_plot().add_item(la)
-        
-        self.add_plot_item_to_record(id_,[cu,la])
+
+        self.add_plot_item_to_record(id_, [cu, la])
 
     def draw_nodes(self, nodes):
 
@@ -344,7 +336,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
     def plot_item(self, id_, data, title, icon="pipe.png"):
         year, damagecost, renewalcost = data
-        self.add_plot_item_to_record(id_,self.plotCurveSet(title, year, damagecost, renewalcost))
+        self.add_plot_item_to_record(id_, self.plotCurveSet(title, year, damagecost, renewalcost))
 
     def plotCurveSet(self, id_, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
@@ -356,7 +348,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle=None, baseline=None,
             xaxis="bottom", yaxis="left")
-        dc.id_=id_ # add the ide to the item before plotting.
+        dc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(dc)
         rc = make.curve(
             year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
@@ -366,7 +358,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle=None, baseline=None,
             xaxis="bottom", yaxis="left")
-        rc.id_=id_ # add the ide to the item before plotting.
+        rc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(rc)
         tc = make.curve(
             year, array(damagecost) + array(renewalcost), title="Total Cost", color=c, linestyle=None,
@@ -376,7 +368,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle="Lines", baseline=None,
             xaxis="bottom", yaxis="left")
-        tc.id_=id_ # add the ide to the item before plotting.
+        tc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(tc)
         self.curvesets.append([id_, dc, tc, rc])
         return [dc, tc, rc]
@@ -393,7 +385,7 @@ class MainWindow(QMainWindow):
     menuitems.new_wlc = "New WLC window"
     menuitems.cascade = "Cascade"
     menuitems.tiled = "Tiled"
-    
+
     update_selected_items = True
 
     def __init__(self, parent=None):
@@ -417,22 +409,22 @@ class MainWindow(QMainWindow):
     def update_all_plots_with_selection(self, widget):
         print("selection changed!")
         # firt get all subplots
-        subplots=[x.get_plot() for x in self.optimaltimegraphs.values()]
+        subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
         subplots.append(self.riskmatrix.get_plot())
         subplots.append(self.networkmap.get_plot())
         # OK, now remove the plot represented by the argument 'widget'
-        subplots=filter(lambda a: a != widget, subplots)
-        # now select the selections of 'widget' in them. 
-        selected_ids=[x.id_ for x in widget.get_selected_items()]
+        subplots = filter(lambda a: a != widget, subplots)
+        # now select the selections of 'widget' in them.
+        selected_ids = [x.id_ for x in widget.get_selected_items()]
         for p in subplots:
             # first switch off responding to selections
-            self.update_selected_items=False
+            self.update_selected_items = False
             # find corressponding items
-            targets=[x for x in p.get_items() if getattr(x,'id_',None) in selected_ids]
+            targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
             # now update
             p.select_some_items(targets)
-            # don't forget to reset 
-            self.update_selected_items=True
+            # don't forget to reset
+            self.update_selected_items = True
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)
