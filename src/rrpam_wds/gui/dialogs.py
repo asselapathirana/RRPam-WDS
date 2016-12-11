@@ -142,11 +142,13 @@ class RiskMatrix(CurveDialogWithClosable):
     def get_proper_axis_limits(self):
         return
 
-    def plot_item(self, consequence, probability, title="Point"):
+    def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
         global STYLE
+            
+        consequence, probability=data
+        
         ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
                           title=title)
-
         ci.shapeparam._DataSet__icon = u.get_icon('Risk')
         ci.shapeparam._DataSet__title = title
         param = ci.shapeparam
@@ -212,19 +214,26 @@ class NetworkMap(CurveDialogWithClosable):
     def draw_links(self, links):
         for link in links:
             pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
-            x = [n[0] for n in pts]
-            y = [n[1] for n in pts]
-            x_, y_ = self.interp_curve(x, y)
-            cu = make.curve(x_, y_, title=u.get_title(link))
-            cu.curveparam._DataSet__icon = u.get_icon(link)
-            cu.curveparam._DataSet__title = u.get_title(link)
-            self.get_plot().add_item(cu)
+            title=u.get_title(link)
+            icon=u.get_icon(link)
+            id_=link.id
+            self.plot_item(id_, pts, title, icon)
+            
 
-            # create a label for the node and add it to the plot
-            l = int(len(x_) / 2.0)
-            la = make.label(link.id, (x_[l], y_[l]), (0, 0), "C")
-            la.set_private(True)
-            self.get_plot().add_item(la)
+    def plot_item(self, id_, data, title, icon="pipe.png"):
+        x = [n[0] for n in data]
+        y = [n[1] for n in data]
+        x_, y_ = self.interp_curve(x, y)
+        cu = make.curve(x_, y_, title=title)
+        cu.curveparam._DataSet__icon = icon
+        cu.curveparam._DataSet__title = title
+        self.get_plot().add_item(cu)
+
+        # create a label for the node and add it to the plot
+        l = int(len(x_) / 2.0)
+        la = make.label(id_, (x_[l], y_[l]), (0, 0), "C")
+        la.set_private(True)
+        self.get_plot().add_item(la)
 
     def draw_nodes(self, nodes):
 
@@ -290,8 +299,13 @@ class optimalTimeGraph(CurveDialogWithClosable):
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
+            
+    def plot_item(self,id_,data,title, icon="pipe.png"):
+        year, damagcost, renewalcost = data
+        plotCurveSet(title,year,damagecost,renewalcost,id_)
+    
 
-    def plotCurveSet(self, name, year, damagecost, renewalcost):
+    def plotCurveSet(self, name, year, damagecost, renewalcost, id_=None):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
         dc = make.curve(
             year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",

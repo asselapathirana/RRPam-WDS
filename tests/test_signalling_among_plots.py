@@ -54,7 +54,7 @@ class test_main_window(unittest.TestCase):
         rm = self.aw.riskmatrix
         nm = self.aw.networkmap
         ot = list(self.aw.optimaltimegraphs.values())[0]
-        rm.plot_item(5000, 50)
+        rm.plot_item("fox", [5000, 50], title="fox")
         with mock.patch.object(self.aw, 'update_all_plots_with_selection', autospec=True) as mock_update_all_plots_with_selection:
             self.assertFalse(mock_update_all_plots_with_selection.called)
             risk_item = [x for x in rm.get_plot().get_items() if isinstance(x, EllipseShape)][0]
