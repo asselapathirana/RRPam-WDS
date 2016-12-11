@@ -13,6 +13,30 @@ def _patch_all():
     _patch_item_list()
     _patch_curve_do_autoscale()
     _patch_curveitem_hit_test()
+    _patch_curveplot___del__()
+
+
+def _patch_curveplot___del__():
+    """1. Close a subwindow within qmidarea. 2. Close the application
+    It crashes with the message:
+    Traceback (most recent call last):
+  File "/home/user/miniconda3/envs/py34/lib/python3.5/site-packages/guiqwt/curve.py", line 1404, in __del__
+    canvas.removeEventFilter(self.filter)
+RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
+
+    Currently I assume this is a bug in the curve.__del__ routine, not an issure of my implementation.
+    So, just adding a try: except clause
+    """
+    orig___del__ = CurvePlot.__del__
+
+    def custom__del__(self):
+        try:
+            orig___del__(self)
+        except:
+            print("Better to fix me later.")
+
+    # now monkey patch
+    CurvePlot.__del__ = custom__del__
 
 
 def _patch_curveitem_hit_test():

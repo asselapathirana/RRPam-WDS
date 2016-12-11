@@ -19,4 +19,4 @@ def _get_type(epanet_network_item):
         if(epanet_network_item == "Risk"):
             return "R:", 'link.png'
 
-    return "None", None
+    return "None", "curve.png"

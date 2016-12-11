@@ -1,5 +1,6 @@
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
+import math
 import random
 import sys
 
@@ -13,6 +14,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 from numpy import arange
+from numpy import array
 from numpy import interp
 from numpy import linspace
 from numpy import pi
@@ -42,7 +44,6 @@ add_image_module_path("rrpam_wds.gui", "images")
 CONF.set("plot", "selection/distance", 10.0)
 # todo: This has to be saved as project's setting file (CONF.save provides that facility)
 
-
 STYLE = style_generator()
 
 
@@ -60,16 +61,22 @@ class CurveDialogWithClosable(CurveDialog):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CurveDialogWithClosable, self).__init__(*args, **kwargs)
+        kwargs_ = dict(kwargs)
+        del kwargs_["mainwindow"]
+        super(CurveDialogWithClosable, self).__init__(*args, **kwargs_)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
         self.add_tools()
+        self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(kwargs['mainwindow'].selected_holder)
+        self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
+        self.myplotitems = {}
 
     def set_all_private(self):
         """" Set all current items in the plot private"""
         [x.set_private(True) for x in self.get_plot().get_items()]
 
-    def set_scale(self, axes_limits=None):
+    def set_axes_limits(self, axes_limits=None):
         """Sets axes limits axes_limits should be a list with four float values [x0,x1,y0,y1] """
         self.get_plot().PREFERRED_AXES_LIMITS = axes_limits
         # now autoscale
@@ -85,6 +92,7 @@ class CurveDialogWithClosable(CurveDialog):
     def closeEvent(self, evnt):
         if self._can_be_closed:
             super(CurveDialogWithClosable, self).closeEvent(evnt)
+
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
@@ -95,47 +103,104 @@ class CurveDialogWithClosable(CurveDialog):
         else:
             pass
 
+    def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
+        raise NotImplemented
+
+    def add_plot_item_to_record(self, id_, item):
+        """All the plot items register here by calling this method. See also: remove_plot_item_from_record"""
+        self.myplotitems[id_] = item
+
+    def remove_plot_item_from_record(self, id_):
+        """When removing a plot item it should be notified to this function. See also: add_plot_item_to_record """
+        del self.myplotitems[id_]
+
+    def __item_removed(self, goner):
+        tmplist = dict(self.myplotitems)
+        for id_, item in tmplist.items():
+            if goner in item:
+                # first remove related items.
+                others = [x for x in item if x != goner]
+                for i in others:
+                    try:
+                        self.get_plot().del_item(i)
+                    except:
+                        pass
+                try:
+                    self.remove_plot_item_from_record(id_)
+                except:
+                    pass
+
 
 class RiskMatrix(CurveDialogWithClosable):
     SCALE = 10.
 
-    def __init__(self, name="Risk Matrix", parent=None, options={}, axes_limits=[0, 15000, 0, 100]):
+    def __init__(self, name="Risk Matrix", mainwindow=None, parent=None,
+                 units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
         if("xlabel" not in options):
-            options['xlabel'] = "Consequence ($)"
+            options['xlabel'] = "Consequence (%s)" % (units)
         if("ylabel" not in options):
             options['ylabel'] = "Proabability(-)"
         if("gridparam" not in options):
             options['gridparam'] = make.gridparam()
 
         super(RiskMatrix, self).__init__(edit=False,
-                                         icon="guiqwt.svg",
+                                         icon="risk.svg",
                                          toolbar=True,
                                          options=options,
                                          parent=parent,
                                          panels=None,
-                                         wintitle=name)
-        self.set_scale(axes_limits)
+                                         wintitle=name,
+                                         mainwindow=mainwindow)
+        self.setClosable(False)
+        _axes_limits = axes_limits[0], axes_limits[1] * 1.1, axes_limits[2], axes_limits[3] * 1.1
+        self.set_axes_limits(_axes_limits)
 
-    def plot_item(self, consequence, probability, title="Point"):
+        l = make.legend("TR")
+        self.get_plot().add_item(l)
+        self.set_all_private()
+
+    def get_ellipse_xaxis(self, consequence, probability):
+        l = self.get_plot().PREFERRED_AXES_LIMITS
+        SCALE = self.get_scale(consequence, probability, l)
+        return consequence - SCALE, probability + SCALE,\
+            consequence + SCALE, probability - SCALE
+
+    def get_scale(self, consequence, probability, l):
+        SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
+        return SCALE
+
+    def get_proper_axis_limits(self):
+        return
+
+    def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
         global STYLE
-        ci = make.ellipse(consequence - self.SCALE, probability - self.SCALE,
-                          consequence + self.SCALE, probability + self.SCALE,
-                          title=title)
 
+        consequence, probability = data
+
+        ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
+                          title=title)
         ci.shapeparam._DataSet__icon = u.get_icon('Risk')
         ci.shapeparam._DataSet__title = title
         param = ci.shapeparam
         param.fill.color = QColor('red')
+        param.sel_fill.color = QColor('purple')
+        param.sel_fill.alpha = .7
+        param.sel_symbol.Marker = "NoSymbol"
+        param.sel_symbol.Color = QColor('red')
         update_style_attr('-r', param)
         param.update_shape(ci)
+        ci.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(ci)
-        self.get_plot().add_item(make.legend("TR"))
-        ci.plot().replot()
+        # now add a label with title
+        # ci
+        # la = make.label(title, ci.get_center(), (0, 0), "C")
+        self.add_plot_item_to_record(id_, [ci])
 
 
 class NetworkMap(CurveDialogWithClosable):
 
-    def __init__(self, name, nodes=None, links=None, parent=None, options={}):
+    def __init__(self, name="Network Map", mainwindow=None,
+                 nodes=None, links=None, parent=None, options={}):
         pass
         if("xlabel" not in options):
             options['xlabel'] = "X (distance units)"
@@ -145,11 +210,15 @@ class NetworkMap(CurveDialogWithClosable):
         gridparam = make.gridparam()
 
         super(NetworkMap, self).__init__(edit=False,
-                                         icon="guiqwt.svg",
+                                         icon="network.svg",
                                          toolbar=True,
                                          options=dict(gridparam=gridparam),
                                          parent=parent,
-                                         panels=None)
+                                         wintitle=name,
+                                         panels=None,
+                                         mainwindow=mainwindow)
+        self.setClosable(False)
+
         # legend = make.legend("TR")
         # self.get_plot().add_item(legend)
         self.set_all_private()
@@ -177,19 +246,28 @@ class NetworkMap(CurveDialogWithClosable):
     def draw_links(self, links):
         for link in links:
             pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
-            x = [n[0] for n in pts]
-            y = [n[1] for n in pts]
-            x_, y_ = self.interp_curve(x, y)
-            cu = make.curve(x_, y_, title=u.get_title(link))
-            cu.curveparam._DataSet__icon = u.get_icon(link)
-            cu.curveparam._DataSet__title = u.get_title(link)
-            self.get_plot().add_item(cu)
+            title = u.get_title(link)
+            icon = u.get_icon(link)
+            id_ = link.id
+            self.plot_item(id_, pts, title, icon)
 
-            # create a label for the node and add it to the plot
-            l = int(len(x_) / 2.0)
-            la = make.label(link.id, (x_[l], y_[l]), (0, 0), "C")
-            la.set_private(True)
-            self.get_plot().add_item(la)
+    def plot_item(self, id_, data, title, icon="pipe.png"):
+        x = [n[0] for n in data]
+        y = [n[1] for n in data]
+        x_, y_ = self.interp_curve(x, y)
+        cu = make.curve(x_, y_, title=title)
+        cu.curveparam._DataSet__icon = icon
+        cu.curveparam._DataSet__title = title
+        cu.id_ = id_  # add the ide to the item before plotting.
+        self.get_plot().add_item(cu)
+
+        # create a label for the node and add it to the plot
+        l = int(len(x_) / 2.0)
+        la = make.label(id_, (x_[l], y_[l]), (0, 0), "C")
+        la.set_private(True)
+        self.get_plot().add_item(la)
+
+        self.add_plot_item_to_record(id_, [cu, la])
 
     def draw_nodes(self, nodes):
 
@@ -213,24 +291,27 @@ class NetworkMap(CurveDialogWithClosable):
 
 class optimalTimeGraph(CurveDialogWithClosable):
 
-    def __init__(self, name, year, damagecost, renewalcost,
-                 units=units["EURO"], parent=None, options={}):
+    def __init__(self, name="Whole life cost", mainwindow=None, year=None,
+                 damagecost=None, renewalcost=None, units=units["EURO"],
+                 parent=None, options={}):
+        self.mainwindow = mainwindow
         if("xlabel" not in options):
             options['xlabel'] = "Time(years)"
         if("ylabel" not in options):
             options['ylabel'] = "Cost (%s)" % (units)
 
-        # if("wintitle" not in options):
-        #     options['wintitle'] = "Costs against time"
-
         self.curvesets = []
 
         super(optimalTimeGraph, self).__init__(edit=False,
-                                               icon="guiqwt.svg",
+                                               icon="wlc.svg",
                                                toolbar=True,
                                                options=options,
                                                parent=parent,
-                                               panels=None)
+                                               panels=None,
+                                               wintitle=name,
+                                               mainwindow=mainwindow)
+        if (isinstance(self.mainwindow, MainWindow)):
+            self.mainwindow.optimaltimegraphs[id(self)] = self
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
         if(year is None or damagecost is None or renewalcost is None):
@@ -238,7 +319,26 @@ class optimalTimeGraph(CurveDialogWithClosable):
         else:
             self.plotCurveSet(name, year, damagecost, renewalcost)
 
-    def plotCurveSet(self, name, year, damagecost, renewalcost):
+    def closeEvent(self, evnt):
+        if (not isinstance(self.mainwindow, MainWindow)):
+            _can_be_closed = True
+        elif (len(self.mainwindow.optimaltimegraphs) > 1):
+            _can_be_closed = True
+            del(self.mainwindow.optimaltimegraphs[id(self)])
+        else:
+            _can_be_closed = False
+
+        if _can_be_closed:
+            super(optimalTimeGraph, self).closeEvent(evnt)
+        else:
+            evnt.ignore()
+            self.setWindowState(QtCore.Qt.WindowMinimized)
+
+    def plot_item(self, id_, data, title, icon="pipe.png"):
+        year, damagecost, renewalcost = data
+        self.add_plot_item_to_record(id_, self.plotCurveSet(title, year, damagecost, renewalcost))
+
+    def plotCurveSet(self, id_, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
         dc = make.curve(
             year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
@@ -248,6 +348,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle=None, baseline=None,
             xaxis="bottom", yaxis="left")
+        dc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(dc)
         rc = make.curve(
             year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
@@ -257,74 +358,130 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle=None, baseline=None,
             xaxis="bottom", yaxis="left")
+        rc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(rc)
         tc = make.curve(
-            year, damagecost + renewalcost, title="Total Cost", color=c, linestyle=None,
+            year, array(damagecost) + array(renewalcost), title="Total Cost", color=c, linestyle=None,
             linewidth=5, marker=None,
             markersize=None,
             markerfacecolor=None,
             markeredgecolor=None, shade=None,
             curvestyle="Lines", baseline=None,
             xaxis="bottom", yaxis="left")
+        tc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(tc)
-        self.curvesets.append([name, dc, tc, rc])
+        self.curvesets.append([id_, dc, tc, rc])
+        return [dc, tc, rc]
 
 
 class MainWindow(QMainWindow):
 
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
-    count = 0
+
+    class emptyclass:
+        pass
+    menuitems = emptyclass
+    menuitems.new_wlc = "New WLC window"
+    menuitems.cascade = "Cascade"
+    menuitems.tiled = "Tiled"
+
+    update_selected_items = True
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
+        self.optimaltimegraphs = {}
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.setMenu()
-        # self.new_window(closable=False)
+        self.standard_windows()
+
+    def standard_windows(self):
+        self.add_networkmap()
+        self.add_riskmatrix()
+        self.add_optimaltimegraph()
+
+    def selected_holder(self, widget):
+        """ When mocking remember do not patch slots. This is a slot. So, instead patch the function this calls below. """
+        if(self.update_selected_items):
+            self.update_all_plots_with_selection(widget)
+
+    def update_all_plots_with_selection(self, widget):
+        print("selection changed!")
+        # firt get all subplots
+        subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
+        subplots.append(self.riskmatrix.get_plot())
+        subplots.append(self.networkmap.get_plot())
+        # OK, now remove the plot represented by the argument 'widget'
+        subplots = filter(lambda a: a != widget, subplots)
+        # now select the selections of 'widget' in them.
+        selected_ids = [x.id_ for x in widget.get_selected_items()]
+        for p in subplots:
+            # first switch off responding to selections
+            self.update_selected_items = False
+            # find corressponding items
+            targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
+            # now update
+            p.select_some_items(targets)
+            # don't forget to reset
+            self.update_selected_items = True
+
+    def add_optimaltimegraph(self):
+        wlc = optimalTimeGraph(mainwindow=self)
+        self.mdi.addSubWindow(wlc)
+        wlc.show()
+
+    def add_riskmatrix(self):
+        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), RiskMatrix)])):
+            self.riskmatrix = RiskMatrix(mainwindow=self)
+            self.mdi.addSubWindow(self.riskmatrix)
+            self.riskmatrix.show()
+
+    def add_networkmap(self):
+        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), NetworkMap)])):
+            self.networkmap = NetworkMap("Network Map", mainwindow=self)
+            self.mdi.addSubWindow(self.networkmap)
+            self.networkmap.show()
 
     def setMenu(self):
         bar = self.menuBar()
 
         file = bar.addMenu("File")
-        file.addAction("New guiqwt")
-        file.addAction("New matplotlib")
+        file.addAction(self.menuitems.new_wlc)
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu("View")
-        file2.addAction("cascade")
-        file2.addAction("Tiled")
+        file2.addAction(self.menuitems.cascade)
+        file2.addAction(self.menuitems.tiled)
         file2.triggered[QAction].connect(self.windowaction)
         self.setWindowTitle("MDI demo")
 
     def windowaction(self, q):
         print("triggered")
 
-        if q.text() == "New guiqwt":
-            MainWindow.count = MainWindow.count + 1
-
-            self.new_window()
+        if q.text() == self.menuitems.new_wlc:
+            self.add_optimaltimegraph()
 
         if q.text() == "New matplotlib":
-            MainWindow.count = MainWindow.count + 1
+            # MainWindow.count = MainWindow.count + 1
             self.new_matplotlib_window()
 
-        if q.text() == "cascade":
+        if q.text() == self.menuitems.cascade:
             self.mdi.cascadeSubWindows()
 
-        if q.text() == "Tiled":
+        if q.text() == self.menuitems.tiled:
             self.mdi.tileSubWindows()
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)
 
-    def new_window(self, closable=True):
+    def new_window(self, closable=True, mainwindow=None):
         win = CurveDialogWithClosable(
-            edit=False, toolbar=True, wintitle="CurveDialog test",
+            edit=False, toolbar=True, wintitle="CurveDialog test", mainwindow=mainwindow,
             options=dict(title="Title", xlabel="xlabel", ylabel="ylabel"))
         win.setClosable(closable)
         self.plot_some_junk(win)
 
-        win.setWindowTitle("subwindow" + str(MainWindow.count))
+        # win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
         win.show()
         return win
@@ -334,7 +491,7 @@ class MainWindow(QMainWindow):
         # win.setClosable(closable)
         # self.plot_some_junk(win)
 
-        win.setWindowTitle("subwindow" + str(MainWindow.count))
+        # win.setWindowTitle("subwindow" + str(MainWindow.count))
         self.mdi.addSubWindow(win)
         win.show()
 
