@@ -3,8 +3,6 @@ import os
 import sys
 import time
 import unittest
-from unittest.mock import MagicMock
-
 import mock
 import numpy as np
 import pytest
@@ -62,7 +60,7 @@ class test_main_window(unittest.TestCase):
             risk_item = [x for x in rm.get_plot().get_items() if isinstance(x, EllipseShape)][0]
             rm.get_plot().select_item(risk_item)
             self.assertTrue(mock_update_all_plots_with_selection.called)
-            link = MagicMock()
+            link = mock.MagicMock()
             link.start.x = 50
             link.start.y = 100
             link.end.x = 500
