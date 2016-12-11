@@ -68,6 +68,8 @@ class CurveDialogWithClosable(CurveDialog):
         self.get_plot().set_antialiasing(True)
         self.add_tools()
         self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(kwargs['mainwindow'].selected_holder)
+        self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
+        self.myplotitems={}
 
     def set_all_private(self):
         """" Set all current items in the plot private"""
@@ -99,6 +101,31 @@ class CurveDialogWithClosable(CurveDialog):
             super(CurveDialogWithClosable, self).keyPressEvent(e)
         else:
             pass
+        
+        
+    def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
+        raise NotImplemented
+        
+
+    def add_plot_item_to_record(self, id_, item):
+        """All the plot items register here by calling this method. See also: remove_plot_item_from_record"""
+        self.myplotitems[id_]=item
+        
+    def remove_plot_item_from_record(self,id_):
+        """When removing a plot item it should be notified to this function. See also: add_plot_item_to_record """
+        del self.myplotitems[id_]
+        
+    def __item_removed(self, goner):
+        for id_, item in self.myplotitems.items():
+            if goner in item:
+                #first remove related items. 
+                others=[x for x in item if x!=goner]
+                for i in others:
+                    self.get_plot().removeItem(i)
+                self.remove_plot_item_from_record(id_)
+    
+        
+        
 
 
 class RiskMatrix(CurveDialogWithClosable):
@@ -144,9 +171,9 @@ class RiskMatrix(CurveDialogWithClosable):
 
     def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
         global STYLE
-            
-        consequence, probability=data
-        
+
+        consequence, probability = data
+
         ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
                           title=title)
         ci.shapeparam._DataSet__icon = u.get_icon('Risk')
@@ -163,6 +190,10 @@ class RiskMatrix(CurveDialogWithClosable):
         # now add a label with title
         # ci
         # la = make.label(title, ci.get_center(), (0, 0), "C")
+        self.add_plot_item_to_record(id_, [ci])
+        
+        
+        
 
 
 class NetworkMap(CurveDialogWithClosable):
@@ -214,11 +245,10 @@ class NetworkMap(CurveDialogWithClosable):
     def draw_links(self, links):
         for link in links:
             pts = [(link.start.x, link.start.y)] + link.vertices + [(link.end.x, link.end.y)]
-            title=u.get_title(link)
-            icon=u.get_icon(link)
-            id_=link.id
+            title = u.get_title(link)
+            icon = u.get_icon(link)
+            id_ = link.id
             self.plot_item(id_, pts, title, icon)
-            
 
     def plot_item(self, id_, data, title, icon="pipe.png"):
         x = [n[0] for n in data]
@@ -234,6 +264,8 @@ class NetworkMap(CurveDialogWithClosable):
         la = make.label(id_, (x_[l], y_[l]), (0, 0), "C")
         la.set_private(True)
         self.get_plot().add_item(la)
+        
+        self.add_plot_item_to_record(id_,[cu,la])
 
     def draw_nodes(self, nodes):
 
@@ -299,11 +331,10 @@ class optimalTimeGraph(CurveDialogWithClosable):
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
-            
-    def plot_item(self,id_,data,title, icon="pipe.png"):
-        year, damagcost, renewalcost = data
-        plotCurveSet(title,year,damagecost,renewalcost,id_)
-    
+
+    def plot_item(self, id_, data, title, icon="pipe.png"):
+        year, damagecost, renewalcost = data
+        self.add_plot_item_to_record(id_,self.plotCurveSet(title, year, damagecost, renewalcost, id_))
 
     def plotCurveSet(self, name, year, damagecost, renewalcost, id_=None):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
@@ -335,6 +366,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             xaxis="bottom", yaxis="left")
         self.get_plot().add_item(tc)
         self.curvesets.append([name, dc, tc, rc])
+        return [dc, tc, rc]
 
 
 class MainWindow(QMainWindow):
