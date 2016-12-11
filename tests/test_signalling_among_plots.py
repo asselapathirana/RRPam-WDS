@@ -76,8 +76,8 @@ class test_main_window(unittest.TestCase):
 
             mock_update_all_plots_with_selection.reset_mock()
             self.assertFalse(mock_update_all_plots_with_selection.called)
-            ot.plotCurveSet("Fox", np.array([1997, 1998, 1999]), np.array(
-                [8, 10, 15]), np.array([25, 20, 18]))
+            ot.plotCurveSet("Fox", [1997, 1998, 1999], 
+                [8, 10, 15], [25, 20, 18])
             ot_item = [x for x in ot.get_plot().get_items() if isinstance(x, CurveItem)][0]
             rm.get_plot().select_item(ot_item)
             self.assertTrue(mock_update_all_plots_with_selection.called)

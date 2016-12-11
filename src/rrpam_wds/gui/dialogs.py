@@ -4,6 +4,7 @@ import math
 import random
 import sys
 
+
 from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
 from guiqwt.config import CONF
@@ -13,7 +14,7 @@ from guiqwt.styles import update_style_attr
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from numpy import arange
+from numpy import arange, array
 from numpy import interp
 from numpy import linspace
 from numpy import pi
@@ -116,13 +117,20 @@ class CurveDialogWithClosable(CurveDialog):
         del self.myplotitems[id_]
         
     def __item_removed(self, goner):
-        for id_, item in self.myplotitems.items():
+        tmplist=dict(self.myplotitems)
+        for id_, item in tmplist.items():
             if goner in item:
                 #first remove related items. 
                 others=[x for x in item if x!=goner]
                 for i in others:
-                    self.get_plot().removeItem(i)
-                self.remove_plot_item_from_record(id_)
+                    try:
+                        self.get_plot().del_item(i)
+                    except:
+                        pass
+                try:
+                    self.remove_plot_item_from_record(id_)
+                except:
+                    pass
     
         
         
@@ -357,7 +365,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             xaxis="bottom", yaxis="left")
         self.get_plot().add_item(rc)
         tc = make.curve(
-            year, damagecost + renewalcost, title="Total Cost", color=c, linestyle=None,
+            year, array(damagecost) + array(renewalcost), title="Total Cost", color=c, linestyle=None,
             linewidth=5, marker=None,
             markersize=None,
             markerfacecolor=None,
