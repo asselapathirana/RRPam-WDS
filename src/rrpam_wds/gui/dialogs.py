@@ -194,6 +194,7 @@ class RiskMatrix(CurveDialogWithClosable):
         param.sel_symbol.Color = QColor('red')
         update_style_attr('-r', param)
         param.update_shape(ci)
+        ci.id_=id_ # add the ide to the item before plotting.
         self.get_plot().add_item(ci)
         # now add a label with title
         # ci
@@ -265,6 +266,7 @@ class NetworkMap(CurveDialogWithClosable):
         cu = make.curve(x_, y_, title=title)
         cu.curveparam._DataSet__icon = icon
         cu.curveparam._DataSet__title = title
+        cu.id_=id_ # add the ide to the item before plotting.
         self.get_plot().add_item(cu)
 
         # create a label for the node and add it to the plot
@@ -342,9 +344,9 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
     def plot_item(self, id_, data, title, icon="pipe.png"):
         year, damagecost, renewalcost = data
-        self.add_plot_item_to_record(id_,self.plotCurveSet(title, year, damagecost, renewalcost, id_))
+        self.add_plot_item_to_record(id_,self.plotCurveSet(title, year, damagecost, renewalcost))
 
-    def plotCurveSet(self, name, year, damagecost, renewalcost, id_=None):
+    def plotCurveSet(self, id_, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
         dc = make.curve(
             year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
@@ -354,6 +356,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle=None, baseline=None,
             xaxis="bottom", yaxis="left")
+        dc.id_=id_ # add the ide to the item before plotting.
         self.get_plot().add_item(dc)
         rc = make.curve(
             year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
@@ -363,6 +366,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle=None, baseline=None,
             xaxis="bottom", yaxis="left")
+        rc.id_=id_ # add the ide to the item before plotting.
         self.get_plot().add_item(rc)
         tc = make.curve(
             year, array(damagecost) + array(renewalcost), title="Total Cost", color=c, linestyle=None,
@@ -372,8 +376,9 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle="Lines", baseline=None,
             xaxis="bottom", yaxis="left")
+        tc.id_=id_ # add the ide to the item before plotting.
         self.get_plot().add_item(tc)
-        self.curvesets.append([name, dc, tc, rc])
+        self.curvesets.append([id_, dc, tc, rc])
         return [dc, tc, rc]
 
 
@@ -388,6 +393,8 @@ class MainWindow(QMainWindow):
     menuitems.new_wlc = "New WLC window"
     menuitems.cascade = "Cascade"
     menuitems.tiled = "Tiled"
+    
+    update_selected_items = True
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -402,11 +409,30 @@ class MainWindow(QMainWindow):
         self.add_riskmatrix()
         self.add_optimaltimegraph()
 
-    def selected_holder(self):
-        self.update_all_plots_with_selection()
+    def selected_holder(self, widget):
+        """ When mocking remember do not patch slots. This is a slot. So, instead patch the function this calls below. """
+        if(self.update_selected_items):
+            self.update_all_plots_with_selection(widget)
 
-    def update_all_plots_with_selection(self):
+    def update_all_plots_with_selection(self, widget):
         print("selection changed!")
+        # firt get all subplots
+        subplots=[x.get_plot() for x in self.optimaltimegraphs.values()]
+        subplots.append(self.riskmatrix.get_plot())
+        subplots.append(self.networkmap.get_plot())
+        # OK, now remove the plot represented by the argument 'widget'
+        subplots=filter(lambda a: a != widget, subplots)
+        # now select the selections of 'widget' in them. 
+        selected_ids=[x.id_ for x in widget.get_selected_items()]
+        for p in subplots:
+            # first switch off responding to selections
+            self.update_selected_items=False
+            # find corressponding items
+            targets=[x for x in p.get_items() if getattr(x,'id_',None) in selected_ids]
+            # now update
+            p.select_some_items(targets)
+            # don't forget to reset 
+            self.update_selected_items=True
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)
