@@ -17,9 +17,13 @@ from numpy import arange
 from numpy import array
 from numpy import interp
 from numpy import linspace
+from numpy import max
+from numpy import min
 from numpy import pi
 from numpy import sin
 from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
@@ -34,6 +38,7 @@ from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
 from rrpam_wds.gui import monkey_patch_guiqwt_guidata
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
+from rrpam_wds.project_manager import ProjectManager as PM
 
 # there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as
 # we need to user make.* facotry
@@ -152,12 +157,15 @@ class RiskMatrix(CurveDialogWithClosable):
                                          wintitle=name,
                                          mainwindow=mainwindow)
         self.setClosable(False)
-        _axes_limits = axes_limits[0], axes_limits[1] * 1.1, axes_limits[2], axes_limits[3] * 1.1
-        self.set_axes_limits(_axes_limits)
+        self.set_axes_limits(axes_limits)
 
         l = make.legend("TR")
         self.get_plot().add_item(l)
         self.set_all_private()
+
+    def set_axes_limits(self, axes_limits):
+        _axes_limits = axes_limits[0], axes_limits[1] * 1.1, axes_limits[2], axes_limits[3] * 1.1
+        super(RiskMatrix, self).set_axes_limits(_axes_limits)
 
     def get_ellipse_xaxis(self, consequence, probability):
         l = self.get_plot().PREFERRED_AXES_LIMITS
@@ -169,8 +177,20 @@ class RiskMatrix(CurveDialogWithClosable):
         SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
         return SCALE
 
-    def get_proper_axis_limits(self):
-        return
+    def set_proper_axis_limits(self, data):
+        a = array(data).T
+        min_x, min_y = min(a, axis=0)
+        max_x, max_y = max(a, axis=0)
+        _axes_limits = [min_x, max_x, min_y, max_y]
+        self.set_axes_limits(_axes_limits)
+
+    def plot_links(self, links):
+        adfs = [x.cons for x in links]
+        prob = [x.prob for x in links]
+        # first compute bounding box
+        self.set_proper_axis_limits([adfs, prob])
+        for link in links:
+            self.plot_item(id_=link.id, data=[link.cons, link.prob], title="Point", icon="pipe.png")
 
     def plot_item(self, id_, data, title="Point",  icon="pipe.png"):
         global STYLE
@@ -222,9 +242,11 @@ class NetworkMap(CurveDialogWithClosable):
         # legend = make.legend("TR")
         # self.get_plot().add_item(legend)
         self.set_all_private()
+        self.draw_network(nodes, links)
+
+    def draw_network(self, nodes, links):
         if(nodes):
             self.draw_nodes(nodes)
-
         # we don't want users to select grid, or nodes and they should not appear in the item list.
         # So lock'em up.
         self.set_all_private()
@@ -266,6 +288,7 @@ class NetworkMap(CurveDialogWithClosable):
         la = make.label(id_, (x_[l], y_[l]), (0, 0), "C")
         la.set_private(True)
         self.get_plot().add_item(la)
+        la.set_private(True)
 
         self.add_plot_item_to_record(id_, [cu, la])
 
@@ -379,12 +402,17 @@ class MainWindow(QMainWindow):
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
 
+    _open_project_signal = pyqtSignal()
+
     class emptyclass:
         pass
     menuitems = emptyclass
-    menuitems.new_wlc = "New WLC window"
-    menuitems.cascade = "Cascade"
-    menuitems.tiled = "Tiled"
+    menuitems.file = "&File"
+    menuitems.view = "&View"
+    menuitems.new_wlc = "New &WLC window"
+    menuitems.cascade = "&Cascade"
+    menuitems.tiled = "&Tiled"
+    menuitems.open_project = "&Open project"
 
     update_selected_items = True
 
@@ -395,6 +423,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.mdi)
         self.setMenu()
         self.standard_windows()
+        self.connect_project_manager()
+
+    def connect_project_manager(self):
+        self.pm = PM()
+        self._open_project_signal.connect(self.pm.open_project)
+        self.pm.heres_a_project_signal.connect(self.display_project)
 
     def standard_windows(self):
         self.add_networkmap()
@@ -408,23 +442,26 @@ class MainWindow(QMainWindow):
 
     def update_all_plots_with_selection(self, widget):
         print("selection changed!")
-        # firt get all subplots
-        subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
-        subplots.append(self.riskmatrix.get_plot())
-        subplots.append(self.networkmap.get_plot())
-        # OK, now remove the plot represented by the argument 'widget'
-        subplots = filter(lambda a: a != widget, subplots)
-        # now select the selections of 'widget' in them.
-        selected_ids = [x.id_ for x in widget.get_selected_items()]
-        for p in subplots:
-            # first switch off responding to selections
-            self.update_selected_items = False
-            # find corressponding items
-            targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
-            # now update
-            p.select_some_items(targets)
-            # don't forget to reset
-            self.update_selected_items = True
+        try:
+            # firt get all subplots
+            subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
+            subplots.append(self.riskmatrix.get_plot())
+            subplots.append(self.networkmap.get_plot())
+            # OK, now remove the plot represented by the argument 'widget'
+            subplots = filter(lambda a: a != widget, subplots)
+            # now select the selections of 'widget' in them.
+            selected_ids = [x.id_ for x in widget.get_selected_items()]
+            for p in subplots:
+                # first switch off responding to selections
+                self.update_selected_items = False
+                # find corressponding items
+                targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
+                # now update
+                p.select_some_items(targets)
+                # don't forget to reset
+                self.update_selected_items = True
+        except:
+            print("non selectable item!")
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)
@@ -445,15 +482,15 @@ class MainWindow(QMainWindow):
 
     def setMenu(self):
         bar = self.menuBar()
-
-        file = bar.addMenu("File")
+        bar.setNativeMenuBar(False)  # disable different treatment in Mac OS
+        file = bar.addMenu(self.menuitems.file)
         file.addAction(self.menuitems.new_wlc)
+        file.addAction(self.menuitems.open_project)
         file.triggered[QAction].connect(self.windowaction)
-        file2 = bar.addMenu("View")
+        file2 = bar.addMenu(self.menuitems.view)
         file2.addAction(self.menuitems.cascade)
         file2.addAction(self.menuitems.tiled)
         file2.triggered[QAction].connect(self.windowaction)
-        self.setWindowTitle("MDI demo")
 
     def windowaction(self, q):
         print("triggered")
@@ -461,15 +498,33 @@ class MainWindow(QMainWindow):
         if q.text() == self.menuitems.new_wlc:
             self.add_optimaltimegraph()
 
-        if q.text() == "New matplotlib":
+        if q.text() == self.menuitems.open_project:
             # MainWindow.count = MainWindow.count + 1
-            self.new_matplotlib_window()
+            self._open_project()
 
         if q.text() == self.menuitems.cascade:
             self.mdi.cascadeSubWindows()
 
         if q.text() == self.menuitems.tiled:
             self.mdi.tileSubWindows()
+
+    def _open_project(self):
+        self._open_project_signal.emit()
+
+    @pyqtSlot(object)
+    def display_project(self, project):
+        """Will display the items represented in the project."""
+
+        print("I got it!")
+        self._display_project(project)
+
+    def _display_project(self, project):
+        nodes = project.nodes
+        links = project.links
+        # id_  =project.id
+        self.networkmap.draw_network(nodes, links)
+        self.riskmatrix.plot_links(links)
+        pass
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)

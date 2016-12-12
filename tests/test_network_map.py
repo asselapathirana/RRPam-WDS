@@ -62,7 +62,7 @@ class test_network_map(unittest.TestCase):
             # see dialogs.draw_nodes function to know why
 
     def draw_a_network(self, network=ex.networks[0]):
-        e1 = hs.pdd_service(network, coords=True, adfcalc=False)
+        e1 = hs.pdd_service(network, coords=True, adfcalc=True)
         nodes = e1.nodes.values()
         links = e1.links.values()
         nwm = NetworkMap(name="foo", nodes=nodes, links=links, parent=self.aw, mainwindow=self.aw)
