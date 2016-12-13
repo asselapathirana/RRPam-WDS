@@ -1,22 +1,12 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import sys
 import time
 import unittest
 
-import numpy as np
-import pytest
-from guiqwt import tests
-from guiqwt.plot import CurveDialog
-from numpy.testing import assert_array_almost_equal
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QTimer
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMdiArea
 
-from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import NetworkMap
 from rrpam_wds.gui.dialogs import RiskMatrix
@@ -34,19 +24,15 @@ class test_main_window(unittest.TestCase):
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing main window")
 
-        pass
-
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-        pass
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_mainwindow_is_derived_from_QMainWindow(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
@@ -99,8 +85,8 @@ class test_main_window(unittest.TestCase):
         self.aw.add_optimaltimegraph()  # now we have
         self.close_all_windows()
         list2 = self.aw.mdi.subWindowList()
-       # print(list1)
-       # print(list2)
+        # print(list1)
+        # print(list2)
         self.assertEqual(len(list1), len(list2))
 
         for w in self.aw.mdi.subWindowList():

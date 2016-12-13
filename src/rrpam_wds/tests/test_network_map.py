@@ -1,13 +1,8 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import sys
 import time
 import unittest
 
-import numpy as np
-from guiqwt import tests
-from guiqwt.plot import CurveDialog
-from numpy.testing import assert_array_almost_equal
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
@@ -48,19 +43,15 @@ class TestNetworkMap(unittest.TestCase):
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing optimal time graph")
 
-        pass
-
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-        pass
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_NetworkMap_is_derived_from_CurveDialogWithClosable(self):
         """NetworkMaph should be derived from CurveDialogWithClosable class"""
@@ -95,7 +86,6 @@ class TestNetworkMap(unittest.TestCase):
         self.assertAlmostEqual(xmax + delta, _xmax, delta=delta)
         self.assertAlmostEqual(ymin - delta, _ymin, delta=delta)
         self.assertAlmostEqual(ymax + delta, _ymax, delta=delta)
-        pass
 
     def test_NetworkMap_has_correct_number_of_link_representations(self):
         for i, network in enumerate(ex.networks[0:1]):  # only one network to make it fast
@@ -163,14 +153,12 @@ class TestNetworkMap(unittest.TestCase):
 
     def test_Network_map_item_list_has_correct_icons(self):
         import rrpam_wds.gui.utils as u
-        from guiqwt.curve import CurveItem
         pdds, nwm = draw_a_network(self.aw, network=ex.networks[2])
         # select a link
         l = pdds.links[3]
-        n = pdds.nodes[4]
+        pdds.nodes[4]
         link = [x for x in nwm.get_plot().itemList() if x.title().text() == u.get_title(l)][0]
         self.assertEqual(link.curveparam._DataSet__icon, u.get_icon(l))
-        pass
 
 
 def drive(test=True):  # pragma: no cover

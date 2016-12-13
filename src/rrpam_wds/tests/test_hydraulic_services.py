@@ -20,9 +20,9 @@ class Testhydraulicservices(unittest.TestCase):
     def tearDown(self):
         pass
 
-    #@pytest.mark.skip(reason="no way of currently testing this")
-    # def test_total_demand_returns_sum_of_nodal_demands():
-        # assert False
+# @pytest.mark.skip(reason="no way of currently testing this")
+# def test_total_demand_returns_sum_of_nodal_demands():
+# assert False
 
     def test_pdd_service_get_total_demand_calls_run_in_EPANetSimulation(self):
         self.e1 = hs.pdd_service(ex.networks[0])

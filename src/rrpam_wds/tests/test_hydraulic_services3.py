@@ -2,8 +2,6 @@ import numbers
 import time
 import unittest
 
-from epanettools.epanettools import EPANetSimulation
-from mock import patch
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
@@ -25,7 +23,6 @@ class Testhydraulicservices(unittest.TestCase):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
-        pass
 
     def test_pdd_service_network_nodes_have_coordinates(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False, adfcalc=False)

@@ -1,8 +1,6 @@
 import time
 import unittest
 
-from epanettools.epanettools import EPANetSimulation
-from mock import patch
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
@@ -24,7 +22,6 @@ class Testhydraulicservices(unittest.TestCase):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
-        pass
 
     def test_pdd_service_network_links_have_diameter_length_and_ADF(self):
         d = 15.
@@ -37,7 +34,7 @@ class Testhydraulicservices(unittest.TestCase):
         self.assertAlmostEqual(self.e3.links['TX'].ADF, .0, delta=.2)
         print("\n")
         for i, link in self.e3.links.items():
-            print ("%s\t %0.3f" % (link.id, link.ADF))
+            print("%s\t %0.3f" % (link.id, link.ADF))
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main(verbosity=2)

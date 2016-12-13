@@ -240,7 +240,6 @@ class NetworkMap(CurveDialogWithClosable):
 
     def __init__(self, name="Network Map", mainwindow=None,
                  nodes=None, links=None, parent=None, options={}):
-        pass
         if("xlabel" not in options):
             options['xlabel'] = "X (distance units)"
         if("ylabel" not in options):
@@ -544,7 +543,6 @@ class MainWindow(QMainWindow):
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.riskmatrix.plot_links(links)
-        pass
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)

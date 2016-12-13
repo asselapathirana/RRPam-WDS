@@ -1,26 +1,19 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import sys
 import time
 import unittest
-import random
 
 from gui_test_tools import uniquestring
-from guiqwt import tests
-from guiqwt.plot import CurveDialog
-from PyQt5 import QtTest
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
-from rrpam_wds.constants import units
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
 from test_network_map import draw_a_network
 from rrpam_wds.examples import examples as ex
 
 from guiqwt.label import LabelItem
-from guiqwt.curve import CurveItem
 
 
 class mdi_graph_test(unittest.TestCase):
@@ -33,13 +26,11 @@ class mdi_graph_test(unittest.TestCase):
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing multi document window")
-        pass
 
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
-        pass
 
     def selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id(self):
         e1, nwm = draw_a_network(self.aw, network=ex.networks[0])
@@ -96,7 +87,6 @@ class mdi_graph_test(unittest.TestCase):
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_dummy(self):
         pass

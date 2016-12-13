@@ -1,15 +1,10 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import sys
 import time
 import unittest
 
 import numpy as np
-from guiqwt import tests
-from guiqwt.plot import CurveDialog
 from numpy.testing import assert_array_almost_equal
-from PyQt5.QtCore import Qt
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
@@ -28,19 +23,15 @@ class test_optimal_time_graph(unittest.TestCase):
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing optimal time graph")
 
-        pass
-
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-        pass
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
@@ -73,7 +64,6 @@ class test_optimal_time_graph(unittest.TestCase):
         assert_array_almost_equal(it[4].get_data(), (year, renewalcost * 1.2))
         assert_array_almost_equal(
             it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
-        pass
 
 
 def drive(test=True):  # pragma: no cover

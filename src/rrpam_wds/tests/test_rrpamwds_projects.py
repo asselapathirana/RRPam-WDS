@@ -1,30 +1,15 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import random
 import sys
 import time
 import unittest
 
 import mock
-import numpy as np
-import pytest
-from guiqwt import tests
 from guiqwt.curve import CurveItem
-from guiqwt.plot import CurveDialog
 from guiqwt.shapes import EllipseShape
-from numpy.testing import assert_array_almost_equal
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QTimer
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QMdiArea
 
-from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.gui.dialogs import NetworkMap
-from rrpam_wds.gui.dialogs import RiskMatrix
-from rrpam_wds.gui.dialogs import optimalTimeGraph
 from rrpam_wds.project_manager import ProjectManager as PM
 
 
@@ -39,14 +24,11 @@ class test_main_window(unittest.TestCase):
         self.aw = MainWindow()
         self.aw.setWindowTitle("RRPAMWDS Projject tests")
 
-        pass
-
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-        pass
 
     def run_in_a_thread(self, test_):
         """This method will run test_ function in a seperate thread. Mainloop will continue while this runs.
@@ -72,7 +54,6 @@ class test_main_window(unittest.TestCase):
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_clicking_file_new_wlc_will_create_a_new_wlc_window(self):
         """This is the test for opening and existing project. For the moment, the project details are hard-coded.
@@ -117,7 +98,7 @@ class test_main_window(unittest.TestCase):
         from rrpam_wds.project_manager import WorkerThread
 
         def custom_open_project(self):
-            print ("I am reading an epanet file")
+            print("I am reading an epanet file")
 
             class emptyclass:
                 pass

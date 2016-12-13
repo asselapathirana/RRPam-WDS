@@ -1,29 +1,14 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import sys
 import time
 import unittest
 
 import mock
-import numpy as np
-import pytest
-from guiqwt import tests
 from guiqwt.curve import CurveItem
-from guiqwt.plot import CurveDialog
 from guiqwt.shapes import EllipseShape
-from numpy.testing import assert_array_almost_equal
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QTimer
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QMdiArea
 
-from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.gui.dialogs import NetworkMap
-from rrpam_wds.gui.dialogs import RiskMatrix
-from rrpam_wds.gui.dialogs import optimalTimeGraph
 
 
 class test_keeping_records(unittest.TestCase):
@@ -37,19 +22,15 @@ class test_keeping_records(unittest.TestCase):
         self.aw = MainWindow()
         self.aw.setWindowTitle("Records tests")
 
-        pass
-
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-        pass
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_riskmatrix_report_adding_to_the_register(self):
         rm = self.aw.riskmatrix
