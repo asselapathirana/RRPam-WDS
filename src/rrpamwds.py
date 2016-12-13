@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QApplication
 from rrpam_wds.cli import Main
 
 
-class Tester(QObject):
+class Demo(QObject):
     finished = pyqtSignal()
     addAWindow = pyqtSignal(int)
     timetogo = pyqtSignal()
@@ -21,10 +21,10 @@ class Tester(QObject):
 
     def __init__(self, mainwindow):
         self.mainwindow = mainwindow
-        super(Tester, self).__init__()
+        super(Demo, self).__init__()
 
     @pyqtSlot()
-    def do_some_testing(self):  # A slot takes no params
+    def do_some_demos(self):  # A slot takes no params
 
         for i in range(1, 11):
             time.sleep(1)
@@ -59,14 +59,14 @@ if (len(sys.argv) == 1):  # plain run
 
 else:  # run as a test. Open, run tests and close.
     main = Main()
-    tester = Tester(main.win)
+    tester = Demo(main.win)
     thread = QThread()
     tester.moveToThread(thread)
     tester.addAWindow.connect(main.win.new_window)
     tester.finished.connect(thread.quit)
     # ^ this is also needed to prevent gui from freezing upon finishing the
     # thread.
-    thread.started.connect(tester.do_some_testing)
+    thread.started.connect(tester.do_some_demos)
     tester.timetogo.connect(main.app.exit)
     thread.start()
     main.show_application()

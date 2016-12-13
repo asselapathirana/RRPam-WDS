@@ -5,6 +5,9 @@ pip install flake8
 flake8 setup.py tests src |cat -n
 - fixing them
 autopep8 --in-place --recursive --max-line-length=100 src tests *.py -v -a
+# following can help removing unused imports 
+autoflake --in-place --remove-unused-variables example.py
+
 then try 
 flake8 src *.py tests
 

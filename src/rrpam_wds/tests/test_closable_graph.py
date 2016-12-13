@@ -23,7 +23,6 @@ from guiqwt.label import LabelItem
 from guiqwt.curve import CurveItem
 
 
-
 class mdi_graph_test(unittest.TestCase):
     start = 0
     stop = 0
@@ -41,22 +40,17 @@ class mdi_graph_test(unittest.TestCase):
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         pass
-    
+
     def selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id(self):
-        e1,  nwm=draw_a_network(self.aw, network=ex.networks[0])
+        e1, nwm = draw_a_network(self.aw, network=ex.networks[0])
         # select a label of a link
-        lab=[x for x in nwm.get_plot().get_items() if (isinstance(x, LabelItem) and hasattr(x,"id_"))][3]
+        lab = [x for x in nwm.get_plot().get_items() if (
+            isinstance(x, LabelItem) and hasattr(x, "id_"))][3]
         nwm.get_plot().select_item(lab)
-        sel=[x for x in nwm.get_plot().get_selected_items() if (hasattr(x,"id_"))]
-        wid=[x for x in nwm.get_plot().get_items() if (hasattr(x,"id_") and x.id_==lab.id_)]
-        from  collections import Counter
-        self.assertEqual(Counter(sel),Counter(wid))
-        
-        
-        
-        
-        
-        
+        sel = [x for x in nwm.get_plot().get_selected_items() if (hasattr(x, "id_"))]
+        wid = [x for x in nwm.get_plot().get_items() if (hasattr(x, "id_") and x.id_ == lab.id_)]
+        from collections import Counter
+        self.assertEqual(Counter(sel), Counter(wid))
 
     def test_closable_graph_can_be_closed_by_user(self):
         dummytitle = uniquestring()

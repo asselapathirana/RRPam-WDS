@@ -99,7 +99,8 @@ class test_main_window(unittest.TestCase):
             self.aw._open_project()
             self.assertTrue(mock__open_project.called)
 
-    def test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window(self, other=None):
+    def test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window(
+            self, other=None):
         # see run_in_a_thread
         if (other):
             self = other
@@ -143,10 +144,12 @@ class test_main_window(unittest.TestCase):
         # what were the original ids worker sent?
         _ids = [x.id for x in self.aw.pm.workerthread.result.links]
 
-        ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if (hasattr(x, "id_") and isinstance(x, CurveItem))]
+        ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if (
+            hasattr(x, "id_") and isinstance(x, CurveItem))]
         print(ids)
         self.assertEqual(ids, _ids)
-        ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if (hasattr(x, "id_") and isinstance(x, EllipseShape))]
+        ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if (
+            hasattr(x, "id_") and isinstance(x, EllipseShape))]
         self.assertEqual(ids, _ids)
 
 

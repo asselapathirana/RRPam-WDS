@@ -26,7 +26,7 @@ class Testhydraulicservices(unittest.TestCase):
 
     def test_pdd_service_get_total_demand_calls_run_in_EPANetSimulation(self):
         self.e1 = hs.pdd_service(ex.networks[0])
-        
+
         with patch.object(EPANetSimulation, 'run', autospec=True) as mock_run:
             self.assertFalse(mock_run.called)
             self.e1.get_total_demand()
@@ -34,7 +34,7 @@ class Testhydraulicservices(unittest.TestCase):
 
     def test_pdd_service_get_total_demand_will_not_make_initialize_in_EPANetSimulation_called(self):
         self.e1 = hs.pdd_service(ex.networks[0])
-       
+
         with patch.object(EPANetSimulation, 'initialize', autospec=True) as mock_run:
             self.e1.get_total_demand()
             self.assertFalse(mock_run.called)
@@ -48,7 +48,7 @@ class Testhydraulicservices(unittest.TestCase):
 
     def test_total_demand_returns_correct_value_ex1(self):
         self.e1 = hs.pdd_service(ex.networks[0])
-       
+
         print(self.e1.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e1.get_total_demand(),
@@ -57,7 +57,7 @@ class Testhydraulicservices(unittest.TestCase):
 
     def test_total_demand_returns_correct_value_ex2(self):
 
-        self.e2 = hs.pdd_service(ex.networks[1])      
+        self.e2 = hs.pdd_service(ex.networks[1])
         print(self.e2.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e2.get_total_demand(),
@@ -65,7 +65,7 @@ class Testhydraulicservices(unittest.TestCase):
             delta=TOTAL_DEMAND_EX2 / 100.)
 
     def test_total_demand_returns_correct_value_ex3(self):
-        self.e3 = hs.pdd_service(ex.networks[2])        
+        self.e3 = hs.pdd_service(ex.networks[2])
         print(self.e3.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e3.get_total_demand(),
@@ -76,7 +76,7 @@ class Testhydraulicservices(unittest.TestCase):
         """ We try 2 links in A,B,A pattern, to make sure there are no residual errors
         (like keeping pipe A closed when closing B). """
         self.e1 = hs.pdd_service(ex.networks[0])
-       
+
         self.assertAlmostEqual(
             self.e1.get_pipe_closed_demand(1, 100) / TOTAL_DEMAND_EX1,
             .2975, delta=.01)
@@ -93,7 +93,7 @@ class Testhydraulicservices(unittest.TestCase):
         (like keeping pipe A closed when closing B). """
 
         self.e2 = hs.pdd_service(ex.networks[1])
-       
+
         self.assertAlmostEqual(
             self.e2.get_pipe_closed_demand(115, 100) / TOTAL_DEMAND_EX2,
             .911, delta=.01)

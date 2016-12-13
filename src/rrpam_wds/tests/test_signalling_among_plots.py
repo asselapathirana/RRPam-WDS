@@ -89,7 +89,8 @@ class test_main_window(unittest.TestCase):
         nm.get_plot().select_item(network_item)
         self.assertEqual(rm.get_plot().get_selected_items()[0].id_, network_item.id_)
 
-    def test_selecting_items_in_optimaltimegraph_plot_update_slections_to_match_in_other_plots(self):
+    def test_selecting_items_in_optimaltimegraph_plot_update_slections_to_match_in_other_plots(
+            self):
         nm, rm, ot = self.plot_a_random_dataset()
 
         ot_item = [x for x in ot.get_plot().get_items() if isinstance(x, CurveItem)][4]
