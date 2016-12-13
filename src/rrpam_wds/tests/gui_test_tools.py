@@ -1,5 +1,5 @@
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
-from uuid import uuid4
+
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
@@ -21,7 +21,3 @@ class MDIWindow(ApplicationWindow):
         ApplicationWindow.__init__(self)
         self.main_widget = QMdiArea(parent)
         self.setCentralWidget(self.main_widget)
-
-
-def uniquestring():
-    return str(uuid4())

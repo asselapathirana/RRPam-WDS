@@ -2,6 +2,7 @@ from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import sys
 import time
 import unittest
+from uuid import uuid4
 
 from guiqwt.label import LabelItem
 from PyQt5.QtCore import Qt
@@ -11,8 +12,11 @@ from PyQt5.QtWidgets import QApplication
 from rrpam_wds.examples import examples as ex
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.tests.gui_test_tools import uniquestring
 from rrpam_wds.tests.test_network_map import draw_a_network
+
+
+def uniquestring():
+    return str(uuid4())
 
 
 class mdi_graph_test(unittest.TestCase):
