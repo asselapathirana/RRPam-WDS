@@ -3,16 +3,16 @@ import sys
 import time
 import unittest
 
-from gui_test_tools import uniquestring
 from guiqwt.label import LabelItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
-from test_network_map import draw_a_network
 
 from rrpam_wds.examples import examples as ex
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.gui_test_tools import uniquestring
+from rrpam_wds.tests.test_network_map import draw_a_network
 
 
 class mdi_graph_test(unittest.TestCase):

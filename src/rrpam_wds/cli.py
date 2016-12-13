@@ -43,25 +43,3 @@ class Main(QObject):
     @pyqtSlot()
     def show_application(self):
         sys.exit(self.app.exec_())
-
-        # @pyqtSlot(str)
-
-        # def screenshot(self, filename):
-        # if (getattr(sys, 'frozen', False)):
-        #     p = os.path.dirname(sys.executable)
-        # else:
-        #     p = os.getcwd()
-        #
-        # filename=os.path.join(p,filename)
-        # msg = QMessageBox()
-        # msg.setIcon(QMessageBox.Information)
-        # msg.setText("Screenshot will be saved at : %s" % (filename))
-        # QTimer.singleShot(5000, msg.accept)
-        # msg.exec_()
-        #
-        # now take a screenshot
-        # qs = QApplication.primaryScreen()
-        # if (qs):
-        #    qs.grabWindow(self.win.winId()).save(filename, 'jpg')
-        # else:
-        #    QPixmap().save(filename, 'jpg')

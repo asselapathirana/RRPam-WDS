@@ -1,72 +1,51 @@
-from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
-from rrpam_wds import setpath  # isort:skip # NOQA
+import os
 # ^ above line is needed to make sure the path is correctly set (under frozen conditions)
 import sys
-import time
+from contextlib import contextmanager
+from contextlib import redirect_stdout
 
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QApplication
+import pytest
 
 from rrpam_wds.cli import Main
 
-
-class Demo(QObject):
-    finished = pyqtSignal()
-    addAWindow = pyqtSignal(int)
-    timetogo = pyqtSignal()
-    recordMe = pyqtSignal(str)
-
-    def __init__(self, mainwindow):
-        self.mainwindow = mainwindow
-        super(Demo, self).__init__()
-
-    @pyqtSlot()
-    def do_some_demos(self):  # A slot takes no params
-
-        for i in range(1, 11):
-            time.sleep(1)
-            self.addAWindow.emit(i)
-            print(i)
-
-        self.finished.emit()
-        time.sleep(.1)
-        # this is a hack. If this is not here, the main (gui) thread will freeze.
-        # Need to find why.
-        self.now_wait()
-
-    @pyqtSlot()
-    def now_wait(self):
-        self.recordMe.emit("screenshot-1.jpg")
-        print("Work done .. now biding time")
-        for i in range(1, 11):
-            time.sleep(1)
-            print(11 - i)
-        print(".. and done!")
-
-        time.sleep(.1)
-        QApplication.processEvents()
-        if(not len(self.mainwindow.mdi.subWindowList()) == 10):
-            raise Exception
-        self.timetogo.emit()
+from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
+from rrpam_wds import setpath  # isort:skip # NOQA
 
 
-if (len(sys.argv) == 1):  # plain run
-    main = Main()
-    sys.exit(main.app.exec_())
+def fileno(file_or_fd):
+    fd = getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
+    if not isinstance(fd, int):
+        raise ValueError("Expected a file (`.fileno()`) or a file descriptor")
+    return fd
 
-else:  # run as a test. Open, run tests and close.
-    main = Main()
-    tester = Demo(main.win)
-    thread = QThread()
-    tester.moveToThread(thread)
-    tester.addAWindow.connect(main.win.new_window)
-    tester.finished.connect(thread.quit)
-    # ^ this is also needed to prevent gui from freezing upon finishing the
-    # thread.
-    thread.started.connect(tester.do_some_demos)
-    tester.timetogo.connect(main.app.exit)
-    thread.start()
-    main.show_application()
+
+@contextmanager
+def stdout_redirected(to=os.devnull, stdout=None):
+    if stdout is None:
+        stdout = sys.stdout
+
+    stdout_fd = fileno(stdout)
+    # copy stdout_fd before it is overwritten
+    # NOTE: `copied` is inheritable on Windows when duplicating a standard stream
+    with os.fdopen(os.dup(stdout_fd), 'wb') as copied:
+        stdout.flush()  # flush library buffers that dup2 knows nothing about
+        try:
+            os.dup2(fileno(to), stdout_fd)  # $ exec >&to
+        except ValueError:  # filename
+            with open(to, 'wb') as to_file:
+                os.dup2(to_file.fileno(), stdout_fd)  # $ exec > to
+        try:
+            yield stdout  # allow code to be run with the redirected stdout
+        finally:
+            # restore stdout to its previous value
+            # NOTE: dup2 makes stdout_fd inheritable unconditionally
+            stdout.flush()
+            os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
+
+if (len(sys.argv) > 1):  # first run tests
+    output = ""
+    with open('output.txt', 'w') as f, redirect_stdout(f):
+        pytest.main(sys.argv[1:])
+        sys.argv = [sys.argv[0]]
+main = Main()
+sys.exit(main.app.exec_())

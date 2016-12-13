@@ -27,7 +27,7 @@ include freeze.py
 include setupdata.py
 
 
-global-exclude *.py[cod] __pycache__ *.so *.dylib 
+global-exclude *.py[cod] __pycache__ *.so *.dylib  output.txt
 recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude src/rrpam_wds/tests ?.inp
