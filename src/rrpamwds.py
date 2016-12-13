@@ -3,6 +3,9 @@ import os
 import sys
 from contextlib import contextmanager
 from contextlib import redirect_stdout
+from PyQt5.QtWidgets import QApplication
+from rrpam_wds.gui.dialogs import MainWindow
+
 
 import pytest
 
@@ -44,8 +47,19 @@ def stdout_redirected(to=os.devnull, stdout=None):
 
 if (len(sys.argv) > 1):  # first run tests
     output = ""
-    with open('output.txt', 'w') as f, redirect_stdout(f):
-        pytest.main(sys.argv[1:])
-        sys.argv = [sys.argv[0]]
-main = Main()
-sys.exit(main.app.exec_())
+    app = QApplication([])
+    #with open('output.txt', 'w') as f, redirect_stdout(f, stdout=sys.stderr):
+    win = MainWindow()
+    win.show()    
+    import rrpam_wds.tests.test_optimal_time_graph as og
+    og.main(test=False, mainwindow=win)
+    import rrpam_wds.tests.test_main_window as mw
+    win=None
+    win=MainWindow()
+    mw.main(test=False, mainwindow=win)
+    sys.argv = [sys.argv[0]]
+    
+    win=MainWindow()
+    win.show()
+
+    sys.exit(app.exec_())

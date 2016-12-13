@@ -12,7 +12,7 @@ from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import optimalTimeGraph
 
 
-class test_optimal_time_graph(unittest.TestCase):
+class TestOptimalTimeGraph(unittest.TestCase):
     start = 0
     stop = 0
 
@@ -66,15 +66,29 @@ class test_optimal_time_graph(unittest.TestCase):
             it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
 
 
-def drive(test=True):  # pragma: no cover
+
+def clt(tc,fn,mainwindow=None):
+    if(not mainwindow):
+        tc.setUp()
+    else:
+        tc.aw=mainwindow
+    fn()
+    if(not mainwindow):
+        tc.tearDown()
+
+
+def main(test=True, mainwindow=None):
     if(test):
         unittest.main(verbosity=2)
     else:
-        ot = test_optimal_time_graph()
-        ot.setUp()
-        ot.test_optimalTimeGraph_creates_right_three_curves()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
+        tc = TestOptimalTimeGraph()
+        for a in dir(tc):
+            if (a.startswith('test_')):  # test_sync
+                b = getattr(tc, a)
+                if(hasattr(b, '__call__')):
+                    print ("calling %s **********************************" % a)
+                    clt(tc,b, mainwindow)
 
-if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+
+if __name__ == "__main__":
+    main(test=False)

@@ -93,15 +93,28 @@ class test_main_window(unittest.TestCase):
             self.assertTrue(w.isMinimized())
 
 
-def drive(test=True):  # pragma: no cover
+def clt(tc,fn,mainwindow=None):
+    if(not mainwindow):
+        tc.setUp()
+    else:
+        tc.aw=mainwindow
+    fn()
+    if(not mainwindow):
+        tc.tearDown()
+
+
+def main(test=True, mainwindow=None):
     if(test):
         unittest.main(verbosity=2)
     else:
-        ot = test_main_window()
-        ot.setUp()
-        ot.test_last_remaining_optimal_time_graph_will_not_be_deleted_but_minimized()
-        # ot.aw.show()
-        # sys.exit(ot.app.exec_())
+        tc = test_main_window()
+        for a in dir(tc):
+            if (a.startswith('test_')):  # test_sync
+                b = getattr(tc, a)
+                if(hasattr(b, '__call__')):
+                    print ("calling %s **********************************" % a)
+                    clt(tc,b, mainwindow)
 
-if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+
+if __name__ == "__main__":
+    main(test=False)
