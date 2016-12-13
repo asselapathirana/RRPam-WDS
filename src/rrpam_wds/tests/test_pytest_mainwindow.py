@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     aw = MainWindow()

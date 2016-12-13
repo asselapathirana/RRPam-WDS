@@ -35,8 +35,8 @@ do
 
 
     check-manifest 
-    flake8 src service/*.py tests *.py  
-    isort --verbose --check-only --diff --recursive src tests *.py service/*.py
+    flake8 src service/*.py  *.py  
+    isort --verbose --check-only --diff --recursive src *.py service/*.py
     conda install `head -n1 requirements_conda.txt`
     python ./service/installreq.py 
     pytest  --cov --cov-report=term-missing -vv

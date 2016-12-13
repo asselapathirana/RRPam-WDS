@@ -1,7 +1,6 @@
 import time
 import unittest
 
-
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
 

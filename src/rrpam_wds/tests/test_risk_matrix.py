@@ -3,13 +3,13 @@ import sys
 import time
 import unittest
 
+from guiqwt.label import LabelItem
 from guiqwt.shapes import EllipseShape
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import RiskMatrix
-from guiqwt.label import LabelItem
 
 
 class test_risk_matrix(unittest.TestCase):
