@@ -19,10 +19,7 @@ class Testhydraulicservices(unittest.TestCase):
     def setUp(self):
         global start
         start = time.time()
-        d = 15.
-        self.e1 = hs.pdd_service(ex.networks[0], diafact=d)
-        # self.e2 = hs.pdd_service(ex.networks[1], diafact=d)
-        self.e3 = hs.pdd_service(ex.networks[2], diafact=d)
+
 
     def tearDown(self):
         global stop
@@ -31,6 +28,10 @@ class Testhydraulicservices(unittest.TestCase):
         pass
 
     def test_pdd_service_network_links_have_diameter_length_and_ADF(self):
+        d = 15.
+        self.e1 = hs.pdd_service(ex.networks[0], diafact=d)
+        # self.e2 = hs.pdd_service(ex.networks[1], diafact=d)
+        self.e3 = hs.pdd_service(ex.networks[2], diafact=d)        
         self.assertAlmostEqual(self.e3.links[1].length, 100., delta=.0001)
         self.assertAlmostEqual(self.e3.links[1].diameter, 110., delta=.0001)
         self.assertAlmostEqual(self.e3.links[1].ADF, .348, delta=.2)

@@ -73,9 +73,27 @@ class CurveDialogWithClosable(CurveDialog):
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
         self.add_tools()
-        self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(kwargs['mainwindow'].selected_holder)
+        self.selected_holder=kwargs['mainwindow'].selected_holder
+        self.enable_selection_update_signals()
         self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
         self.myplotitems = {}
+
+    def enable_selection_update_signals(self, set=True):
+        if(set): 
+            self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(self.selected_holder)
+            self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(self.select_siblings)
+        else:
+            self.get_plot().SIG_ITEM_SELECTION_CHANGED.disconnect()
+            #self.get_plot().SIG_ITEM_SELECTION_CHANGED.connect(self.select_siblings)            
+        
+    def select_siblings(self, widget ):
+        self.enable_selection_update_signals(False) # temporariliy disable the signalling
+        sel=[x for x in self.get_plot().get_selected_items() if hasattr(x,"id_")]
+        items=[x for x in self.get_plot().get_items() if hasattr(x,"id_")]
+        for item in sel:
+            [self.get_plot().select_item(x) for x in items if x.id_==item.id_]
+        self.enable_selection_update_signals(True)  # now enable signalling
+
 
     def set_all_private(self):
         """" Set all current items in the plot private"""
@@ -209,12 +227,14 @@ class RiskMatrix(CurveDialogWithClosable):
         param.sel_symbol.Color = QColor('red')
         update_style_attr('-r', param)
         param.update_shape(ci)
-        ci.id_ = id_  # add the ide to the item before plotting.
+        ci.id_ = id_  # add the id to the item before plotting.
         self.get_plot().add_item(ci)
-        # now add a label with title
-        # ci
-        # la = make.label(title, ci.get_center(), (0, 0), "C")
-        self.add_plot_item_to_record(id_, [ci])
+        # now add a label with link id
+        la = make.label(id_, ci.get_center(), (0, 0), "C")
+        la.id_=id_ # add the id to the item before plotting.
+        self.get_plot().add_item(la)
+        la.set_private(False)
+        self.add_plot_item_to_record(id_, [ci, la])
 
 
 class NetworkMap(CurveDialogWithClosable):
@@ -286,6 +306,7 @@ class NetworkMap(CurveDialogWithClosable):
         # create a label for the node and add it to the plot
         l = int(len(x_) / 2.0)
         la = make.label(id_, (x_[l], y_[l]), (0, 0), "C")
+        la.id_=id_
         la.set_private(True)
         self.get_plot().add_item(la)
         la.set_private(True)

@@ -29,7 +29,6 @@ class test_reset_zoom_tool(unittest.TestCase):
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing optimal time graph")
-        self.win = self.aw.new_window(mainwindow=self.aw)
         pass
 
     def tearDown(self):
@@ -45,12 +44,9 @@ class test_reset_zoom_tool(unittest.TestCase):
         pass
 
     def test_toolbar_has_reset_zoom_tool(self):
+        self.win = self.aw.new_window(mainwindow=self.aw)
         tb = self.win.get_default_toolbar()
         self.assertTrue([x for x in tb.actions() if x.text() == ResetZoomTool.TITLE])
-
-    def test_pressing_reset_zoom_tool_reset_zoom_to_extend(self):
-        #
-        pass  # self.win.
 
 
 def drive(test=True):  # pragma: no cover

@@ -10,24 +10,6 @@ from rrpam_wds.gui.dialogs import NetworkMap
 from rrpam_wds.gui.dialogs import RiskMatrix
 from rrpam_wds.gui.dialogs import optimalTimeGraph
 
-# def test_closing_a_optimal_time_graph_window_does_not_cause_error_at_exit():
-    #""" See notes at: monkey_patch_guiqwt_guidata._patch_curveplot___del__
-
-    # At the moment this test is useless.
-
-     #"""
-    # print("Running: ",[sys.executable,__file__])
-    # p = subprocess.Popen([sys.executable,__file__],
-                         # stdout=subprocess.PIPE,
-                         # stderr=subprocess.PIPE,
-                         # stdin=subprocess.PIPE)
-    # output = p.communicate()
-    # print("out:", output[0])
-    # print("err:", output[1])
-
-    # assert output[1]==b""
-    # assert output[0]==b""
-    # assert False
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

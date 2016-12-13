@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import unittest
+import random
 
 from gui_test_tools import uniquestring
 from guiqwt import tests
@@ -15,6 +16,12 @@ from PyQt5.QtWidgets import QApplication
 from rrpam_wds.constants import units
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
 from rrpam_wds.gui.dialogs import MainWindow
+from test_network_map import draw_a_network
+from rrpam_wds.examples import examples as ex
+
+from guiqwt.label import LabelItem
+from guiqwt.curve import CurveItem
+
 
 
 class mdi_graph_test(unittest.TestCase):
@@ -34,6 +41,22 @@ class mdi_graph_test(unittest.TestCase):
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         pass
+    
+    def selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id(self):
+        e1,  nwm=draw_a_network(self.aw, network=ex.networks[0])
+        # select a label of a link
+        lab=[x for x in nwm.get_plot().get_items() if (isinstance(x, LabelItem) and hasattr(x,"id_"))][3]
+        nwm.get_plot().select_item(lab)
+        sel=[x for x in nwm.get_plot().get_selected_items() if (hasattr(x,"id_"))]
+        wid=[x for x in nwm.get_plot().get_items() if (hasattr(x,"id_") and x.id_==lab.id_)]
+        from  collections import Counter
+        self.assertEqual(Counter(sel),Counter(wid))
+        
+        
+        
+        
+        
+        
 
     def test_closable_graph_can_be_closed_by_user(self):
         dummytitle = uniquestring()
@@ -91,7 +114,7 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = mdi_graph_test()
         ot.setUp()
-        ot.test_presseing_esc_does_not_close_or_clear_the_closable_graph()
+        ot.selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 

@@ -143,10 +143,10 @@ class test_main_window(unittest.TestCase):
         # what were the original ids worker sent?
         _ids = [x.id for x in self.aw.pm.workerthread.result.links]
 
-        ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if hasattr(x, "id_")]
+        ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if (hasattr(x, "id_") and isinstance(x, CurveItem))]
         print(ids)
         self.assertEqual(ids, _ids)
-        ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if hasattr(x, "id_")]
+        ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if (hasattr(x, "id_") and isinstance(x, EllipseShape))]
         self.assertEqual(ids, _ids)
 
 

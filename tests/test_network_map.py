@@ -20,7 +20,24 @@ from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import NetworkMap
 
 
-class test_network_map(unittest.TestCase):
+def draw_a_network(aw, network=ex.networks[0], nodes=True, links=True):
+    e1 = hs.pdd_service(network, coords=True, adfcalc=True)
+    if (nodes) :
+        nodes = e1.nodes.values()
+    else: 
+        nodes=None
+    if (links):
+        links = e1.links.values()
+    else:
+        links=None
+    nwm = NetworkMap(name="foo", nodes=nodes, links=links, parent=aw, mainwindow=aw)
+    aw.addSubWindow(nwm)
+    aw.show()
+
+    return e1, nwm
+
+
+class TestNetworkMap(unittest.TestCase):
     start = 0
     stop = 0
 
@@ -53,7 +70,8 @@ class test_network_map(unittest.TestCase):
 
     def test_NetworkMap_has_correct_number_of_node_representations(self):
         from guiqwt.curve import CurveItem
-        pdds, nodes, nwm = self.draw_a_network()
+        pdds,  nwm = draw_a_network(self.aw)
+        nodes=pdds.nodes.values()
         curves = [list(zip(x.data().xData(), x.data().yData()))
                   for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]
         for node in nodes:
@@ -61,19 +79,11 @@ class test_network_map(unittest.TestCase):
             # ^ why we represent a node with two identical coordinates?
             # see dialogs.draw_nodes function to know why
 
-    def draw_a_network(self, network=ex.networks[0]):
-        e1 = hs.pdd_service(network, coords=True, adfcalc=True)
-        nodes = e1.nodes.values()
-        links = e1.links.values()
-        nwm = NetworkMap(name="foo", nodes=nodes, links=links, parent=self.aw, mainwindow=self.aw)
-        self.aw.addSubWindow(nwm)
-        self.aw.show()
 
-        return e1, nodes, nwm
 
     def test_NetworkMap_scales_to_fit_network_on_creation(self):
-        pdds, nodes, nwm = self.draw_a_network()
-        coords = [(n.x, n.y) for n in nodes]
+        pdds,  nwm = draw_a_network(self.aw)
+        coords = [(n.x, n.y) for n in pdds.nodes.values()]
         xmin = min([x[0] for x in coords])
         xmax = max([x[0] for x in coords])
         ymin = min([x[1] for x in coords])
@@ -94,7 +104,7 @@ class test_network_map(unittest.TestCase):
             if (i == 1):
                 continue  # this is Net3.inp - it has a coordinate missing!
             from guiqwt.curve import CurveItem
-            pdds, nodes, nwm = self.draw_a_network(network=network)
+            pdds,  nwm = draw_a_network(self.aw, network=network)
             links = pdds.links.values()
             # curves = [list(zip(x.data().xData(), x.data().yData()))
             #          for x in nwm.get_plot().get_items() if(isinstance(x, CurveItem))]
@@ -111,7 +121,7 @@ class test_network_map(unittest.TestCase):
 
     def clicking_close_to_a_link_will_select_it_on_the_plot(self):
 
-        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[0])
+        pdds,  nwm = draw_a_network(self.aw, network=ex.networks[0])
         # select a link
         l = pdds.links[3]
         pos = [(l.start.x + l.end.x) / 2.0, (l.start.y, l.end.y) / 2.0]
@@ -130,7 +140,7 @@ class test_network_map(unittest.TestCase):
 
     def test_Network_Map_correctly_reports_selected_links(self):
         import rrpam_wds.gui.utils as u
-        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[0])
+        pdds,  nwm = draw_a_network(self.aw, network=ex.networks[0])
         # select a link
         l = pdds.links[3]
         t = u.get_title(l)
@@ -139,11 +149,25 @@ class test_network_map(unittest.TestCase):
         curve.select()
         self.assertEqual(len(plot.get_selected_items()), 1)
         self.assertEqual(plot.get_selected_items()[0].title().text(), t)
+        
+    def test_nodes_and_their_labels_do_not_have_id_s(self):
+        """This is important as not to be confused with similarly named links. We deal only with inks
+        in the GUI!."""
+        pdds,  nwm = draw_a_network(self.aw, network=ex.networks[0], nodes=True, links=False)
+        # now this should not have any element with attribute .id_
+        n=len([x for x in nwm.get_plot().get_items() if hasattr(x,"id_")])
+        self.assertEqual(n,0)
+        
+    def test_links_and_their_labels_do_have_id_s(self):
+        pdds,  nwm = draw_a_network(self.aw, network=ex.networks[0], nodes=False, links=True)
+        n=len([x for x in nwm.get_plot().get_items() if hasattr(x,"id_")])
+        self.assertGreaterEqual(n,len(pdds.links.values())*2)        
+        
 
     def test_Network_map_item_list_has_correct_icons(self):
         import rrpam_wds.gui.utils as u
         from guiqwt.curve import CurveItem
-        pdds, nodes, nwm = self.draw_a_network(network=ex.networks[2])
+        pdds,  nwm = draw_a_network(self.aw, network=ex.networks[2])
         # select a link
         l = pdds.links[3]
         n = pdds.nodes[4]
@@ -156,9 +180,9 @@ def drive(test=True):  # pragma: no cover
     if(test):
         unittest.main(verbosity=2)
     else:
-        ot = test_network_map()
+        ot = TestNetworkMap()
         ot.setUp()
-        ot.test_NetworkMap_scales_to_fit_network_on_creation()
+        ot.test_links_and_their_labels_do_have_id_s()
         ot.aw.show()
         sys.exit(ot.app.exec_())
 
