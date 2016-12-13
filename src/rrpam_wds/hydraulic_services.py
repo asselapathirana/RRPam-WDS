@@ -7,14 +7,65 @@ from epanettools.epanettools import Node
 
 class pdd_service(object):
 
-    def __init__(self, epanet_network, diafact=10.0):
+    def __init__(self, epanet_network, diafact=10.0, coords=False, adfcalc=True):
+        self.epanet_network = epanet_network
         self.diafact = diafact
+        self.adfcalc = adfcalc
         self.open_network(epanet_network)
+        if(coords):
+            self.read_coordinates(epanet_network)
         self.orig_networkfile = epanet_network
+
+    def read_coordinates(self, epanet_network):
+        """Reads the epanet input file and extracts the coorinates of:
+            1. nodes
+            2. link vertices if any
+        """
+        with open(epanet_network, 'r') as f:
+            l = [x.strip() for x in f.readlines()]
+        data = [x for x in l if (x and x != '' and x[0] != ';')]  # drop all empty lines
+        st = data.index("[COORDINATES]")
+        lines = data[st + 1:-1]
+
+        for line in lines:
+            if line[0] + line[-1] == '[]':
+                break
+            vals = str.split(line)
+            self.nodes[vals[0]].x = float(vals[1])
+            self.nodes[vals[0]].y = float(vals[2])
+        # now check and raise error if a certain node does not have coordinates
+        try:
+            for i, node in self.nodes.items():
+                node.x
+                node.y
+        except AttributeError as e:
+            print(
+                "There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
+            print("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
+            raise e
+
+        for i, link in self.links.items():
+            if (link.start.x == link.end.x):
+                link.start.x = link.start.x
+                link.end.x = link.end.x
+
+        # now extract vertices (if any)
+        st = data.index("[VERTICES]")
+        lines = data[st + 1:-1]
+        # first add empty list called vertices
+        for i, link in self.links.items():
+            link.vertices = []
+        # now find any vertices and append them
+        for line in lines:
+            if line[0] + line[-1] == '[]':
+                break
+            vals = str.split(line)
+            self.links[vals[0]].vertices.append((float(vals[1]), float(vals[2])))
 
     def open_network(self, epanet_network):
         self.es = EPANetSimulation(epanet_network, pdd=True)
-        self.es.adfcalc(diafact=self.diafact)
+        if(self.adfcalc):
+            self.es.adfcalc(diafact=self.diafact)
         self._set_static_values()
         # set nodes, links for easy access!
         self.nodes = self.es.network.nodes
@@ -76,6 +127,3 @@ if __name__ == "__main__":  # pragma no cover
     from epanettools.examples import simple
     file = os.path.join(os.path.dirname(simple.__file__), 'Net3.inp')
     pd = pdd_service(file)
-    total = pd.get_total_demand()
-    for i in range(6, 120):
-        print("%4.2f" % (pd.get_pipe_closed_demand(i, 100.) / total))

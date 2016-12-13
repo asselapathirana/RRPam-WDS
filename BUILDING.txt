@@ -2,13 +2,17 @@ install check-manifest
 then check-manifest  
 pip install flake8
 - checking formatting
-flake8 setup.py tests src |cat -n
+flake8 setup.py  src |cat -n
 - fixing them
-autopep8 --in-place --recursive --max-line-length=100 src tests *.py -v -a
+autopep8 --in-place --recursive --max-line-length=100 src  *.py -v -a
+# following can help removing unused imports 
+autoflake --remove-all-unused-imports --remove-all-unused-imports --in-place -r .
 then try 
-flake8 src *.py tests
+flake8 src *.py 
 
+isort errors:
+isort  --check-only --diff --recursive src  *.py service/*.py
 fixing isort errors: 
 isort <filename> 
-isort *.py tests src -rc -v
+isort *.py  src -rc -v
 

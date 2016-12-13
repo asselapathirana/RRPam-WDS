@@ -1,15 +1,10 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import os
 import sys
 import time
 import unittest
 
 import numpy as np
-from guiqwt import tests
-from guiqwt.plot import CurveDialog
 from numpy.testing import assert_array_almost_equal
-from PyQt5.QtCore import Qt
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
@@ -17,7 +12,7 @@ from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import optimalTimeGraph
 
 
-class test_optimal_time_graph(unittest.TestCase):
+class TestOptimalTimeGraph(unittest.TestCase):
     start = 0
     stop = 0
 
@@ -28,23 +23,20 @@ class test_optimal_time_graph(unittest.TestCase):
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing optimal time graph")
 
-        pass
-
     def tearDown(self):
         global stop
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-        pass
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        pass
 
     def test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
-        tg1 = optimalTimeGraph("set1", None, None, None, parent=self.aw)
+        tg1 = optimalTimeGraph(name="set1", damagecost=None, renewalcost=None,
+                               year=None, parent=self.aw, mainwindow=self.aw)
         self.assertIsInstance(tg1, CurveDialogWithClosable)
         self.aw.addSubWindow(tg1)
 
@@ -54,7 +46,8 @@ class test_optimal_time_graph(unittest.TestCase):
         damagecost = year**2.1
         renewalcost = (100 - year)**1.9
         tg1 = optimalTimeGraph(
-            "set1", year, damagecost, renewalcost, parent=self.aw)
+            "set1", year=year, damagecost=damagecost, renewalcost=renewalcost,
+            parent=self.aw, mainwindow=self.aw)
         self.aw.addSubWindow(tg1)
         it = [x for x in tg1.get_plot().get_items() if (
             isinstance(x, CurveItem))]
@@ -71,18 +64,31 @@ class test_optimal_time_graph(unittest.TestCase):
         assert_array_almost_equal(it[4].get_data(), (year, renewalcost * 1.2))
         assert_array_almost_equal(
             it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
-        pass
 
 
-def drive(test=True):  # pragma: no cover
+
+def clt(tc,fn,mainwindow=None):
+    if(not mainwindow):
+        tc.setUp()
+    else:
+        tc.aw=mainwindow
+    fn()
+    if(not mainwindow):
+        tc.tearDown()
+
+
+def main(test=True, mainwindow=None):
     if(test):
         unittest.main(verbosity=2)
     else:
-        ot = test_optimal_time_graph()
-        ot.setUp()
-        ot.test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
+        tc = TestOptimalTimeGraph()
+        for a in dir(tc):
+            if (a.startswith('test_')):  # test_sync
+                b = getattr(tc, a)
+                if(hasattr(b, '__call__')):
+                    print ("calling %s **********************************" % a)
+                    clt(tc,b, mainwindow)
 
-if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+
+if __name__ == "__main__":
+    main(test=False)

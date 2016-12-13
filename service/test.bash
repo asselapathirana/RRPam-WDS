@@ -10,7 +10,7 @@ fi
 if [ $# -lt 1 ] 
 then 
    echo "Usage : $0 <env1> <env2> ..."
-   echo "Available values py27, py33, py35, py34"
+   echo "Available values 2.7, 3.3, 3.5, 3.4"
    exit 1
 fi
 
@@ -18,7 +18,7 @@ for env in "$@"
 do 
     if [[ -z `conda env list|awk '{print $1}'|grep $env` ]]
     then   
-       conda create --name=${env} `head -n1 requirements_conda.txt`
+       conda create --name=${env} python=${env} `head -n1 requirements_conda.txt`
     else
        echo "environment $env already exist. Reusing ... "
     fi
@@ -35,8 +35,8 @@ do
 
 
     check-manifest 
-    flake8 src service/*.py tests *.py  
-    isort --verbose --check-only --diff --recursive src tests *.py service/*.py
+    flake8 src service/*.py  *.py  
+    isort --verbose --check-only --diff --recursive src *.py service/*.py
     conda install `head -n1 requirements_conda.txt`
     python ./service/installreq.py 
     pytest  --cov --cov-report=term-missing -vv
