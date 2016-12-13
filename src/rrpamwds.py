@@ -7,8 +7,6 @@ from PyQt5.QtWidgets import QApplication
 from rrpam_wds.gui.dialogs import MainWindow
 
 
-import pytest
-
 from rrpam_wds.cli import Main
 
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
@@ -45,21 +43,19 @@ def stdout_redirected(to=os.devnull, stdout=None):
             stdout.flush()
             os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
+app = QApplication([])
 if (len(sys.argv) > 1):  # first run tests
-    output = ""
-    app = QApplication([])
-    #with open('output.txt', 'w') as f, redirect_stdout(f, stdout=sys.stderr):
-    win = MainWindow()
-    win.show()    
-    import rrpam_wds.tests.test_optimal_time_graph as og
-    og.main(test=False, mainwindow=win)
-    import rrpam_wds.tests.test_main_window as mw
-    win=None
-    win=MainWindow()
-    mw.main(test=False, mainwindow=win)
-    sys.argv = [sys.argv[0]]
-    
-    win=MainWindow()
-    win.show()
-
-    sys.exit(app.exec_())
+    with open('output.txt', 'w') as f, stdout_redirected(f, stdout=sys.stderr):
+        win = MainWindow()
+        win.show()    
+        import rrpam_wds.tests.test_optimal_time_graph as og
+        og.main(test=False, mainwindow=win)
+        import rrpam_wds.tests.test_main_window as mw
+        win=None
+        win=MainWindow()
+        mw.main(test=False, mainwindow=win)
+        sys.argv = [sys.argv[0]]
+        
+win=MainWindow()
+win.show()
+sys.exit(app.exec_())
