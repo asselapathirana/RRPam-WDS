@@ -3,6 +3,9 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 import math
 import random
 import sys
+import logging
+
+from rrpam_wds.logger import setup_logging
 
 from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
@@ -33,6 +36,8 @@ from PyQt5.QtWidgets import QMdiArea
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
 
+from guidata.configtools import get_icon
+
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
@@ -51,6 +56,13 @@ CONF.set("plot", "selection/distance", 10.0)
 
 STYLE = style_generator()
 
+class LogDialog(QDialog):
+    def __init__(self,logwindow=None):
+        super(LogDialog,self).__init__()
+        self.logwindow=logwindow
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.logwindow) 
+        self.setWindowIcon(get_icon("log_file.png"))
 
 class CurveDialogWithClosable(CurveDialog):
 
@@ -436,15 +448,26 @@ class MainWindow(QMainWindow):
     menuitems.open_project = "&Open project"
 
     update_selected_items = True
+    LOGSTARTMESSAGE = "Logging started"
 
     def __init__(self, parent=None):
+               
         super(MainWindow, self).__init__(parent)
+        self.logwindow=setup_logging(parent=self)
+        logger=logging.getLogger(__name__) 
+        logger.info(self.LOGSTARTMESSAGE)
         self.optimaltimegraphs = {}
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.setMenu()
         self.standard_windows()
         self.connect_project_manager()
+        
+        
+    def show_logwindow(self):
+        dialog=LogDialog(self.logwindow)     
+        self.addSubWindow(dialog)
+        
 
     def connect_project_manager(self):
         self.pm = PM()
