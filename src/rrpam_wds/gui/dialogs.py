@@ -202,6 +202,8 @@ class RiskMatrix(CurveDialogWithClosable):
         self.set_axes_limits(_axes_limits)
 
     def plot_links(self, links):
+        if (not links):
+            return
         adfs = [x.cons for x in links]
         prob = [x.prob for x in links]
         # first compute bounding box
@@ -538,8 +540,8 @@ class MainWindow(QMainWindow):
         self._display_project(project)
 
     def _display_project(self, project):
-        nodes = project.nodes
-        links = project.links
+        nodes = getattr(project, "nodes", None)
+        links = getattr(project, "links", None)
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.riskmatrix.plot_links(links)

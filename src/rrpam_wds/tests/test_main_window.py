@@ -92,12 +92,17 @@ class test_main_window(unittest.TestCase):
         for w in self.aw.mdi.subWindowList():
             self.assertTrue(w.isMinimized())
 
+    def test_display_project_will_not_raise_exceptions_for_any_object_passed_to_it(self):
+        dummy = object()
+        self.aw.display_project(dummy)
+        self.assertTrue(True)
 
-def clt(tc,fn,mainwindow=None):
+
+def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
         tc.setUp()
     else:
-        tc.aw=mainwindow
+        tc.aw = mainwindow
     fn()
     if(not mainwindow):
         tc.tearDown()
@@ -112,8 +117,8 @@ def main(test=True, mainwindow=None):
             if (a.startswith('test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
-                    print ("calling %s **********************************" % a)
-                    clt(tc,b, mainwindow)
+                    print("calling %s **********************************" % a)
+                    clt(tc, b, mainwindow)
 
 
 if __name__ == "__main__":
