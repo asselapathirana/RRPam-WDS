@@ -22,7 +22,7 @@ class LogSender(QObject):
 class EmittingLogger(logging.Handler):
 
     def __init__(self):
-        super().__init__()
+        super(EmittingLogger, self).__init__()
         # self.widget = QPlainTextEdit(parent)
         # self.widget.setReadOnly(True)
         self.logsender = LogSender()

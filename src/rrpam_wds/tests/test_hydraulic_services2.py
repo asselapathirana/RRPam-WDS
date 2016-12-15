@@ -1,4 +1,3 @@
-import logging
 import time
 import unittest
 
@@ -33,7 +32,7 @@ class Testhydraulicservices(unittest.TestCase):
         self.assertAlmostEqual(self.e3.links[1].diameter, 110., delta=.0001)
         self.assertAlmostEqual(self.e3.links[1].ADF, .348, delta=.2)
         self.assertAlmostEqual(self.e3.links['TX'].ADF, .0, delta=.2)
-        # # logger = logging.getLogger()
+        # logger = logging.getLogger()
         print("\n")
         for i, link in self.e3.links.items():
             # logger = logging.getLogger()

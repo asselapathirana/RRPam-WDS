@@ -1,4 +1,3 @@
-import logging
 import numbers
 import time
 import unittest
@@ -22,7 +21,6 @@ class Testhydraulicservices(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        # logger = logging.getLogger()
         print("\ncalculation took %0.2f seconds." % (stop - start))
 
     def test_pdd_service_network_nodes_have_coordinates(self):

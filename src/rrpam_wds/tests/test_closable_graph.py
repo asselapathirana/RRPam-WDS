@@ -36,7 +36,7 @@ class mdi_graph_test(unittest.TestCase):
         stop = time.time()
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw=None
+        self.aw = None
 
     def selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id(self):
         e1, nwm = draw_a_network(self.aw, network=ex.networks[0])

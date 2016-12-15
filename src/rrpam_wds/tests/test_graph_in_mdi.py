@@ -26,7 +26,7 @@ class mdi_graph_test(unittest.TestCase):
         stop = time.time()
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw=None
+        self.aw = None
 
     def test_graph_window_properly_added_to_MDI(self):
         self.graph = CurveDialog(
