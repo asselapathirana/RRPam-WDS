@@ -45,14 +45,14 @@ class TestLoggers(unittest.TestCase):
         li = [x for x in self.aw.mdi.subWindowList() if isinstance(x.widget(), LogDialog)]
         self.assertTrue(li)
         self.assertEqual(li[0].widget(), self.aw.logdialog)
-        
+
     def test_calling_show_log_multiple_times_will_not_create_multiple_windows(self):
         self.aw = MainWindow()
         self.aw.show_logwindow()
-        li1=self.aw.mdi.subWindowList()
+        li1 = self.aw.mdi.subWindowList()
         self.aw.show_logwindow()
-        li2=self.aw.mdi.subWindowList()
-        self.assertEqual(li1,li2)    
+        li2 = self.aw.mdi.subWindowList()
+        self.assertEqual(li1, li2)
 
 
 def drive(test=True):  # pragma: no cover
