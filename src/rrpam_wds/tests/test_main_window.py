@@ -87,8 +87,6 @@ class test_main_window(unittest.TestCase):
         self.aw.add_optimaltimegraph()  # now we have
         self.close_all_windows()
         list2 = self.aw.mdi.subWindowList()
-        # logger=logging.getLogger();  logger.info(list1)
-        # logger=logging.getLogger();  logger.info(list2)
         self.assertEqual(len(list1), len(list2))
 
         for w in self.aw.mdi.subWindowList():

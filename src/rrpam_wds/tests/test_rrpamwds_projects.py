@@ -110,7 +110,7 @@ class TestProjects(unittest.TestCase):
         ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if (
             hasattr(x, "id_") and isinstance(x, CurveItem))]
         logger = logging.getLogger()
-        logger.info(ids)
+        logger.info(str(ids))
         self.assertEqual(ids, _ids)
         ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if (
             hasattr(x, "id_") and isinstance(x, EllipseShape))]

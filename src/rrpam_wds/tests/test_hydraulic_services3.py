@@ -23,13 +23,11 @@ class Testhydraulicservices(unittest.TestCase):
         stop = time.time()
         print("\ncalculation took %0.2f seconds." % (stop - start))
 
-    def test_pdd_service_network_nodes_have_coordinates(self):
+    def test_pdd_service_network_nodes_have_coordinates1(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False, adfcalc=False)
         with self.assertRaises(AttributeError):
             self.e3.nodes[1].x
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=True)
-        # Note: we are fudging the coordinates when read in order to walkaround a bug
-        # in guiqwt plotting (picking routines) Hence coordinates might have changed a bit
         self.assertAlmostEqual(self.e3.nodes[1].x, -4600., delta=0.0001)
         self.assertAlmostEqual(self.e3.nodes[1].y, 6600., delta=.0001)
         self.assertAlmostEqual(self.e3.nodes['E2'].x, 600., delta=.001)
@@ -37,14 +35,16 @@ class Testhydraulicservices(unittest.TestCase):
         for i, node in self.e3.nodes.items():
             self.assertIsInstance(node.y, numbers.Number)
             self.assertIsInstance(node.x, numbers.Number)
-        self.e1 = hs.pdd_service(ex.examples.networks[0], coords=True)
+
+    def test_pdd_service_network_nodes_have_coordinates2(self):
+        self.e1 = hs.pdd_service(ex.examples.networks[2], coords=True)
+        # with self.assertRaises(AttributeError):
+        #    self.e1 = hs.pdd_service(ex.examples.networks[1], coords=True)
         for i, node in self.e1.nodes.items():
             self.assertIsInstance(node.y, numbers.Number)
             self.assertIsInstance(node.x, numbers.Number)
-        hs.pdd_service(ex.examples.networks[2])
-        with self.assertRaises(AttributeError):
-            self.e1 = hs.pdd_service(ex.examples.networks[1], coords=True)
 
+    def test_pdd_service_network_nodes_have_coordinates3(self):
         self.e4 = hs.pdd_service(ex.examples.networks[3], coords=True)
         for i, node in self.e4.nodes.items():
             self.assertIsInstance(node.y, numbers.Number)

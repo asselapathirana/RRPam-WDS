@@ -121,12 +121,12 @@ class TestNetworkMap(unittest.TestCase):
         px = plot.transform(ax, pos[0])
         py = plot.transform(ay, pos[1])
         logger = logging.getLogger()
-        logger.info(pos[0], pos[1], px, py, curve.title().text())
+        logger.info(curve.title().text())
         QTest.mouseClick(plot, Qt.RightButton, pos=QPoint(px, py), delay=10.)
         logger = logging.getLogger()
-        logger.info(plot.get_selected_items())
+        logger.info(str(plot.get_selected_items()))
         logger = logging.getLogger()
-        logger.info(nwm.get_plot().get_selected_items())
+        logger.info((nwm.get_plot().get_selected_items()))
         # this test does not work yet.
         # todo: fix this test to work.
 

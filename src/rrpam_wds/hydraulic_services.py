@@ -7,8 +7,8 @@ from epanettools.epanettools import Node
 
 logger = logging.getLogger()
 
+
 class pdd_service(object):
-    
 
     def __init__(self, epanet_network, diafact=10.0, coords=False, adfcalc=True):
         self.epanet_network = epanet_network
