@@ -482,7 +482,8 @@ class MainWindow(QMainWindow):
         self.connect_project_manager()
 
     def show_logwindow(self):
-        self.addSubWindow(self.logdialog)
+        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), LogDialog)])):
+            self.addSubWindow(self.logdialog)
         self.logdialog.show()
 
     def connect_project_manager(self):
