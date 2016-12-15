@@ -1,8 +1,9 @@
+import logging
+
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
-import logging
 
 
 class WorkerThread(QThread):
@@ -16,15 +17,18 @@ class WorkerThread(QThread):
 
     def do_the_job(self):
         self.result = self.open_project()
-        logger=logging.getLogger();  logger.info("Emitting...")
+        logger = logging.getLogger()
+        logger.info("Emitting...")
 
         self.pm.heres_a_project_signal.emit(self.result)
 
     def open_project(self):
-        logger=logging.getLogger();  logger.info("starting.... ")
+        logger = logging.getLogger()
+        logger.info("starting.... ")
         for i in range(5):
             self.sleep(1)
-            logger=logging.getLogger();  logger.info("Tik ", i)
+            logger = logging.getLogger()
+            logger.info("Tik ", i)
         return object()
 
 

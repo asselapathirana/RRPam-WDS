@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import numpy as np
 from guidata.py3compat import maxsize
 from guiqwt.curve import CurveItem
@@ -33,7 +35,8 @@ RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
         try:
             orig___del__(self)
         except:
-            logger=logging.getLogger();  logger.info("Better to fix me later.")
+            logger = logging.getLogger()
+            logger.info("Better to fix me later.")
 
     # now monkey patch
     CurvePlot.__del__ = custom__del__

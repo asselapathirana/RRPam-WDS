@@ -1,8 +1,8 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
+import logging
 import sys
 import time
 import unittest
-import logging
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -28,7 +28,8 @@ class test_main_window(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger = logging.getLogger()
+        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
 
     def runTest(self):
@@ -118,8 +119,9 @@ def main(test=True, mainwindow=None):
             if (a.startswith('test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
-                    logger=logging.getLogger();  logger.info("calling %s **********************************" % a)
-                    print("calling %s **********************************" % a)                    
+                    logger = logging.getLogger()
+                    logger.info("calling %s **********************************" % a)
+                    print("calling %s **********************************" % a)
                     clt(tc, b, mainwindow)
 
 

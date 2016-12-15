@@ -1,6 +1,6 @@
+import logging
 import time
 import unittest
-import logging
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
@@ -21,7 +21,8 @@ class Testhydraulicservices(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger = logging.getLogger()
+        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
 
     def test_pdd_service_network_links_have_diameter_length_and_ADF(self):
         d = 15.
@@ -32,9 +33,11 @@ class Testhydraulicservices(unittest.TestCase):
         self.assertAlmostEqual(self.e3.links[1].diameter, 110., delta=.0001)
         self.assertAlmostEqual(self.e3.links[1].ADF, .348, delta=.2)
         self.assertAlmostEqual(self.e3.links['TX'].ADF, .0, delta=.2)
-        logger=logging.getLogger();  logger.info("\n")
+        logger = logging.getLogger()
+        logger.info("\n")
         for i, link in self.e3.links.items():
-            logger=logging.getLogger();  logger.info("%s\t %0.3f" % (link.id, link.ADF))
+            logger = logging.getLogger()
+            logger.info("%s\t %0.3f" % (link.id, link.ADF))
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main(verbosity=2)

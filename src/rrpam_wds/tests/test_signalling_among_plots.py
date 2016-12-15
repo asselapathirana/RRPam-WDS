@@ -1,8 +1,8 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
+import logging
 import sys
 import time
 import unittest
-import logging
 
 import mock
 import numpy as np
@@ -27,7 +27,8 @@ class test_main_window(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger = logging.getLogger()
+        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
 
     def runTest(self):
@@ -116,7 +117,7 @@ class test_main_window(unittest.TestCase):
             years = [1997, 1998, 1999, 2005, 2008]
             val = random.random() / 10.
             ot.plotCurveSet(ids[i], years, [1000 * math.exp(val * (x - years[0]))
-                            for x in years], [1000 - 1000 * math.exp(-val * 2 * (x - years[0])) for x in years])
+                                            for x in years], [1000 - 1000 * math.exp(-val * 2 * (x - years[0])) for x in years])
         return nm, rm, ot
 
 

@@ -1,7 +1,7 @@
+import logging
 import numbers
 import time
 import unittest
-import logging
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
@@ -22,7 +22,8 @@ class Testhydraulicservices(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger = logging.getLogger()
+        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
 
     def test_pdd_service_network_nodes_have_coordinates(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False, adfcalc=False)
@@ -40,8 +41,8 @@ class Testhydraulicservices(unittest.TestCase):
             self.assertIsInstance(node.x, numbers.Number)
         self.e1 = hs.pdd_service(ex.examples.networks[0], coords=True)
         for i, node in self.e1.nodes.items():
-                    self.assertIsInstance(node.y, numbers.Number)
-                    self.assertIsInstance(node.x, numbers.Number)
+            self.assertIsInstance(node.y, numbers.Number)
+            self.assertIsInstance(node.x, numbers.Number)
         hs.pdd_service(ex.examples.networks[2])
         with self.assertRaises(AttributeError):
             self.e1 = hs.pdd_service(ex.examples.networks[1], coords=True)

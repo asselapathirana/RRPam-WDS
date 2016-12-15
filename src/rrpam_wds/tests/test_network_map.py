@@ -1,8 +1,8 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
+import logging
 import sys
 import time
 import unittest
-import logging
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import Qt
@@ -45,7 +45,8 @@ class TestNetworkMap(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger = logging.getLogger()
+        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
 
     def runTest(self):
@@ -76,7 +77,8 @@ class TestNetworkMap(unittest.TestCase):
         xmax = max([x[0] for x in coords])
         ymin = min([x[1] for x in coords])
         ymax = max([x[1] for x in coords])
-        logger=logging.getLogger();  logger.info("values xmin=%s xmax=%s ymin=%s ymax=%s " % (xmin, xmax, ymin, ymax))
+        logger = logging.getLogger()
+        logger.info("values xmin=%s xmax=%s ymin=%s ymax=%s " % (xmin, xmax, ymin, ymax))
         plot = nwm.get_plot()
         _xmin, _xmax = plot.get_axis_limits("bottom")
         _ymin, _ymax = plot.get_axis_limits("left")
@@ -118,10 +120,13 @@ class TestNetworkMap(unittest.TestCase):
         ay = curve.yAxis()
         px = plot.transform(ax, pos[0])
         py = plot.transform(ay, pos[1])
-        logger=logging.getLogger();  logger.info(pos[0], pos[1], px, py, curve.title().text())
+        logger = logging.getLogger()
+        logger.info(pos[0], pos[1], px, py, curve.title().text())
         QTest.mouseClick(plot, Qt.RightButton, pos=QPoint(px, py), delay=10.)
-        logger=logging.getLogger();  logger.info(plot.get_selected_items())
-        logger=logging.getLogger();  logger.info(nwm.get_plot().get_selected_items())
+        logger = logging.getLogger()
+        logger.info(plot.get_selected_items())
+        logger = logging.getLogger()
+        logger.info(nwm.get_plot().get_selected_items())
         # this test does not work yet.
         # todo: fix this test to work.
 

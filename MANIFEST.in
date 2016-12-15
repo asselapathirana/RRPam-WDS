@@ -32,6 +32,7 @@ recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude src/rrpam_wds/tests ?.inp
 global-exclude  log.txt
+global-exclude  *.log
 recursive-exclude service *
 
 global-exclude *.swp

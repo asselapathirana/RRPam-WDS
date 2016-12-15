@@ -1,9 +1,9 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
+import logging
 import random
 import sys
 import time
 import unittest
-import logging
 
 import mock
 from guiqwt.curve import CurveItem
@@ -28,7 +28,8 @@ class TestProjects(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger = logging.getLogger()
+        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
 
     def runTest(self):
@@ -66,19 +67,20 @@ class TestProjects(unittest.TestCase):
         if (other):
             self = other
         with mock.patch.object(self.aw, '_display_project', autospec=True) as mock__display_project:
-                self.aw.pm.open_project()
-                self.aw.pm.workerthread.wait()
-                QApplication.processEvents()  # this is very important before the assertion.
-                # that is because we are not testing this within the Qt's main loop.
-                time.sleep(0.1)
-                mock__display_project.assert_called_with(self.aw.pm.workerthread.result)
+            self.aw.pm.open_project()
+            self.aw.pm.workerthread.wait()
+            QApplication.processEvents()  # this is very important before the assertion.
+            # that is because we are not testing this within the Qt's main loop.
+            time.sleep(0.1)
+            mock__display_project.assert_called_with(self.aw.pm.workerthread.result)
 
     def test_project_manager_sends_a_network_and_main_window_plots_it_correctly(self, other=None):
         # first monkey patch open_project method in self.aw.pm.workerthread object
         from rrpam_wds.project_manager import WorkerThread
 
         def custom_open_project(self):
-            logger=logging.getLogger();  logger.info("I am reading an epanet file")
+            logger = logging.getLogger()
+            logger.info("I am reading an epanet file")
 
             class emptyclass:
                 pass
@@ -107,7 +109,8 @@ class TestProjects(unittest.TestCase):
 
         ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if (
             hasattr(x, "id_") and isinstance(x, CurveItem))]
-        logger=logging.getLogger();  logger.info(ids)
+        logger = logging.getLogger()
+        logger.info(ids)
         self.assertEqual(ids, _ids)
         ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if (
             hasattr(x, "id_") and isinstance(x, EllipseShape))]
@@ -123,20 +126,23 @@ def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
         tc.tearDown()
 
+
 def main(test=True, mainwindow=None):
     if(test):
         unittest.main(verbosity=2)
     else:
         tc = TestProjects()
         for a in dir(tc):
-            if (a.startswith('test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window')):  # test_sync
+            if (a.startswith(
+                    'test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
-                    print("Calling %s"% a)
-                    logger=logging.getLogger();  logger.info("calling %s **********************************" % a)
-  
+                    print("Calling %s" % a)
+                    logger = logging.getLogger()
+                    logger.info("calling %s **********************************" % a)
+
                     clt(tc, b, mainwindow)
-                    print("Called %s"% a)
+                    print("Called %s" % a)
 
 
 if __name__ == "__main__":
