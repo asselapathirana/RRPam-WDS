@@ -1,6 +1,7 @@
 import numbers
 import time
 import unittest
+import logging
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
@@ -21,7 +22,7 @@ class Testhydraulicservices(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
 
     def test_pdd_service_network_nodes_have_coordinates(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False, adfcalc=False)

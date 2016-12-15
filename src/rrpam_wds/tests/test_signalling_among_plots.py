@@ -2,6 +2,7 @@ from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import sys
 import time
 import unittest
+import logging
 
 import mock
 import numpy as np
@@ -26,7 +27,7 @@ class test_main_window(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
 
     def runTest(self):

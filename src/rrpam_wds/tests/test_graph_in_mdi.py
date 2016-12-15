@@ -2,6 +2,7 @@ from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import sys
 import time
 import unittest
+import logging
 
 from guiqwt.plot import CurveDialog
 from PyQt5.QtWidgets import QApplication
@@ -23,7 +24,7 @@ class mdi_graph_test(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
 
     def test_graph_window_properly_added_to_MDI(self):
         self.graph = CurveDialog(

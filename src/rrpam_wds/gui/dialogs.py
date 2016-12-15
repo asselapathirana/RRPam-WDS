@@ -5,7 +5,7 @@ import random
 import sys
 import logging
 
-from rrpam_wds.logger import setup_logging
+from rrpam_wds.logger import setup_logging, EmittingLogger
 
 from guidata.configtools import add_image_module_path
 from guiqwt.builder import make
@@ -28,7 +28,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction, QPlainTextEdit
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMainWindow
@@ -57,13 +57,22 @@ CONF.set("plot", "selection/distance", 10.0)
 STYLE = style_generator()
 
 class LogDialog(QDialog):
-    def __init__(self,logwindow=None):
+    def __init__(self):
         super(LogDialog,self).__init__()
-        self.logwindow=logwindow
+        self.logwindow=QPlainTextEdit()
+        self.logwindow.setReadOnly(True)
+        self.logwindow.setStyleSheet("QPlainTextEdit {background-color:gray}")
         layout = QVBoxLayout(self)
         layout.addWidget(self.logwindow) 
         self.setWindowIcon(get_icon("log_file.png"))
-
+        
+    @pyqtSlot(object)
+    def reciever(self,object):
+        print("I Got: ", str(object))  
+        self.logwindow.appendPlainText(object)
+        
+    def get_text(self):
+        return self.logwindow.toPlainText()
 class CurveDialogWithClosable(CurveDialog):
 
     """The mother dialog from which all the graph windows inherit from
@@ -453,9 +462,14 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
                
         super(MainWindow, self).__init__(parent)
-        self.logwindow=setup_logging(parent=self)
-        logger=logging.getLogger(__name__) 
+        
+        setup_logging()     
+        logger=logging.getLogger()
+        handler=[x for x in logger.handlers if isinstance(x,EmittingLogger)][0]
+        self.logdialog=LogDialog()
+        handler.logsender.logsender_signal.connect(self.logdialog.reciever)     
         logger.info(self.LOGSTARTMESSAGE)
+        
         self.optimaltimegraphs = {}
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
@@ -465,8 +479,8 @@ class MainWindow(QMainWindow):
         
         
     def show_logwindow(self):
-        dialog=LogDialog(self.logwindow)     
-        self.addSubWindow(dialog)
+        self.addSubWindow(self.logdialog)
+        self.logdialog.show()
         
 
     def connect_project_manager(self):
@@ -485,7 +499,7 @@ class MainWindow(QMainWindow):
             self.update_all_plots_with_selection(widget)
 
     def update_all_plots_with_selection(self, widget):
-        print("selection changed!")
+        logger=logging.getLogger();  logger.info("selection changed!")
         try:
             # firt get all subplots
             subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
@@ -505,7 +519,7 @@ class MainWindow(QMainWindow):
                 # don't forget to reset
                 self.update_selected_items = True
         except:
-            print("non selectable item!")
+            logger=logging.getLogger();  logger.info("non selectable item!")
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)
@@ -537,7 +551,7 @@ class MainWindow(QMainWindow):
         file2.triggered[QAction].connect(self.windowaction)
 
     def windowaction(self, q):
-        print("triggered")
+        logger=logging.getLogger();  logger.info("triggered")
 
         if q.text() == self.menuitems.new_wlc:
             self.add_optimaltimegraph()
@@ -559,7 +573,7 @@ class MainWindow(QMainWindow):
     def display_project(self, project):
         """Will display the items represented in the project."""
 
-        print("I got it!")
+        logger=logging.getLogger();  logger.info("I got it!")
         self._display_project(project)
 
     def _display_project(self, project):

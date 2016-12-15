@@ -13,5 +13,5 @@ Why does this file exist, and why __main__? For more info, read:
 from rrpam_wds.cli import Main
 
 if __name__ == "__main__":   # pragma: no cover
-    print("Tweet")
+    logger=logging.getLogger();  logger.info("Tweet")
     Main().show_application()

@@ -2,6 +2,7 @@ from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import sys
 import time
 import unittest
+import logging
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -27,7 +28,7 @@ class test_main_window(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
 
     def runTest(self):
@@ -85,8 +86,8 @@ class test_main_window(unittest.TestCase):
         self.aw.add_optimaltimegraph()  # now we have
         self.close_all_windows()
         list2 = self.aw.mdi.subWindowList()
-        # print(list1)
-        # print(list2)
+        # logger=logging.getLogger();  logger.info(list1)
+        # logger=logging.getLogger();  logger.info(list2)
         self.assertEqual(len(list1), len(list2))
 
         for w in self.aw.mdi.subWindowList():
@@ -117,7 +118,8 @@ def main(test=True, mainwindow=None):
             if (a.startswith('test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
-                    print("calling %s **********************************" % a)
+                    logger=logging.getLogger();  logger.info("calling %s **********************************" % a)
+                    print("calling %s **********************************" % a)                    
                     clt(tc, b, mainwindow)
 
 

@@ -1,5 +1,5 @@
 import tempfile
-
+import logging 
 from epanettools.epanettools import EPANetSimulation
 from epanettools.epanettools import Link
 from epanettools.epanettools import Node
@@ -39,9 +39,9 @@ class pdd_service(object):
                 node.x
                 node.y
         except AttributeError as e:
-            print(
+            logger=logging.getLogger();  logger.info(
                 "There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
-            print("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
+            logger=logging.getLogger();  logger.info("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
             raise e
 
         for i, link in self.links.items():

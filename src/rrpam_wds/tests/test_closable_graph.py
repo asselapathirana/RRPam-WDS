@@ -3,6 +3,7 @@ import sys
 import time
 import unittest
 from uuid import uuid4
+import logging
 
 from guiqwt.label import LabelItem
 from PyQt5.QtCore import Qt
@@ -33,7 +34,7 @@ class mdi_graph_test(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
 
     def selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id(self):
         e1, nwm = draw_a_network(self.aw, network=ex.networks[0])

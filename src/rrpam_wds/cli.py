@@ -34,7 +34,7 @@ class Main(QObject):
 
     def __init__(self, args=None):
         args = parser.parse_args(args=args)
-        print(args.names)
+        logger=logging.getLogger();  logger.info(args.names)
         self.app = QApplication([])
         self.win = MainWindow()
         self.win.show()

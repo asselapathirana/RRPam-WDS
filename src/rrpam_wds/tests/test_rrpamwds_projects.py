@@ -3,6 +3,7 @@ import random
 import sys
 import time
 import unittest
+import logging
 
 import mock
 from guiqwt.curve import CurveItem
@@ -13,7 +14,7 @@ from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.project_manager import ProjectManager as PM
 
 
-class test_main_window(unittest.TestCase):
+class TestProjects(unittest.TestCase):
     start = 0
     stop = 0
 
@@ -27,29 +28,8 @@ class test_main_window(unittest.TestCase):
     def tearDown(self):
         global stop
         stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+        logger=logging.getLogger();  logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-
-    def run_in_a_thread(self, test_):
-        """This method will run test_ function in a seperate thread. Mainloop will continue while this runs.
-        Test methods to be run in this should have the following:
-        def <methodname>(self, other=None)
-        # see run_in_a_thread
-        if (other):
-            self=other
-
-        Then <instance>.run_in_a_thread(<methodname>) can be used to run it.
-        Normal unittest, pytest will also work (without thread)
-        """
-        from PyQt5.QtCore import QThread
-
-        class Worker(QThread):
-
-            def run(self):
-                test_(self.ot)
-        self.worker = Worker()  # storing the thread reference is important.
-        self.worker.ot = self
-        self.worker.start()
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
@@ -98,7 +78,7 @@ class test_main_window(unittest.TestCase):
         from rrpam_wds.project_manager import WorkerThread
 
         def custom_open_project(self):
-            print("I am reading an epanet file")
+            logger=logging.getLogger();  logger.info("I am reading an epanet file")
 
             class emptyclass:
                 pass
@@ -127,24 +107,37 @@ class test_main_window(unittest.TestCase):
 
         ids = [x.id_ for x in self.aw.networkmap.get_plot().get_items() if (
             hasattr(x, "id_") and isinstance(x, CurveItem))]
-        print(ids)
+        logger=logging.getLogger();  logger.info(ids)
         self.assertEqual(ids, _ids)
         ids = [x.id_ for x in self.aw.riskmatrix.get_plot().get_items() if (
             hasattr(x, "id_") and isinstance(x, EllipseShape))]
         self.assertEqual(ids, _ids)
 
 
-def drive(test=True):  # pragma: no cover
+def clt(tc, fn, mainwindow=None):
+    if(not mainwindow):
+        tc.setUp()
+    else:
+        tc.aw = mainwindow
+    fn()
+    if(not mainwindow):
+        tc.tearDown()
+
+def main(test=True, mainwindow=None):
     if(test):
         unittest.main(verbosity=2)
     else:
-        ot = test_main_window()
-        ot.setUp()
-        ot.aw.show()
-        ot.run_in_a_thread(
-            ot.test_project_manager_sends_a_network_and_main_window_plots_it_correctly)
-        sys.exit(ot.app.exec_())
+        tc = TestProjects()
+        for a in dir(tc):
+            if (a.startswith('test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window')):  # test_sync
+                b = getattr(tc, a)
+                if(hasattr(b, '__call__')):
+                    print("Calling %s"% a)
+                    logger=logging.getLogger();  logger.info("calling %s **********************************" % a)
+  
+                    clt(tc, b, mainwindow)
+                    print("Called %s"% a)
 
 
-if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+if __name__ == "__main__":
+    main(test=False)

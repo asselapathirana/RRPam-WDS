@@ -33,7 +33,7 @@ RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
         try:
             orig___del__(self)
         except:
-            print("Better to fix me later.")
+            logger=logging.getLogger();  logger.info("Better to fix me later.")
 
     # now monkey patch
     CurvePlot.__del__ = custom__del__

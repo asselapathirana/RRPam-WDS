@@ -1,4 +1,5 @@
 import unittest
+import logging
 from unittest import SkipTest
 
 from epanettools.epanettools import EPANetSimulation
@@ -49,7 +50,7 @@ class Testhydraulicservices(unittest.TestCase):
     def test_total_demand_returns_correct_value_ex1(self):
         self.e1 = hs.pdd_service(ex.networks[0])
 
-        print(self.e1.es.OriginalInputFileName)
+        logger=logging.getLogger();  logger.info(self.e1.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e1.get_total_demand(),
             TOTAL_DEMAND_EX1,
@@ -58,7 +59,7 @@ class Testhydraulicservices(unittest.TestCase):
     def test_total_demand_returns_correct_value_ex2(self):
 
         self.e2 = hs.pdd_service(ex.networks[1])
-        print(self.e2.es.OriginalInputFileName)
+        logger=logging.getLogger();  logger.info(self.e2.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e2.get_total_demand(),
             TOTAL_DEMAND_EX2,
@@ -66,7 +67,7 @@ class Testhydraulicservices(unittest.TestCase):
 
     def test_total_demand_returns_correct_value_ex3(self):
         self.e3 = hs.pdd_service(ex.networks[2])
-        print(self.e3.es.OriginalInputFileName)
+        logger=logging.getLogger();  logger.info(self.e3.es.OriginalInputFileName)
         self.assertAlmostEqual(
             self.e3.get_total_demand(),
             TOTAL_DEMAND_EX3,
