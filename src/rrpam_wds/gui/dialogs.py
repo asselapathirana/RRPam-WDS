@@ -60,22 +60,28 @@ STYLE = style_generator()
 
 class LogDialog(QDialog):
 
-    def __init__(self):
+    def __init__(self, parent=None):
         super(LogDialog, self).__init__()
-        self.logwindow = QPlainTextEdit()
+        self.parent = parent
+        self.logwindow = QPlainTextEdit(parent=self.parent)
         self.logwindow.setReadOnly(True)
         self.logwindow.setStyleSheet("QPlainTextEdit {background-color:gray}")
         layout = QVBoxLayout(self)
         layout.addWidget(self.logwindow)
         self.setWindowIcon(get_icon("log_file.png"))
+        self.setWindowTitle("Log record")
 
     @pyqtSlot(object)
     def reciever(self, object):
-        print("I Got: ", str(object))
+        # print("I Got: ", str(object))
         self.logwindow.appendPlainText(object)
 
     def get_text(self):
         return self.logwindow.toPlainText()
+
+    def closeEvent(self, evnt):
+        evnt.ignore()
+        self.parent.hide_log_window()
 
 
 class CurveDialogWithClosable(CurveDialog):
@@ -451,9 +457,9 @@ class MainWindow(QMainWindow):
 
     _open_project_signal = pyqtSignal()
 
-    class emptyclass:
+    class MenuItems:
         pass
-    menuitems = emptyclass
+    menuitems = MenuItems
     menuitems.file = "&File"
     menuitems.view = "&View"
     menuitems.new_wlc = "New &WLC window"
@@ -463,6 +469,7 @@ class MainWindow(QMainWindow):
     menuitems.new_project = "&New Project"
     menuitems.open_project = "&Open project"
     menuitems.save_project = "&Save Project"
+    menuitems.close_project = "&Close Project"
 
     update_selected_items = True
     LOGSTARTMESSAGE = "Logging started"
@@ -470,26 +477,30 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
 
         super(MainWindow, self).__init__(parent)
-
+        self.mdi = QMdiArea()
         setup_logging()
         logger = logging.getLogger()
         handler = [x for x in logger.handlers if isinstance(x, EmittingLogger)][0]
-        self.logdialog = LogDialog()
+        self.logdialog = LogDialog(parent=self)
         self.projectgui = subdialogs.ProjectGUI()
         handler.logsender.logsender_signal.connect(self.logdialog.reciever)
         logger.info(self.LOGSTARTMESSAGE)
 
         self.optimaltimegraphs = {}
-        self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.setMenu()
         self.standard_windows()
         self.connect_project_manager()
 
+    def hide_log_window(self):
+        self.logdialog.setVisible(False)
+        logmdi = [x for x in self.mdi.subWindowList() if isinstance(x.widget(), LogDialog)][0]
+        logmdi.setVisible(False)
+
     def show_logwindow(self):
         if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), LogDialog)])):
             self.addSubWindow(self.logdialog)
-        self.logdialog.show()
+        self.logdialog.setVisible(True)
 
     def connect_project_manager(self):
         self.pm = PM()
@@ -552,11 +563,12 @@ class MainWindow(QMainWindow):
         bar = self.menuBar()
         bar.setNativeMenuBar(False)  # disable different treatment in Mac OS
         file = bar.addMenu(self.menuitems.file)
+        file.addAction(self.menuitems.new_project)
+        file.addAction(self.menuitems.save_project)
         file.addAction(self.menuitems.open_project)
         file.addAction(self.menuitems.new_wlc)
         file.addAction(self.menuitems.show_log)
-        file.addAction(self.menuitems.new_project)
-        file.addAction(self.menuitems.open_project)
+        file.addAction(self.menuitems.close_project)
         file.addAction(self.menuitems.save_project)
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu(self.menuitems.view)
@@ -566,14 +578,10 @@ class MainWindow(QMainWindow):
 
     def windowaction(self, q):
         logger = logging.getLogger()
-        logger.info("triggered")
+        logger.info("Menu: %s" % q.text())
 
         if q.text() == self.menuitems.new_wlc:
             self.add_optimaltimegraph()
-
-        if q.text() == self.menuitems.open_project:
-            # MainWindow.count = MainWindow.count + 1
-            self._open_project()
 
         if q.text() == self.menuitems.cascade:
             self.mdi.cascadeSubWindows()
@@ -588,12 +596,16 @@ class MainWindow(QMainWindow):
             self.projectgui.new_project()
 
         if q.text() == self.menuitems.open_project:
-            self.projectgui.open_project()
+            self._open_project()
 
         if q.text() == self.menuitems.save_project:
             self.projectgui.save_project()
 
+        if q.text() == self.menuitems.close_project:
+            self.projectgui.close_project()
+
     def _open_project(self):
+        self.projectgui.open_project()
         self._open_project_signal.emit()
 
     @pyqtSlot(object)

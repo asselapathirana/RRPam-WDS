@@ -26,7 +26,7 @@ class TestProjects(unittest.TestCase):
         global stop
         stop = time.time()
         logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        logger.info("calculation took %0.2f seconds." % (stop - start))
         self.app.quit()
         self.aw = None
 
@@ -46,11 +46,18 @@ class TestProjects(unittest.TestCase):
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.open_project)
             self.assertTrue(mock_open_project.called)
 
-    def test_clicking_save_project_will_call_saves_project_method_in_subdialogs_project_class(self):
+    def test_clicking_save_project_will_call_save_project_method_in_subdialogs_project_class(self):
         with mock.patch.object(self.aw.projectgui, 'save_project', autospec=True) as mock_save_project:
             self.assertFalse(mock_save_project.called)
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.save_project)
             self.assertTrue(mock_save_project.called)
+
+    def test_clicking_close_project_will_call_close_project_method_in_subdialogs_project_class(
+            self):
+        with mock.patch.object(self.aw.projectgui, 'close_project', autospec=True) as mock_close_project:
+            self.assertFalse(mock_close_project.called)
+            trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.close_project)
+            self.assertTrue(mock_close_project.called)
 
 
 def clt(tc, fn, mainwindow=None):
@@ -73,12 +80,9 @@ def main(test=True, mainwindow=None):
                     'test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
-                    print("Calling %s" % a)
                     logger = logging.getLogger()
                     logger.info("calling %s **********************************" % a)
                     clt(tc, b, mainwindow)
-                    print("Called %s" % a)
-
 
 if __name__ == "__main__":
     main(test=False)

@@ -5,7 +5,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 
-import rrpam_wds.gui.dialogs as dia
+import rrpam_wds.gui.dialogs
 
 
 class ProjectGUI():
@@ -20,10 +20,13 @@ class ProjectGUI():
     def save_project(self):
         self.logger.info("Save Project")
 
+    def close_project(self):
+        self.logger.info("Close Project")
+
 
 def main():
     app = QApplication(sys.argv)
-    ex = dia.MainWindow()
+    ex = rrpam_wds.gui.dialogs.MainWindow()
     ex.show()
     sys.exit(app.exec_())
 

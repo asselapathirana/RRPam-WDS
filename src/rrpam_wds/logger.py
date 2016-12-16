@@ -59,7 +59,8 @@ def setup_logging(default_path=DEFAULTCONFIG, default_level=logging.INFO,
 
 @pyqtSlot(object)
 def reciever(object):
-    print("I Got: ", str(object))
+    pass
+    # print("I Got: ", str(object))
 
 
 if __name__ == "__main__":

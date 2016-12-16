@@ -54,6 +54,18 @@ class TestLoggers(unittest.TestCase):
         li2 = self.aw.mdi.subWindowList()
         self.assertEqual(li1, li2)
 
+    def closing_log_window_can_be_followed_by_opening_it_again_and_same_log_window_will_reaapper(
+            self):
+        self.aw = MainWindow()
+        self.aw.show_logwindow()
+        li1 = self.aw.mdi.subWindowList()
+        logdialog1 = [x for x in li1 if isinstance(x.widget(), LogDialog)][0]
+        logdialog1.close()
+        self.aw.show_logwindow()
+        li2 = self.aw.mdi.subWindowList()
+        logdialog2 = [x for x in li2 if isinstance(x.widget(), LogDialog)][0]
+        self.assertEqual(logdialog1.widget(), logdialog2.widget())
+
 
 def drive(test=True):  # pragma: no cover
     if(test):
@@ -61,7 +73,8 @@ def drive(test=True):  # pragma: no cover
     else:
         ot = TestLoggers()
         ot.setUp()
-        ot.test_creating_main_window_will_write_log_messages()
+        ot.closing_log_window_can_be_followed_by_opening_it_again_and_same_log_window_will_reaapper(
+        )
         ot.aw.show()
         sys.exit(ot.app.exec_())
 

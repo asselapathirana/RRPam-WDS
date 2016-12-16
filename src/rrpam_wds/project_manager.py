@@ -28,7 +28,7 @@ class WorkerThread(QThread):
         for i in range(5):
             self.sleep(1)
             logger = logging.getLogger()
-            logger.info("Tik ", i)
+            logger.info("Tik %d " % i)
         return object()
 
 
