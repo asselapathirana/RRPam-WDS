@@ -57,10 +57,17 @@ class TestProjects(unittest.TestCase):
             self.assertTrue(mock__open_project.called)
 
     def test_triggering_open_project_will_call_project_manager__open_project(self):
-        with mock.patch.object(PM, '_open_project', autospec=True) as mock__open_project:
-            self.assertFalse(mock__open_project.called)
-            self.aw._open_project()
-            self.assertTrue(mock__open_project.called)
+        # need refactoring here. The following mock is needed to avoid file open dialog to open
+        # see _open_project method (copied below) in MainWindow - there is the issue!
+        # def _open_project(self):
+        #    self.projectgui.open_project()
+        #    self._open_project_signal.emit()
+        with mock.patch.object(self.aw.projectgui, "open_project", autospec=True):
+
+            with mock.patch.object(PM, '_open_project', autospec=True) as mock__open_project:
+                self.assertFalse(mock__open_project.called)
+                self.aw._open_project()
+                self.assertTrue(mock__open_project.called)
 
     def test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window(
             self, other=None):
