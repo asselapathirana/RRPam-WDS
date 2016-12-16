@@ -14,6 +14,13 @@ from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.project_manager import ProjectManager as PM
 
 
+def trigger_sub_menu_item(mainwindow, menutext, submenutext):
+    filemenu = [x for x in mainwindow.menuBar().actions() if x.text() == menutext][0]
+    sb = filemenu.menu()
+    sm = [x for x in sb.actions() if x.text() == submenutext][0]
+    sm.trigger()  # don't use toggle, use trigger.
+
+
 class TestProjects(unittest.TestCase):
     start = 0
     stop = 0
@@ -40,19 +47,14 @@ class TestProjects(unittest.TestCase):
         """This is the test for opening and existing project. For the moment, the project details are hard-coded.
         As we implement real project opening, this test will have to change. """
         l = len(self.aw.optimaltimegraphs)
-        self.trigger_sub_menu_item(self.aw.menuitems.file, self.aw.menuitems.new_wlc)
+        trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_wlc)
         self.assertEqual(l + 1, len(self.aw.optimaltimegraphs))
 
-    def trigger_sub_menu_item(self, menutext, submenutext):
-        filemenu = [x for x in self.aw.menuBar().actions() if x.text() == menutext][0]
-        sb = filemenu.menu()
-        sm = [x for x in sb.actions() if x.text() == submenutext][0]
-        sm.trigger()  # don't use toggle, use trigger.
 
     def test_clicking_file_open_will_trigger_opening_a_project(self):
         with mock.patch.object(self.aw, '_open_project', autospec=True) as mock__open_project:
             self.assertFalse(mock__open_project.called)
-            self.trigger_sub_menu_item(self.aw.menuitems.file, self.aw.menuitems.open_project)
+            trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.open_project)
             self.assertTrue(mock__open_project.called)
 
     def test_triggering_open_project_will_call_project_manager__open_project(self):
@@ -119,7 +121,7 @@ class TestProjects(unittest.TestCase):
     def test_clicking_window_log_window_will_call_show_logwindow_method(self):
         with mock.patch.object(self.aw, 'show_logwindow', autospec=True) as mock_show_logwindow:
             self.assertFalse(mock_show_logwindow.called)
-            self.trigger_sub_menu_item(self.aw.menuitems.file, self.aw.menuitems.show_log)
+            trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.show_log)
             self.assertTrue(mock_show_logwindow.called)
 
 
