@@ -50,7 +50,6 @@ class TestProjects(unittest.TestCase):
         trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_wlc)
         self.assertEqual(l + 1, len(self.aw.optimaltimegraphs))
 
-
     def test_clicking_file_open_will_trigger_opening_a_project(self):
         with mock.patch.object(self.aw, '_open_project', autospec=True) as mock__open_project:
             self.assertFalse(mock__open_project.called)

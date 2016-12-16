@@ -1,19 +1,15 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import logging
-import random
 import sys
 import time
 import unittest
 
 import mock
-from guiqwt.curve import CurveItem
-from guiqwt.shapes import EllipseShape
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.project_manager import ProjectManager as PM
-from rrpam_wds.tests.test_rrpamwds_projects  import trigger_sub_menu_item
-import  rrpam_wds.gui.subdialogs as SD
+from rrpam_wds.tests.test_rrpamwds_projects import trigger_sub_menu_item
+
 
 class TestProjects(unittest.TestCase):
     start = 0
@@ -21,7 +17,7 @@ class TestProjects(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication(sys.argv)
+        self.app = QApplication.instance() or QApplication(sys.argv)
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("RRPAMWDS Projject tests")
@@ -31,22 +27,32 @@ class TestProjects(unittest.TestCase):
         stop = time.time()
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (stop - start))
+        self.app.quit()
         self.aw = None
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        
-        
+
     def test_clicking_new_project_will_call_new_project_method_in_subdialogs_project_class(self):
         with mock.patch.object(self.aw.projectgui, 'new_project', autospec=True) as mock_new_project:
-            self.assertFalse(mock_new_project.called)            
+            self.assertFalse(mock_new_project.called)
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_project)
-            self.assertTrue(mock_new_project.called)            
-        
-        
-        
-        
+            self.assertTrue(mock_new_project.called)
+
+    def test_clicking_open_project_will_call_open_project_method_in_subdialogs_project_class(self):
+        with mock.patch.object(self.aw.projectgui, 'open_project', autospec=True) as mock_open_project:
+            self.assertFalse(mock_open_project.called)
+            trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.open_project)
+            self.assertTrue(mock_open_project.called)
+
+    def test_clicking_save_project_will_call_saves_project_method_in_subdialogs_project_class(self):
+        with mock.patch.object(self.aw.projectgui, 'save_project', autospec=True) as mock_save_project:
+            self.assertFalse(mock_save_project.called)
+            trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.save_project)
+            self.assertTrue(mock_save_project.called)
+
+
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
         tc.setUp()
