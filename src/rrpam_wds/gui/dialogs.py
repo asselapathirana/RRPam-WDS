@@ -44,6 +44,8 @@ from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
+import rrpam_wds.gui.subdialogs as subdialogs
+
 
 # there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as
 # we need to user make.* facotry
@@ -458,8 +460,11 @@ class MainWindow(QMainWindow):
     menuitems.new_wlc = "New &WLC window"
     menuitems.cascade = "&Cascade"
     menuitems.tiled = "&Tiled"
-    menuitems.open_project = "&Open project"
     menuitems.show_log = "Show &Log"
+    menuitems.new_project = "&New Project"
+    menuitems.open_project = "&Open project"
+    menuitems.save_project = "&Save Project"
+    
 
     update_selected_items = True
     LOGSTARTMESSAGE = "Logging started"
@@ -472,6 +477,7 @@ class MainWindow(QMainWindow):
         logger = logging.getLogger()
         handler = [x for x in logger.handlers if isinstance(x, EmittingLogger)][0]
         self.logdialog = LogDialog()
+        self.projectgui = subdialogs.ProjectGUI()
         handler.logsender.logsender_signal.connect(self.logdialog.reciever)
         logger.info(self.LOGSTARTMESSAGE)
 
@@ -551,6 +557,7 @@ class MainWindow(QMainWindow):
         file.addAction(self.menuitems.open_project)
         file.addAction(self.menuitems.new_wlc)
         file.addAction(self.menuitems.show_log)
+        file.addAction(self.menuitems.new_project)
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu(self.menuitems.view)
         file2.addAction(self.menuitems.cascade)
@@ -576,6 +583,9 @@ class MainWindow(QMainWindow):
 
         if q.text() == self.menuitems.show_log:
             self.show_logwindow()
+            
+        if q.text() == self.menuitems.new_project:
+            self.projectgui.new_project()
 
     def _open_project(self):
         self._open_project_signal.emit()

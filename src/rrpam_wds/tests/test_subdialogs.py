@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QApplication
 from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.project_manager import ProjectManager as PM
 from rrpam_wds.tests.test_rrpamwds_projects  import trigger_sub_menu_item
+import  rrpam_wds.gui.subdialogs as SD
 
 class TestProjects(unittest.TestCase):
     start = 0
@@ -38,6 +39,10 @@ class TestProjects(unittest.TestCase):
         
         
     def test_clicking_new_project_will_call_new_project_method_in_subdialogs_project_class(self):
+        with mock.patch.object(self.aw.projectgui, 'new_project', autospec=True) as mock_new_project:
+            self.assertFalse(mock_new_project.called)            
+            trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_project)
+            self.assertTrue(mock_new_project.called)            
         
         
         
@@ -59,7 +64,7 @@ def main(test=True, mainwindow=None):
         tc = TestProjects()
         for a in dir(tc):
             if (a.startswith(
-                    'test_clicking_window_log_window_will_call_show_logwindow_method')):  # test_sync
+                    'test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
                     print("Calling %s" % a)

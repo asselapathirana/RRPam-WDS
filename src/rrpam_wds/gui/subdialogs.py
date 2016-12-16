@@ -36,6 +36,8 @@ from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
 
+import rrpam_wds.gui.dialogs 
+
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
@@ -44,8 +46,10 @@ from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
-from rrpam_wds.gui.dialogs import MainWindow
 
+class ProjectGUI():
+    def new_project(self):
+        pass
 
 
 
