@@ -116,6 +116,12 @@ class TestProjects(unittest.TestCase):
             hasattr(x, "id_") and isinstance(x, EllipseShape))]
         self.assertEqual(ids, _ids)
 
+    def test_clicking_window_log_window_will_call_show_logwindow_method(self):
+        with mock.patch.object(self.aw, 'show_logwindow', autospec=True) as mock_show_logwindow:
+            self.assertFalse(mock_show_logwindow.called)
+            self.trigger_sub_menu_item(self.aw.menuitems.file, self.aw.menuitems.show_log)
+            self.assertTrue(mock_show_logwindow.called)
+
 
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
@@ -134,13 +140,12 @@ def main(test=True, mainwindow=None):
         tc = TestProjects()
         for a in dir(tc):
             if (a.startswith(
-                    'test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window')):  # test_sync
+                    'test_clicking_window_log_window_will_call_show_logwindow_method')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
                     print("Calling %s" % a)
                     logger = logging.getLogger()
                     logger.info("calling %s **********************************" % a)
-
                     clt(tc, b, mainwindow)
                     print("Called %s" % a)
 

@@ -459,6 +459,7 @@ class MainWindow(QMainWindow):
     menuitems.cascade = "&Cascade"
     menuitems.tiled = "&Tiled"
     menuitems.open_project = "&Open project"
+    menuitems.show_log = "Show &Log"
 
     update_selected_items = True
     LOGSTARTMESSAGE = "Logging started"
@@ -547,8 +548,9 @@ class MainWindow(QMainWindow):
         bar = self.menuBar()
         bar.setNativeMenuBar(False)  # disable different treatment in Mac OS
         file = bar.addMenu(self.menuitems.file)
-        file.addAction(self.menuitems.new_wlc)
         file.addAction(self.menuitems.open_project)
+        file.addAction(self.menuitems.new_wlc)
+        file.addAction(self.menuitems.show_log)
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu(self.menuitems.view)
         file2.addAction(self.menuitems.cascade)
@@ -571,6 +573,9 @@ class MainWindow(QMainWindow):
 
         if q.text() == self.menuitems.tiled:
             self.mdi.tileSubWindows()
+
+        if q.text() == self.menuitems.show_log:
+            self.show_logwindow()
 
     def _open_project(self):
         self._open_project_signal.emit()
