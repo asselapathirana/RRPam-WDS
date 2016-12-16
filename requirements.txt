@@ -19,4 +19,5 @@ pytest-cov
 docutils
 cx_freeze
 pyyaml 
-
+h5py 
+appdirs

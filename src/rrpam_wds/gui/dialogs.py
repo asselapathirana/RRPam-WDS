@@ -468,7 +468,9 @@ class MainWindow(QMainWindow):
     menuitems.show_log = "Show &Log"
     menuitems.new_project = "&New Project"
     menuitems.open_project = "&Open project"
+    menuitems.save_project_as = "Save Project &As"
     menuitems.save_project = "&Save Project"
+
     menuitems.close_project = "&Close Project"
 
     update_selected_items = True
@@ -482,7 +484,7 @@ class MainWindow(QMainWindow):
         logger = logging.getLogger()
         handler = [x for x in logger.handlers if isinstance(x, EmittingLogger)][0]
         self.logdialog = LogDialog(parent=self)
-        self.projectgui = subdialogs.ProjectGUI()
+        self.projectgui = subdialogs.ProjectGUI(self)
         handler.logsender.logsender_signal.connect(self.logdialog.reciever)
         logger.info(self.LOGSTARTMESSAGE)
 
@@ -565,11 +567,11 @@ class MainWindow(QMainWindow):
         file = bar.addMenu(self.menuitems.file)
         file.addAction(self.menuitems.new_project)
         file.addAction(self.menuitems.save_project)
+        file.addAction(self.menuitems.save_project_as)
         file.addAction(self.menuitems.open_project)
         file.addAction(self.menuitems.new_wlc)
         file.addAction(self.menuitems.show_log)
         file.addAction(self.menuitems.close_project)
-        file.addAction(self.menuitems.save_project)
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu(self.menuitems.view)
         file2.addAction(self.menuitems.cascade)
@@ -600,6 +602,9 @@ class MainWindow(QMainWindow):
 
         if q.text() == self.menuitems.save_project:
             self.projectgui.save_project()
+
+        if q.text() == self.menuitems.save_project_as:
+            self.projectgui.save_project_as()
 
         if q.text() == self.menuitems.close_project:
             self.projectgui.close_project()

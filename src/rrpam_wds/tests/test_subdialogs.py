@@ -34,6 +34,20 @@ class TestProjects(unittest.TestCase):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
 
+    def test_maindialog_has__appdir_value_that_indicates_to_a_creatable_writable_directory(self):
+        from rrpam_wds.constants import _appdir
+        import os
+        if (not os.path.isdir(_appdir)):
+            if (os.path.isfile(_appdir)):
+                os.unlink(_appdir)
+            os.mkdir(_appdir)
+        self.assertTrue(os.path.isdir(_appdir))
+        fp = os.path.join(_appdir, 'dummy.file')
+        with open(fp, 'w+'):
+            pass
+        self.assertTrue(os.path.isfile(fp))
+        os.unlink(fp)
+
     def test_clicking_new_project_will_call_new_project_method_in_subdialogs_project_class(self):
         with mock.patch.object(self.aw.projectgui, 'new_project', autospec=True) as mock_new_project:
             self.assertFalse(mock_new_project.called)
@@ -45,6 +59,16 @@ class TestProjects(unittest.TestCase):
             self.assertFalse(mock_open_project.called)
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.open_project)
             self.assertTrue(mock_open_project.called)
+
+    def test_clicking_save_project_as_will_call_save_project_method_in_subdialogs_project_class(
+            self):
+        with mock.patch.object(self.aw.projectgui, 'save_project_as', autospec=True) as mock_save_project_as:
+            self.assertFalse(mock_save_project_as.called)
+            trigger_sub_menu_item(
+                self.aw,
+                self.aw.menuitems.file,
+                self.aw.menuitems.save_project_as)
+            self.assertTrue(mock_save_project_as.called)
 
     def test_clicking_save_project_will_call_save_project_method_in_subdialogs_project_class(self):
         with mock.patch.object(self.aw.projectgui, 'save_project', autospec=True) as mock_save_project:

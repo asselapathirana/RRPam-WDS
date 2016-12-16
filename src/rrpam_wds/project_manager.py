@@ -35,7 +35,11 @@ class WorkerThread(QThread):
 class ProjectManager(QObject):
 
     """This is where all the 'heavy lifting' related to RRPAM-WDS project management happens.
-    Almost all time-consuming actions are processesed as sperate threads"""
+    Almost all time-consuming actions are processesed as sperate threads.
+
+    This means however, we can not do any GUI stuff directly in this (GUI has to run in the main thread - PyQt rule!)
+    GUI stuff happens in gui.subdialogs module)
+    """
 
     heres_a_project_signal = pyqtSignal(object)
 
