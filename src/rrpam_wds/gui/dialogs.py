@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QVBoxLayout
 
-import rrpam_wds.gui.subdialogs as subdialogs
+import  subdialogs
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units

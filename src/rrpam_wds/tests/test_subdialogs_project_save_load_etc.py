@@ -93,8 +93,7 @@ class TestProjects(unittest.TestCase):
             tmp = sub.ProjectGUI(self.aw)
             self.assertEqual(tmp.LASTPROJECT, sf)
 
-    def test_save_project_will_save_the_project_data_to_the_project_file_and_open_project_will_read_it(
-            self):
+    def test_save_project_will_save_the_project_data_to_the_project_file_and_open_project_will_read_it(self):
         self.test_new_project_will_create_project_name_and_data_directory()
         # now we have created a dataset.
 
@@ -115,6 +114,8 @@ class TestProjects(unittest.TestCase):
             self.assertEqual(1.2, tmp1.projectproperties.N)
             self.assertEqual(os.path.join(c.HOMEDIR, "foo1.inp"), tmp1.projectproperties.fname)
 
+    def test_save_project_as_with_filename_with_extention_or_without_will_create_project_file_and_directory(self):
+        self.fail()
 
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
