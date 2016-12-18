@@ -49,11 +49,11 @@ class test_main_window(unittest.TestCase):
         self.assertTrue(len([x for x in list1 if (isinstance(x.widget(), NetworkMap))]), 1)
 
     def test_main_window_will_not_add_more_than_one_network_map_or_risk_matrix(self):
-        self.aw.standard_windows()  # Adds riskmatrix, network map and a optimaltimegraph
+        self.aw._standard_windows()  # Adds riskmatrix, network map and a optimaltimegraph
         list1 = self.aw.mdi.subWindowList()  # should have above three
         self.aw.add_riskmatrix()  # try adding a rm
         self.aw.add_networkmap()  # try adding a nm
-        self.aw.standard_windows()  # this will add only an extra optimaltimegraph
+        self.aw._standard_windows()  # this will add only an extra optimaltimegraph
         list2 = self.aw.mdi.subWindowList()
         list1 = [x for x in list1 if not isinstance(x.widget(), optimalTimeGraph)]
         list2 = [x for x in list2 if not isinstance(x.widget(), optimalTimeGraph)]

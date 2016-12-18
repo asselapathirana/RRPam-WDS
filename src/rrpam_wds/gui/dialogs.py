@@ -220,7 +220,7 @@ class RiskMatrix(CurveDialogWithClosable):
         l = self.get_plot().PREFERRED_AXES_LIMITS
         SCALE = self.get_scale(consequence, probability, l)
         return consequence - SCALE, probability + SCALE,\
-            consequence + SCALE, probability - SCALE
+               consequence + SCALE, probability - SCALE
 
     def get_scale(self, consequence, probability, l):
         SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
@@ -480,19 +480,51 @@ class MainWindow(QMainWindow):
 
         super(MainWindow, self).__init__(parent)
         self.mdi = QMdiArea()
+        self.setCentralWidget(self.mdi)
+        self._setup_logging()
+        self.projectgui = subdialogs.ProjectGUI(self)
+        self.setMenu()
+        self._standard_windows()
+        self.connect_project_manager()
+        self._manage_window_settings()
+
+    def _manage_window_settings(self, save=False):
+        """ if (save=False) At application initialization, will set the application GUI geometry and components 
+        from  values saved at the end of the previous session. 
+
+        Otherwise (save=True) it will 
+        """
+        QApplication.setOrganizationName("AsselaPathirana");
+        QApplication.setOrganizationDomain("assela.pathirana.net");
+        QApplication.setApplicationName("RRPAMWDS");
+        settings=QtCore.QSettings()
+        
+        if(save):  
+            settings.beginGroup("MainWindow")
+            settings.setValue("size", self.size())
+            settings.setValue("pos", self.pos())
+            settings.endGroup()
+        else:
+
+            settings.beginGroup("MainWindow")
+            self.resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))        
+            settings.endGroup()
+
+    def closeEvent(self, event):
+        self._manage_window_settings(save=True);
+        event.accept();
+
+
+
+
+    def _setup_logging(self):
         setup_logging()
         logger = logging.getLogger()
         handler = [x for x in logger.handlers if isinstance(x, EmittingLogger)][0]
         self.logdialog = LogDialog(parent=self)
-        self.projectgui = subdialogs.ProjectGUI(self)
         handler.logsender.logsender_signal.connect(self.logdialog.reciever)
-        logger.info(self.LOGSTARTMESSAGE)
-
-        self.optimaltimegraphs = {}
-        self.setCentralWidget(self.mdi)
-        self.setMenu()
-        self.standard_windows()
-        self.connect_project_manager()
+        logger.info(self.LOGSTARTMESSAGE)        
 
     def hide_log_window(self):
         self.logdialog.setVisible(False)
@@ -509,9 +541,10 @@ class MainWindow(QMainWindow):
         self._open_project_signal.connect(self.pm.open_project)
         self.pm.heres_a_project_signal.connect(self.display_project)
 
-    def standard_windows(self):
+    def _standard_windows(self):
         self.add_networkmap()
         self.add_riskmatrix()
+        self.optimaltimegraphs = {}  
         self.add_optimaltimegraph()
 
     def selected_holder(self, widget):
