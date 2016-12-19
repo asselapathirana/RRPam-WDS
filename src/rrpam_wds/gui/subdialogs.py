@@ -20,32 +20,15 @@ class ProjectGUI():
 
     def __init__(self, parent):
         self.parent = parent
-        self._load_history()
+        self.projectproperties=None
 
-    def _load_history(self):
-        """If there is an existing configuration load it."""
-        if(os.path.isfile(c.PROJECTDATA)):
-            with open(c.PROJECTDATA, "r") as f:
-                self.LASTPROJECT = f.read()
-
-    def _save_history(self, projectfile):
-        self.logger.info("Testing projectfilename %s as save candidate" % projectfile)
-        if(self._get_dir_and_extention(projectfile)[-1] == c.PROJECTEXTENSION):
-            self.LASTPROJECT = projectfile
-        else:
-            self.LASTPROJECT = projectfile + c.PROJECTEXTENSION
-        self.logger.info("Saving  %s into history file" % self.LASTPROJECT)
-
-        try:
-            with open(c.PROJECTDATA, "w+") as f:
-                f.write(self.LASTPROJECT)
-        except:
-            pass
 
     def new_project(self):
         self.logger.info("New Project")
         msg = "New Project"
-        self._create_empty_project(msg, new=True)
+        tmp=self._create_empty_project(msg, new=True)
+        if(tmp):
+            self.projectfile=tmp
 
     def _getSaveFileName(self, *args, **kwargs):
         self.logger.info("proxy calling QFileDialog.getSaveFileName ")
@@ -56,46 +39,43 @@ class ProjectGUI():
         return QFileDialog.getOpenFileName(*args, **kwargs)
 
     def _create_empty_project(self, msg, new=False):
-        prj = self.LASTPROJECT
 
-        self.try_loading_project_properties(prj)
+        projectfile = self.get_save_filename(msg)
+        if(not projectfile):
+            return None        
+        else:
+            return self._save_project_to_dest(projectfile)
 
+    def get_save_filename(self, msg):
         projectfile, filter = self._getSaveFileName(self.parent,
                                                     msg,
-                                                    self.LASTPROJECT or c.HOMEDIR,
+                                                    self.parent.LASTPROJECT or c.HOMEDIR,
                                                     filter='*' + c.PROJECTEXTENSION)
-        self.logger.info("Selected file for new project : %s " % projectfile)
-        if(not projectfile):
-            return False
-        if ((not hasattr(self, "projectproperties")) or (not self.projectproperties)):
-            self.projectproperties = ProjectProperties(self._get_dir_and_extention(projectfile)[0])
-        if(new):
-            if (not self.projectproperties.show()):
-                self.logger.info("User cancelled the project properties dialog. ")
-                return False
+        self.logger.info("Selected file for save/new project : %s " % projectfile)
+        return projectfile
 
-        self.projectproperties.write_data()
-        projectfile, subdirn, ext = self._get_dir_and_extention(projectfile)
-        self._save_history(projectfile)
+    def _save_project_to_dest(self, projectfile):
 
-        if(not os.path.isdir(subdirn)):
-            os.mkdir(subdirn)
-        return True
+        prjname, subdir, ext= self._get_dir_and_extention(projectfile)
+        if(not self.projectproperties):
+            self.projectproperties = ProjectProperties(self)
+        self.projectproperties.write_data(prjname)
+        if(not os.path.isdir(subdir)):
+            os.mkdir(subdir)
+        return prjname
 
     def try_loading_project_properties(self, prj):
 
-        self.projectproperties = ProjectProperties(prj)
+        tmp = ProjectProperties(self)
         try:
-            self.logger.info("Trying to read data from last recorded project ..")
-            if(self.projectproperties.read_data()):
-                self.logger.info("... Last project read successfully.")
+            self.logger.info("Trying to read properties from %s " % prj)
+            if(tmp.read_data(prj)):
+                self.logger.info(" %s project read successfully." % prj)
+                self.projectproperties=tmp
                 return True
-            else:
-                self.projectproperties = None
-                return False
-        except:
-            self.projectproperties = None
-            return False
+        except Exception as e:
+            self.logger.exception("Could not load the project properties: %s" % e)
+        return False
 
     def _get_dir_and_extention(self, projectname):
         self.logger.info("Analysing prjname : %s", projectname)
@@ -111,25 +91,29 @@ class ProjectGUI():
     def save_project(self):
         self.logger.info("Saving the project")
         # Implement the actions needed to save the project here.
+        self._save_project_to_dest(self.projectfile)
 
-    def save_project_as(self):
+    def save_project_as(self, target):
         msg = "Save project as"
-        self._create_empty_project(msg)
+        self.projectfile=self.get_save_filename(msg)
         self.save_project()
 
     def open_project(self):
         while (True):
             projectfile, filter = self._getOpenFileName(self.parent,
                                                         "Open project",
-                                                        self.LASTPROJECT or c.USERDATA,
+                                                        self.parent.LASTPROJECT or c.HOMEDIR,
                                                         filter='*' + c.PROJECTEXTENSION)
             if(not projectfile):
                 return None
             self.logger.info("Selected file to open : %s " % projectfile)
             # check if it is a valid project
             if(self._valid_project(projectfile)):
-                self._save_history(projectfile)
+                self.projectfile=projectfile
                 break
+            else:
+                self.logger.info("Project loading failed: Not a valid project")
+                return None
 
         self.logger.info("Open Project valid")
         return (projectfile)
@@ -162,35 +146,34 @@ class ProjectProperties(dt.DataSet):
     N = di.FloatItem("N0", default=2)
     _eg = dt.EndGroup("Aging rate")
 
-    def __init__(self, projectfilename, title=None, comment=None, icon=''):
+    def __init__(self,  title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
-        self.projectfilename = projectfilename
         super(ProjectProperties, self).__init__(title, comment, icon)
 
     def show(self):
         return self.edit()
 
-    def read_data(self):
-        self.logger.info("Reading HDF 5 data from %s" % self.projectfilename)
-        if os.path.exists(self.projectfilename):
+    def read_data(self, projfile):
+        self.logger.info("Reading HDF 5 data from %s" % projfile)
+        if os.path.exists(projfile):
             try:
-                reader = HDF5Reader(self.projectfilename)
+                reader = HDF5Reader(projfile)
                 self.deserialize(reader)
                 reader.close()
                 return True
             except:
-                self.logger.info("Exception with HDF reader for file %s" % self.projectfilename)
+                self.logger.info("Exception with HDF reader for file %s" % projfile)
 
         return False
 
-    def write_data(self):
-        self.logger.info("Writing HDF 5 data to %s" % self.projectfilename)
+    def write_data(self, projfile):
+        self.logger.info("Writing HDF 5 data to %s" % projfile)
         try:
-            writer = HDF5Writer(self.projectfilename)
+            writer = HDF5Writer(projfile)
             self.serialize(writer)
             writer.close()
-        except:
-            self.logger.info("Exceptino with HDF writer for file %s" % self.projectfilename)
+        except Exception as e:
+            self.logger.exception("Exceptino with HDF writer for file %s" % e)
 
 
 def main():

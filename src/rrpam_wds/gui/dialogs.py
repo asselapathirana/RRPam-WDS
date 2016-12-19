@@ -482,6 +482,7 @@ class MainWindow(QMainWindow):
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self._setup_logging()
+        self.LASTPROJECT=None
         self.projectgui = subdialogs.ProjectGUI(self)
         self.setMenu()
         self._standard_windows()
@@ -504,12 +505,18 @@ class MainWindow(QMainWindow):
             settings.setValue("size", self.size())
             settings.setValue("pos", self.pos())
             settings.endGroup()
+            settings.beginGroup("last_project")
+            settings.setValue("LASTPROJECT", self.LASTPROJECT)
+            settings.endGroup()
         else:
 
             settings.beginGroup("MainWindow")
             self.resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
             self.move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))        
             settings.endGroup()
+            settings.beginGroup("last_project")
+            self.LASTPROJECT=settings.value("LASTPROJECT", None, type=str)
+            settings.endGroup()            
 
     def closeEvent(self, event):
         self._manage_window_settings(save=True);

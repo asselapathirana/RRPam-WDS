@@ -3,6 +3,7 @@ import logging
 import sys
 import time
 import unittest
+import os
 
 import mock
 from PyQt5.QtWidgets import QApplication
@@ -34,13 +35,22 @@ class TestProjects(unittest.TestCase):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
 
+    def mkdir_p(self, path):
+        try:
+            os.makedirs(path)
+        except OSError as exc:  # Python >2.5
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
     def test_maindialog_has__appdir_value_that_indicates_to_a_creatable_writable_directory(self):
         from rrpam_wds.constants import _appdir
         import os
         if (not os.path.isdir(_appdir)):
             if (os.path.isfile(_appdir)):
                 os.unlink(_appdir)
-            os.mkdir(_appdir)
+            self.mkdir_p(_appdir)
         self.assertTrue(os.path.isdir(_appdir))
         fp = os.path.join(_appdir, 'dummy.file')
         with open(fp, 'w+'):

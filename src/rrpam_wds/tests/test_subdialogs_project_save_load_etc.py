@@ -36,10 +36,7 @@ class TestProjects(unittest.TestCase):
         c.HOMEDIR = tempfile.gettempdir() + "/rrpamwds_testing"
         # clean it and create it
         self.delifexists(c.HOMEDIR, create=True)
-        c.USERDATA = tempfile.gettempdir() + "/rrpamwds_userdata"
-        # clean it
-        self.delifexists(c.USERDATA)
-        # No need to create it.
+
 
         # monkey-patch show method in rrpam_wds.gui.subdialogs.ProjectProperties
         def custom_show(self):
@@ -79,10 +76,14 @@ class TestProjects(unittest.TestCase):
             self.aw.projectgui.new_project()
             self.assertTrue(os.path.isfile(sf + c.PROJECTEXTENSION))
             self.assertTrue(os.path.isdir(sf + c.PROJECTDATADIREXT))
-            # history saved represent this project
-            tmp = sub.ProjectGUI(self.aw)
-            self.assertEqual(tmp.LASTPROJECT, sf + c.PROJECTEXTENSION)
+            # start fresh
+            self.close_and_recreate()
 
+            self.assertEqual(self.aw.LASTPROJECT, sf + c.PROJECTEXTENSION)
+
+            # start fresh
+            self.close_and_recreate()
+        with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:
             # Also try with extension
             sf = os.path.join(c.HOMEDIR, "fo" + c.PROJECTEXTENSION)
             mock__getSaveFileName.return_value = (sf, c.PROJECTEXTENSION)
@@ -91,12 +92,41 @@ class TestProjects(unittest.TestCase):
             self.assertTrue(os.path.isfile(sf))
             self.assertTrue(os.path.isdir(sf[:-len(c.PROJECTEXTENSION)] + c.PROJECTDATADIREXT))
             tmp = sub.ProjectGUI(self.aw)
-            self.assertEqual(tmp.LASTPROJECT, sf)
+            self.assertEqual(self.aw.LASTPROJECT, sf)
+
+    def close_and_recreate(self):
+        self.aw.close()
+        # now start a new session.
+        self.app.closeAllWindows()
+        self.app.exit()
+        self.app=None
+        time.sleep(1)
+        self.app=QApplication([])
+        self.aw=MainWindow()
 
     def test_save_project_will_save_the_project_data_to_the_project_file_and_open_project_will_read_it(self):
-        self.test_new_project_will_create_project_name_and_data_directory()
-        # now we have created a dataset.
+        with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:
+            sf = os.path.join(c.HOMEDIR, "fo")
+            mock__getSaveFileName.return_value = (sf, c.PROJECTEXTENSION)
+            self.assertFalse(os.path.isdir(sf))
+            self.aw.projectgui.new_project()
+            oldA=self.aw.projectgui.projectproperties.A=25.0
+            oldFname=self.aw.projectgui.projectproperties.fname=os.path.join(c.HOMEDIR, "foo1.inp")
+            self.aw.projectgui.save_project()
+            self.assertTrue(os.path.isfile(sf + c.PROJECTEXTENSION))
+            self.assertTrue(os.path.isdir(sf + c.PROJECTDATADIREXT))
+            # start fresh
+            self.close_and_recreate()
 
+            self.assertEqual(self.aw.LASTPROJECT, sf + c.PROJECTEXTENSION)
+            
+        oldvals={"A":oldA,"fname": oldFname}
+        self.open_and_check(sf, oldvals)
+        return sf, oldvals
+
+    def open_and_check(self, sf, oldvals):
+        # cleanly open a new case
+        self.close_and_recreate()
         # invalidate show() method - (we have patched it, if the code below
         # somehow calls it, our test is meaningless!)
         sub.ProjectProperties.show = None
@@ -104,18 +134,28 @@ class TestProjects(unittest.TestCase):
         with self.assertRaises(TypeError):
             sub.ProjectProperties.show()
 
-        tmp1 = sub.ProjectGUI(self.aw)
-        with mock.patch.object(tmp1, '_getOpenFileName', autospec=True) as mock__getOpenFileName:
-            sf = os.path.join(c.HOMEDIR, "fo")
+        with mock.patch.object(self.aw.projectgui, '_getOpenFileName', autospec=True) as mock__getOpenFileName:
             mock__getOpenFileName.return_value = (sf + c.PROJECTEXTENSION, c.PROJECTEXTENSION)
-            tmp1.open_project()
-            self.assertEqual(5.0, tmp1.projectproperties.A)
-            self.assertEqual(.2, tmp1.projectproperties.DRate)
-            self.assertEqual(1.2, tmp1.projectproperties.N)
-            self.assertEqual(os.path.join(c.HOMEDIR, "foo1.inp"), tmp1.projectproperties.fname)
+            self.aw.projectgui.open_project()
+            self.assertEqual(oldvals['A'], self.aw.projectgui.projectproperties.A)
+            self.assertEqual(oldvals['fname'], self.aw.projectgui.projectproperties.fname)
 
     def test_save_project_as_with_filename_with_extention_or_without_will_create_project_file_and_directory(self):
-        self.assertEqual(1,1)
+        # first create a project and open it
+        sf, oldvals=self.test_save_project_will_save_the_project_data_to_the_project_file_and_open_project_will_read_it()
+        # now save it as
+        with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:
+            sfnew = os.path.join(c.HOMEDIR, "new_fo")
+            mock__getSaveFileName.return_value = (sfnew, c.PROJECTEXTENSION)
+            self.assertFalse(os.path.isdir(sfnew))    
+            self.aw.projectgui.save_project_as(sfnew)
+            
+        self.open_and_check(sfnew, oldvals)
+            
+        
+            
+        
+        
 
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
@@ -134,11 +174,10 @@ def main(test=True, mainwindow=None):
         tc = TestProjects()
         for a in dir(tc):
             if (a.startswith(
-                    'test_')):  # test_sync
+                    'test_save')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
-                    logger = logging.getLogger()
-                    logger.info("************** calling %s **********************************" % a)
+                    print("************** calling %s **********************************" % a)
                     clt(tc, b, mainwindow)
 
 if __name__ == "__main__":
