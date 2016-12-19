@@ -1,18 +1,13 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import logging
-import random
 import sys
 import time
 import unittest
 
-import mock
-from guiqwt.curve import CurveItem
-from guiqwt.shapes import EllipseShape
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication
-from PyQt5 import QtCore 
 
 from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.project_manager import ProjectManager as PM
 
 
 def trigger_sub_menu_item(mainwindow, menutext, submenutext):
@@ -43,22 +38,21 @@ class TestGeometry(unittest.TestCase):
     def runTest(self):
         """ otherwise python 2.7 returns an error
         ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-        
+
     def test_main_window_remember_geometry(self):
-        oldgeometry=QtCore.QRect(10, 10, 1000, 750)
+        oldgeometry = QtCore.QRect(10, 10, 1000, 750)
         self.aw.setGeometry(oldgeometry)
         self.aw.close()
         # now start a new session.
         self.app.closeAllWindows()
         self.app.exit()
-        self.app=None
+        self.app = None
         time.sleep(1)
-        self.app=QApplication([])
-        self.aw=MainWindow()
-        self.assertEqual(self.aw.geometry(),oldgeometry)
-        
-        
-        
+        self.app = QApplication([])
+        self.aw = MainWindow()
+        self.assertEqual(self.aw.geometry(), oldgeometry)
+
+
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
         tc.setUp()
@@ -66,8 +60,8 @@ def clt(tc, fn, mainwindow=None):
         tc.aw = mainwindow
     fn()
     tc.aw.show()
-    tc.app.exec_()    
-    
+    tc.app.exec_()
+
     if(not mainwindow):
         tc.tearDown()
 

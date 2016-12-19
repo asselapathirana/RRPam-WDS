@@ -5,6 +5,7 @@ import math
 import random
 import sys
 
+import subdialogs
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
@@ -30,15 +31,15 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMdiArea
 from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QSlider
+from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QSplitter, QSlider, QFrame
-from guidata.dataset.qtwidgets import DataSetShowGroupBox, DataSetEditGroupBox
 
-import  subdialogs
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
@@ -222,7 +223,7 @@ class RiskMatrix(CurveDialogWithClosable):
         l = self.get_plot().PREFERRED_AXES_LIMITS
         SCALE = self.get_scale(consequence, probability, l)
         return consequence - SCALE, probability + SCALE,\
-               consequence + SCALE, probability - SCALE
+            consequence + SCALE, probability - SCALE
 
     def get_scale(self, consequence, probability, l):
         SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
@@ -482,8 +483,8 @@ class MainWindow(QMainWindow):
 
         super(MainWindow, self).__init__(parent)
         self._setup_logging()
-        self.LASTPROJECT=None
-        self.EPANETLOC=None
+        self.LASTPROJECT = None
+        self.EPANETLOC = None
         self.projectgui = subdialogs.ProjectGUI(self)
         self.mdi = QMdiArea()
         self.arrange_properties_panel()
@@ -493,32 +494,31 @@ class MainWindow(QMainWindow):
         self._manage_window_settings()
 
     def arrange_properties_panel(self):
-        self.qs=QSplitter(self)
-        self.frame=QFrame(parent=self)
-        layout=QVBoxLayout()
+        self.qs = QSplitter(self)
+        self.frame = QFrame(parent=self)
+        layout = QVBoxLayout()
         layout.addWidget(self.projectgui.projectproperties)
         layout.insertStretch(1)
         self.frame.setLayout(layout)
         self.qs.addWidget(self.frame)
         for x in self.projectgui.projectproperties.findChildren(QSlider):
             x.setMinimumWidth(100)
-        
- 
+
         self.qs.addWidget(self.mdi)
-        self.setCentralWidget(self.qs)        
+        self.setCentralWidget(self.qs)
 
     def _manage_window_settings(self, save=False):
-        """ if (save=False) At application initialization, will set the application GUI geometry and components 
-        from  values saved at the end of the previous session. 
+        """ if (save=False) At application initialization, will set the application GUI geometry and components
+        from  values saved at the end of the previous session.
 
-        Otherwise (save=True) it will 
+        Otherwise (save=True) it will
         """
-        QApplication.setOrganizationName("AsselaPathirana");
-        QApplication.setOrganizationDomain("assela.pathirana.net");
-        QApplication.setApplicationName("RRPAMWDS");
-        settings=QtCore.QSettings()
-        
-        if(save):  
+        QApplication.setOrganizationName("AsselaPathirana")
+        QApplication.setOrganizationDomain("assela.pathirana.net")
+        QApplication.setApplicationName("RRPAMWDS")
+        settings = QtCore.QSettings()
+
+        if(save):
             settings.beginGroup("MainWindow")
             settings.setValue("size", self.size())
             settings.setValue("pos", self.pos())
@@ -531,19 +531,16 @@ class MainWindow(QMainWindow):
 
             settings.beginGroup("MainWindow")
             self.resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))        
+            self.move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))
             settings.endGroup()
             settings.beginGroup("last_project")
-            self.LASTPROJECT=settings.value("LASTPROJECT", None, type=str)
-            self.EPANETLOC=settings.value("EPANETLOC", None, type=str)
-            settings.endGroup()            
+            self.LASTPROJECT = settings.value("LASTPROJECT", None, type=str)
+            self.EPANETLOC = settings.value("EPANETLOC", None, type=str)
+            settings.endGroup()
 
     def closeEvent(self, event):
-        self._manage_window_settings(save=True);
-        event.accept();
-
-
-
+        self._manage_window_settings(save=True)
+        event.accept()
 
     def _setup_logging(self):
         setup_logging()
@@ -551,7 +548,7 @@ class MainWindow(QMainWindow):
         handler = [x for x in logger.handlers if isinstance(x, EmittingLogger)][0]
         self.logdialog = LogDialog(parent=self)
         handler.logsender.logsender_signal.connect(self.logdialog.reciever)
-        logger.info(self.LOGSTARTMESSAGE)        
+        logger.info(self.LOGSTARTMESSAGE)
 
     def hide_log_window(self):
         self.logdialog.setVisible(False)
@@ -571,7 +568,7 @@ class MainWindow(QMainWindow):
     def _standard_windows(self):
         self.add_networkmap()
         self.add_riskmatrix()
-        self.optimaltimegraphs = {}  
+        self.optimaltimegraphs = {}
         self.add_optimaltimegraph()
 
     def selected_holder(self, widget):
@@ -668,12 +665,6 @@ class MainWindow(QMainWindow):
 
         if q.text() == self.menuitems.close_project:
             self.projectgui.close_project()
-            
-
-        
-
-        
-        
 
     def _open_project(self):
         self.projectgui.open_project()

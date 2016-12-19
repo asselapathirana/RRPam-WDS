@@ -1,16 +1,17 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
+import errno
 import logging
+import os
 import sys
 import time
 import unittest
-import os
 
 import mock
 from PyQt5.QtWidgets import QApplication
 
+from rrpam_wds.examples import networks
 from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.tests.test_rrpamwds_projects import trigger_sub_menu_item
-from rrpam_wds.examples import networks
 
 
 class TestProjects(unittest.TestCase):
@@ -93,34 +94,31 @@ class TestProjects(unittest.TestCase):
             self.assertFalse(mock_close_project.called)
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.close_project)
             self.assertTrue(mock_close_project.called)
-            
+
     def test_check_epanetfile_with_non_epanet_file_will_cause_an_alert_and_return_none(self):
         from PyQt5.QtWidgets import QMessageBox
-        with mock.patch.object(QMessageBox,"exec_", autospec=True) as mock_exec_:
+        with mock.patch.object(QMessageBox, "exec_", autospec=True) as mock_exec_:
             self.assertFalse(mock_exec_.called)
-            ret=self.aw.projectgui.check_epanetfile("random.inp")
+            ret = self.aw.projectgui.check_epanetfile("random.inp")
             self.assertFalse(ret)
             self.assertTrue(mock_exec_.called)
             # now test a 'good' epanet file
             mock_exec_.reset_mock()
             self.assertFalse(mock_exec_.called)
-            ret=self.aw.projectgui.check_epanetfile(networks[0])
-            self.assertFalse(mock_exec_.called)    
-            self.assertEqual(networks[0],ret)
-            
+            ret = self.aw.projectgui.check_epanetfile(networks[0])
+            self.assertFalse(mock_exec_.called)
+            self.assertEqual(networks[0], ret)
+
     def test_calling_new_project_will_call_check_epanetfile(self):
         with mock.patch.object(self.aw.projectgui, '_getSaveFileName2', autospec=True) as mock__getSaveFileName2:
             with mock.patch.object(self.aw.projectgui, 'check_epanetfile', autospec=True) as mock_check_epanetfile:
                 with mock.patch.object(self.aw.projectgui, '_create_empty_project', autospec=True) as mock__create_empty_project:
                     mock__getSaveFileName2.return_value = ("tmp", '*.inp')
-                    mock__create_empty_project.return_value=None
+                    mock__create_empty_project.return_value = None
                     self.assertFalse(mock_check_epanetfile.called)
                     self.aw.projectgui.new_project()
                     self.assertTrue(mock_check_epanetfile.called)
                     self.assertTrue(mock__create_empty_project.called)
-                
-                
-    
 
 
 def clt(tc, fn, mainwindow=None):
