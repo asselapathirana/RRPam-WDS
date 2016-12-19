@@ -5,7 +5,7 @@ import math
 import random
 import sys
 
-import subdialogs
+import rrpam_wds.gui.subdialogs
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
@@ -485,7 +485,7 @@ class MainWindow(QMainWindow):
         self._setup_logging()
         self.LASTPROJECT = None
         self.EPANETLOC = None
-        self.projectgui = subdialogs.ProjectGUI(self)
+        self.projectgui = rrpam_wds.gui.subdialogs.ProjectGUI(self)
         self.mdi = QMdiArea()
         self.arrange_properties_panel()
         self.setMenu()

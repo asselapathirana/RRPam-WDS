@@ -176,9 +176,6 @@ def clt(tc, fn, mainwindow=None):
     else:
         tc.aw = mainwindow
     fn()
-    tc.aw.projectgui
-    tc.aw.show()
-    tc.app.exec_()
     if(not mainwindow):
         tc.tearDown()
 
