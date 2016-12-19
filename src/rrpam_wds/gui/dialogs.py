@@ -5,7 +5,6 @@ import math
 import random
 import sys
 
-import rrpam_wds.gui.subdialogs
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
@@ -40,6 +39,7 @@ from PyQt5.QtWidgets import QSlider
 from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
 
+import rrpam_wds.gui.subdialogs
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units

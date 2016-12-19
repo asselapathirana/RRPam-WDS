@@ -24,7 +24,7 @@ class WorkerThread(QThread):
 
     def open_project(self):
         logger = logging.getLogger()
-        logger.info("starting.... ")
+        logger.info("starting the calculations .... ")
         for i in range(5):
             self.sleep(1)
             logger = logging.getLogger()
