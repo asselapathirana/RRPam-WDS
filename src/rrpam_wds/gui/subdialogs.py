@@ -4,11 +4,15 @@ import logging
 import os
 
 import guidata.dataset.dataitems as di
+from guidata.dataset.qtwidgets import DataSetShowGroupBox, DataSetEditGroupBox
 import guidata.dataset.datatypes as dt
 from guidata.hdf5io import HDF5Reader
 from guidata.hdf5io import HDF5Writer
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+
+import shutil
+
 
 import rrpam_wds.constants as c
 import rrpam_wds.gui.dialogs
@@ -16,35 +20,68 @@ import rrpam_wds.gui.dialogs
 
 class ProjectGUI():
     logger = logging.getLogger()
-    LASTPROJECT = None
 
     def __init__(self, parent):
         self.parent = parent
-        self.projectproperties=None
+        self.projectproperties=DataSetEditGroupBox("title", ProjectPropertiesDataset, comment="foox")
+        
+    def check_epanetfile(self, enfile):
+        if(os.path.isfile(enfile)):
+            self.logger.info("EPANET valid file check. To be implemented")
+            return enfile
+        else:
+            self.logger.info("Not a valid epanetfile: %s" % enfile)
+            msgBox=QMessageBox(parent=self.parent)
+            msgBox.setText("This is not a valid epanet file");
+            msgBox.exec_();            
+            return None
+
+    def update_project_properties_gui(self):
+        self.projectproperties.get()   
 
 
     def new_project(self):
         self.logger.info("New Project")
+        # first step, get the name of the epanet file from the user. 
+        epanetfile, filter = self._getSaveFileName2(self.parent,
+                                                    "Select a valid EPANET 2.0 network file",
+                                                    self.parent.EPANETLOC or c.HOMEDIR,
+                                                    filter='*.inp')
+        
+        epanetfile=self.check_epanetfile(epanetfile)
+        if(not epanetfile):
+            return
         msg = "New Project"
-        tmp=self._create_empty_project(msg, new=True)
-        if(tmp):
+        tmp=self._create_empty_project(msg, epanetfile)
+        if(tmp ):
             self.projectfile=tmp
+            self.parent.LASTPROJECT=self.projectfile
+            self.parent.EPANETLOC=os.path.dirname(epanetfile)
+            self.update_project_properties_gui()
 
     def _getSaveFileName(self, *args, **kwargs):
+        # why this function and _getSaveFileName2? for tests to mock this method easily.                 
         self.logger.info("proxy calling QFileDialog.getSaveFileName ")
         return QFileDialog.getSaveFileName(*args, **kwargs)
+    
+    def _getSaveFileName2(self, *args, **kwargs):
+        # why this function and _getSaveFileName? for tests to mock this method easily. 
+        self.logger.info("proxy calling QFileDialog.getOpenFileName ")
+        return QFileDialog.getOpenFileName(*args, **kwargs)       
 
     def _getOpenFileName(self, *args, **kwargs):
         self.logger.info("proxy calling QFileDialog.getOpenFileName ")
         return QFileDialog.getOpenFileName(*args, **kwargs)
+    
+ 
 
-    def _create_empty_project(self, msg, new=False):
+    def _create_empty_project(self, msg, epanetfile):
 
         projectfile = self.get_save_filename(msg)
         if(not projectfile):
             return None        
         else:
-            return self._save_project_to_dest(projectfile)
+            return self._save_project_to_dest(projectfile, epanetfile=epanetfile)
 
     def get_save_filename(self, msg):
         projectfile, filter = self._getSaveFileName(self.parent,
@@ -54,24 +91,24 @@ class ProjectGUI():
         self.logger.info("Selected file for save/new project : %s " % projectfile)
         return projectfile
 
-    def _save_project_to_dest(self, projectfile):
+    def _save_project_to_dest(self, projectfile, epanetfile=None):
 
         prjname, subdir, ext= self._get_dir_and_extention(projectfile)
-        if(not self.projectproperties):
-            self.projectproperties = ProjectProperties(self)
-        self.projectproperties.write_data(prjname)
+        self.projectproperties.dataset.write_data(prjname)
         if(not os.path.isdir(subdir)):
             os.mkdir(subdir)
+        if(epanetfile):
+            base=os.path.basename(epanetfile)
+            dst=os.path.join(os.path.dirname(prjname),base)
+            shutil.copy(epanetfile,dst)
+            self.projectproperties.dataset.fname=base
         return prjname
 
     def try_loading_project_properties(self, prj):
-
-        tmp = ProjectProperties(self)
         try:
             self.logger.info("Trying to read properties from %s " % prj)
-            if(tmp.read_data(prj)):
+            if(self.projectproperties.dataset.read_data(prj)):
                 self.logger.info(" %s project read successfully." % prj)
-                self.projectproperties=tmp
                 return True
         except Exception as e:
             self.logger.exception("Could not load the project properties: %s" % e)
@@ -92,11 +129,13 @@ class ProjectGUI():
         self.logger.info("Saving the project")
         # Implement the actions needed to save the project here.
         self._save_project_to_dest(self.projectfile)
+        self.update_project_properties_gui() # not really needed for this function.
 
-    def save_project_as(self, target):
+    def save_project_as(self):
         msg = "Save project as"
         self.projectfile=self.get_save_filename(msg)
         self.save_project()
+        self.update_project_properties_gui() 
 
     def open_project(self):
         while (True):
@@ -110,12 +149,14 @@ class ProjectGUI():
             # check if it is a valid project
             if(self._valid_project(projectfile)):
                 self.projectfile=projectfile
+                self.parent.LASTPROJECT=self.projectfile
                 break
             else:
                 self.logger.info("Project loading failed: Not a valid project")
                 return None
 
         self.logger.info("Open Project valid")
+        self.update_project_properties_gui()
         return (projectfile)
 
     def _valid_project(self, prj):
@@ -132,12 +173,16 @@ class ProjectGUI():
         self.logger.info("Close Project")
 
 
-class ProjectProperties(dt.DataSet):
+class ProjectPropertiesDataset(dt.DataSet):
 
     """Project : """
-
-    fname = di.FileOpenItem("Select Epanet file (open)", ("inp", "eta"))
-    DRate = di.FloatItem("Discount rate (%)", default=10, min=-5, max=+50, step=0.1, slider=True)
+    _bg3=dt.BeginGroup("Epanet file of this project")
+    fname = di.StringItem("", help="Epanet file of this project").set_prop("display", active=False)
+    _eg3=dt.EndGroup("Epanet file of this project")
+    di.FileOpenItem("Select Epanet file (open)", ("inp", "eta"))
+    _bg2=dt.BeginGroup("Discount rate (%)")
+    DRate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)
+    _eg2=dt.EndGroup("Discount rate (%)")
     _bg = dt.BeginGroup("Aging rate")
     A = di.FloatItem(" A", default=1, min=None, max=None,
                      nonzero=True, unit='',
@@ -148,10 +193,10 @@ class ProjectProperties(dt.DataSet):
 
     def __init__(self,  title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
-        super(ProjectProperties, self).__init__(title, comment, icon)
+        super(ProjectPropertiesDataset, self).__init__(title, comment, icon)
 
-    def show(self):
-        return self.edit()
+    # def show(self):
+    #    return self.edit()
 
     def read_data(self, projfile):
         self.logger.info("Reading HDF 5 data from %s" % projfile)
@@ -160,6 +205,7 @@ class ProjectProperties(dt.DataSet):
                 reader = HDF5Reader(projfile)
                 self.deserialize(reader)
                 reader.close()
+                
                 return True
             except:
                 self.logger.info("Exception with HDF reader for file %s" % projfile)
