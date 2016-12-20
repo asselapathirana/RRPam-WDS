@@ -37,7 +37,7 @@ def _patch_floatarraywidget_edit_array():
             
                 
     #now monkey-patch
-    #FloatArrayWidget.edit_array=custom_edit_array
+    FloatArrayWidget.edit_array=custom_edit_array
 
 
 def _patch_curveplot___del__():

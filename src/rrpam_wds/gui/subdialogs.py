@@ -15,6 +15,10 @@ from PyQt5.QtWidgets import QMessageBox
 
 import rrpam_wds.constants as c
 import rrpam_wds.gui.dialogs
+import numpy as np
+import cPickle as pickle
+
+
 
 
 class ProjectGUI():
@@ -146,6 +150,7 @@ class ProjectGUI():
                                                         filter='*' + c.PROJECTEXTENSION)
             if(not projectfile):
                 return None
+            projectfile, dir, ext=self._get_dir_and_extention(projectfile)
             self.logger.info("Selected file to open : %s " % projectfile)
             # check if it is a valid project
             if(self._valid_project(projectfile)):
@@ -195,43 +200,84 @@ class ProjectPropertiesDataset(dt.DataSet):
     N = di.FloatItem("N0", default=2)
     _eg = dt.EndGroup("Aging rate")
     #_bg_1= dt.BeginGroup("Nodes and Links")
-    #nodes=dt.DataItem
+    #defaults1=np.array([('a', 1.0, 2)])
+    #nodes=di.FloatArrayItem("Nodes", default=defaults1, help='Node properties click to see', 
+                           #transpose=False, 
+                           #minmax="rows", 
+                           #check=True)
+    #defaults2=np.array([('a', 1.0, 2, .5, 1000)])
+    #links=di.FloatArrayItem("Links", default=defaults2, help='Link properties click to see', 
+                           #transpose=False, 
+                           #minmax="rows", 
+                           #check=True)    
     #_eg_1= dt.EndGroup("Nodes and Links")
     
     
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
+        self.results=None
         super(ProjectPropertiesDataset, self).__init__(title, comment, icon)
 
     # def show(self):
     #    return self.edit()
+    def get_nwstore_file(self, f):
+        return f+"__"
 
     def read_data(self, projfile):
-        self.logger.info("Reading HDF 5 data from %s" % projfile)
         if os.path.exists(projfile):
             try:
+                self.logger.info("Reading HDF 5 data from %s" % projfile)                
                 reader = HDF5Reader(projfile)
                 self.deserialize(reader)
-                reader.close()
-
-                return True
+                reader.close
+   
             except:
-                self.logger.info("Exception with HDF reader for file %s" % projfile)
+                self.logger.info("Exception with HDF reader for file %s" % projfile)   
+                return False
+            
+            f=self.get_nwstore_file(projfile)
+            
+            try:
+                with open(f, 'r') as stream:
+                    self.logger.info("Reading results  from %s" % f)     
+                    self.results=pickle.load(stream)
+                    return True
+            except Exception as e:
+                    self.logger.info("Exception reading saved results %s, %s" % (projfile, e))  
+                    results=None
+                    return False
 
         return False
 
     def write_data(self, projfile):
-        self.logger.info("Writing HDF 5 data to %s" % projfile)
         try:
+            self.logger.info("Writing HDF 5 data to %s" % projfile)            
             writer = HDF5Writer(projfile)
             self.serialize(writer)
             writer.close()
         except Exception as e:
-            self.logger.exception("Exceptino with HDF writer for file %s" % e)
+            self.logger.exception("Exception with HDF writer for file %s" % e)
+            
+        f=self.get_nwstore_file(projfile)
+        
+        try:
+            if (not self.results):
+                return 
+            with open(f, 'w+') as stream:
+                self.logger.info("Writing results to %s" % f)     
+                pickle.dump(self.results,stream)
+        except Exception as e:
+                self.logger.info("Exception writing: %s,  %s" % (f,e))  
+
 
     def get_epanetfile(self):
         return os.path.join(os.path.dirname(self.projectname),self.fname)
+    
+    def set_network(self, results):
+        self.results=results
+    def get_results(self):
+        return self.results
 
 def main():
     _app = QApplication([])

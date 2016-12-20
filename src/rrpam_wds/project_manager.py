@@ -4,10 +4,9 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
+from rrpam_wds.constants import ResultSet
 
 from rrpam_wds import hydraulic_services as hs
-
-class ResultSet: pass
 
 
 class WorkerThread(QThread):
@@ -56,6 +55,7 @@ class WorkerThread(QThread):
         network=self.project_data.get_epanetfile()
         e1 = hs.pdd_service(network, coords=True, adfcalc=True)
         rs=ResultSet()
+        
         rs.links=e1.links.values()
         rs.nodes=e1.nodes.values()
         return rs

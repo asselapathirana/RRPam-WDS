@@ -11,3 +11,5 @@ USERDATA = appdirs.user_data_dir(None, None)
 PROJECTEXTENSION = ".rrp"
 HOMEDIR = os.path.expanduser("~")
 PROJECTDATADIREXT = ".datadir"
+
+class ResultSet: pass

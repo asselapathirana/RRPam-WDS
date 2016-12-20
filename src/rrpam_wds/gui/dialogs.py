@@ -686,7 +686,7 @@ class MainWindow(QMainWindow):
         logger = logging.getLogger()
         logger.info("I got it!")
         # first update this in project properties
-        self.projectgui.projectproperties.dataset.set_network(nodes, links)
+        self.projectgui.projectproperties.dataset.set_network(results)
         self._display_project(results)
 
     def _display_project(self, results=None):
@@ -694,7 +694,9 @@ class MainWindow(QMainWindow):
             nodes = getattr(results, "nodes", None)
             links = getattr(results, "links", None)
         else:
-            nodes, links=self.projectgui.projectproperties.dataset.get_network()
+            results=self.projectgui.projectproperties.dataset.get_network()
+            nodes=results.nodes
+            links=results.links
             
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)

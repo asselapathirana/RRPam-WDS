@@ -57,13 +57,18 @@ class TestProjects(unittest.TestCase):
             with mock.patch.object(self.aw.projectgui, '_getSaveFileName2', autospec=True) as mock__getSaveFileName2:
                 sf = os.path.join(tempfile.tempdir, "xxx3xp")
                 mock__getSaveFileName.return_value = (sf, c.PROJECTEXTENSION)
-                mock__getSaveFileName2.return_value = (networks[0], '*.inp')        
+                mock__getSaveFileName2.return_value = (networks[0], '*.inp')
+                self.app.processEvents()
+                idthings=[x for x in self.aw.networkmap.get_plot().get_items() 
+                                                if hasattr(x,"id_")]
+                self.assertEqual(0, len(idthings))                
                 # now we can non-interactively test new_project. 
                 trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_project)
-                time.sleep(2)
+                time.sleep(1)
+                self.app.processEvents()
                 idthings=[x for x in self.aw.networkmap.get_plot().get_items() 
                                  if hasattr(x,"id_")]
-                self.assertGreater(idthings,5)
+                self.assertGreater(len(idthings),5)
 
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):
