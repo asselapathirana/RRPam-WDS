@@ -27,10 +27,13 @@ class TestProjects(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication(sys.argv)
+        self.app = QApplication.instance() or QApplication(sys.argv)        
         start = time.time()
         self.aw = MainWindow()
+        self.logger=logging.getLogger()
         self.aw.setWindowTitle("RRPAMWDS Projject tests")
+        self.logger.info("Finished setup for the test. ")
+        
 
     def tearDown(self):
         global stop
@@ -38,6 +41,7 @@ class TestProjects(unittest.TestCase):
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
+
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
@@ -56,26 +60,26 @@ class TestProjects(unittest.TestCase):
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.open_project)
             self.assertTrue(mock__open_project.called)
 
-    def test_triggering_open_project_will_call_project_manager__open_project(self):
+    def test_triggering_new_project_will_call_project_manager__new_project(self):
         # need refactoring here. The following mock is needed to avoid file open dialog to open
-        # see _open_project method (copied below) in MainWindow - there is the issue!
-        # def _open_project(self):
+        # see _new_project method (copied below) in MainWindow - there is the issue!
+        # def _new_project(self):
         #    self.projectgui.open_project()
-        #    self._open_project_signal.emit()
-        with mock.patch.object(self.aw.projectgui, "open_project", autospec=True):
+        #    self._new_project_signal.emit()
+        with mock.patch.object(self.aw.projectgui, "new_project", autospec=True):
 
-            with mock.patch.object(PM, '_open_project', autospec=True) as mock__open_project:
-                self.assertFalse(mock__open_project.called)
-                self.aw._open_project()
-                self.assertTrue(mock__open_project.called)
+            with mock.patch.object(PM, '_new_project', autospec=True) as mock__new_project:
+                self.assertFalse(mock__new_project.called)
+                self.aw._new_project()
+                self.assertTrue(mock__new_project.called)
 
-    def test_project_managers_open_project_will_cause_project_to_be_opend_in_main_window(
+    def test_project_managers_new_project_will_cause_project_to_be_opend_in_main_window(
             self, other=None):
         # see run_in_a_thread
         if (other):
             self = other
         with mock.patch.object(self.aw, '_display_project', autospec=True) as mock__display_project:
-            self.aw.pm.open_project()
+            self.aw.pm.new_project()
             self.aw.pm.workerthread.wait()
             QApplication.processEvents()  # this is very important before the assertion.
             # that is because we are not testing this within the Qt's main loop.
@@ -86,7 +90,7 @@ class TestProjects(unittest.TestCase):
         # first monkey patch open_project method in self.aw.pm.workerthread object
         from rrpam_wds.project_manager import WorkerThread
 
-        def custom_open_project(self):
+        def custom_new_project(self):
             logger = logging.getLogger()
             logger.info("I am reading an epanet file")
 
@@ -105,8 +109,8 @@ class TestProjects(unittest.TestCase):
 
             return result
         # now monkey patch
-        WorkerThread.open_project = custom_open_project
-        self.aw.pm.open_project()
+        WorkerThread.new_project = custom_new_project
+        self.aw.pm.new_project()
         self.aw.pm.workerthread.wait()
         self.app.processEvents()  # give some time for the gui to plot
         time.sleep(3)  # give some time for the gui to plot
@@ -148,7 +152,7 @@ def main(test=True, mainwindow=None):
         tc = TestProjects()
         for a in dir(tc):
             if (a.startswith(
-                    'test_clicking_window_log_window_will_call_show_logwindow_method')):  # test_sync
+                    'test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
                     print("Calling %s" % a)

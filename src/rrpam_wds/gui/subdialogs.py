@@ -55,8 +55,8 @@ class ProjectGUI():
         msg = "New Project"
         tmp = self._create_empty_project(msg, epanetfile)
         if(tmp):
-            self.projectfile = tmp
-            self.parent.LASTPROJECT = self.projectfile
+            self.projectproperties.dataset.projectname = tmp
+            self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
             self.parent.EPANETLOC = os.path.dirname(epanetfile)
             self.update_project_properties_gui()
 
@@ -103,6 +103,8 @@ class ProjectGUI():
             self.projectproperties.dataset.fname = base
         return prjname
 
+
+
     def try_loading_project_properties(self, prj):
         try:
             self.logger.info("Trying to read properties from %s " % prj)
@@ -127,12 +129,12 @@ class ProjectGUI():
     def save_project(self):
         self.logger.info("Saving the project")
         # Implement the actions needed to save the project here.
-        self._save_project_to_dest(self.projectfile)
+        self._save_project_to_dest(self.projectproperties.dataset.projectname)
         self.update_project_properties_gui()  # not really needed for this function.
 
     def save_project_as(self):
         msg = "Save project as"
-        self.projectfile = self.get_save_filename(msg)
+        self.projectproperties.dataset.projectname = self.get_save_filename(msg)
         self.save_project()
         self.update_project_properties_gui()
 
@@ -147,8 +149,8 @@ class ProjectGUI():
             self.logger.info("Selected file to open : %s " % projectfile)
             # check if it is a valid project
             if(self._valid_project(projectfile)):
-                self.projectfile = projectfile
-                self.parent.LASTPROJECT = self.projectfile
+                self.projectproperties.dataset.projectname = projectfile
+                self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
                 break
             else:
                 self.logger.info("Project loading failed: Not a valid project")
@@ -175,6 +177,9 @@ class ProjectGUI():
 class ProjectPropertiesDataset(dt.DataSet):
 
     """Project : """
+    _bg4 = dt.BeginGroup("Project")
+    projectname = di.StringItem("", help="Project path").set_prop("display", active=False)
+    _eg4 = dt.EndGroup("Project Location")    
     _bg3 = dt.BeginGroup("Epanet file of this project")
     fname = di.StringItem("", help="Epanet file of this project").set_prop("display", active=False)
     _eg3 = dt.EndGroup("Epanet file of this project")
@@ -220,6 +225,8 @@ class ProjectPropertiesDataset(dt.DataSet):
         except Exception as e:
             self.logger.exception("Exceptino with HDF writer for file %s" % e)
 
+    def get_epanetfile(self):
+        return os.path.join(os.path.dirname(self.projectname),self.fname)
 
 def main():
     _app = QApplication([])

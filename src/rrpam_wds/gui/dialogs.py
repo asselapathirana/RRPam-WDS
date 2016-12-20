@@ -239,6 +239,10 @@ class RiskMatrix(CurveDialogWithClosable):
     def plot_links(self, links):
         if (not links):
             return
+        if (not (hasattr(links[0],"cons") and hasattr(links[0],"prob"))):
+            logger=logging.getLogger()
+            logger.info("The link does not have cons, prob attributes. Can not plot risk.")
+            return 
         adfs = [x.cons for x in links]
         prob = [x.prob for x in links]
         # first compute bounding box
@@ -561,8 +565,8 @@ class MainWindow(QMainWindow):
         self.logdialog.setVisible(True)
 
     def connect_project_manager(self):
-        self.pm = PM()
-        self._open_project_signal.connect(self.pm.open_project)
+        self.pm = PM(self.projectgui.projectproperties.dataset)
+        self._open_project_signal.connect(self.pm.new_project)
         self.pm.heres_a_project_signal.connect(self.display_project)
 
     def _standard_windows(self):
@@ -652,7 +656,7 @@ class MainWindow(QMainWindow):
             self.show_logwindow()
 
         if q.text() == self.menuitems.new_project:
-            self.projectgui.new_project()
+            self._new_project()
 
         if q.text() == self.menuitems.open_project:
             self._open_project()
@@ -666,21 +670,26 @@ class MainWindow(QMainWindow):
         if q.text() == self.menuitems.close_project:
             self.projectgui.close_project()
 
-    def _open_project(self):
-        self.projectgui.open_project()
+    def _new_project(self):
+        self.projectgui.new_project()
         self._open_project_signal.emit()
 
+    def _open_project(self):
+        """Opening a project"""
+        self.projectgui.open_project()
+
+
     @pyqtSlot(object)
-    def display_project(self, project):
+    def display_project(self, results):
         """Will display the items represented in the project."""
 
         logger = logging.getLogger()
         logger.info("I got it!")
-        self._display_project(project)
+        self._display_project(results)
 
-    def _display_project(self, project):
-        nodes = getattr(project, "nodes", None)
-        links = getattr(project, "links", None)
+    def _display_project(self, results):
+        nodes = getattr(results, "nodes", None)
+        links = getattr(results, "links", None)
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.riskmatrix.plot_links(links)
