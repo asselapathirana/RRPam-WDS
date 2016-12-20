@@ -20,7 +20,7 @@ class test_main_window(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication(sys.argv)
+        self.app = QApplication.instance() or QApplication(sys.argv)        
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing main window")
@@ -94,7 +94,7 @@ class test_main_window(unittest.TestCase):
 
     def test_display_project_will_not_raise_exceptions_for_any_object_passed_to_it(self):
         dummy = object()
-        self.aw.display_project(dummy)
+        self.aw.take_up_results(dummy)
         self.assertTrue(True)
 
 

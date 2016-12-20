@@ -194,6 +194,11 @@ class ProjectPropertiesDataset(dt.DataSet):
                      help='', check=True)
     N = di.FloatItem("N0", default=2)
     _eg = dt.EndGroup("Aging rate")
+    _bg_1= dt.BeginGroup("Nodes and Links")
+    nodes=dt.DataItem
+    _eg_1= dt.EndGroup("Nodes and Links")
+    
+    
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()

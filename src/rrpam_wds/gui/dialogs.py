@@ -567,7 +567,7 @@ class MainWindow(QMainWindow):
     def connect_project_manager(self):
         self.pm = PM(self.projectgui.projectproperties.dataset)
         self._open_project_signal.connect(self.pm.new_project)
-        self.pm.heres_a_project_signal.connect(self.display_project)
+        self.pm.heres_a_project_signal.connect(self.take_up_results)
 
     def _standard_windows(self):
         self.add_networkmap()
@@ -680,19 +680,26 @@ class MainWindow(QMainWindow):
 
 
     @pyqtSlot(object)
-    def display_project(self, results):
+    def take_up_results(self, results):
         """Will display the items represented in the project."""
 
         logger = logging.getLogger()
         logger.info("I got it!")
+        # first update this in project properties
+        self.projectgui.projectproperties.dataset.set_network(nodes, links)
         self._display_project(results)
 
-    def _display_project(self, results):
-        nodes = getattr(results, "nodes", None)
-        links = getattr(results, "links", None)
+    def _display_project(self, results=None):
+        if (results):
+            nodes = getattr(results, "nodes", None)
+            links = getattr(results, "links", None)
+        else:
+            nodes, links=self.projectgui.projectproperties.dataset.get_network()
+            
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.riskmatrix.plot_links(links)
+        
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)
