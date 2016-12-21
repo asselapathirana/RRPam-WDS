@@ -1,35 +1,21 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
 import sys
 import time
-import unittest
 
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import LogDialog
 from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
-class TestLoggers(unittest.TestCase):
-    start = 0
-    stop = 0
+class TC(Test_Parent):
 
-    def setUp(self):
+    def setUp(self):  # special setup for this test set.
         global start
         self.app = QApplication.instance() or QApplication(sys.argv)
-
         start = time.time()
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
 
     def test_creating_main_window_will_write_log_messages(self):
         self.aw = MainWindow()
@@ -68,16 +54,5 @@ class TestLoggers(unittest.TestCase):
         self.assertEqual(logdialog1.widget(), logdialog2.widget())
 
 
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = TestLoggers()
-        ot.setUp()
-        ot.closing_log_window_can_be_followed_by_opening_it_again_and_same_log_window_will_reaapper(
-        )
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
-
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

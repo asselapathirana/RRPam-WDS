@@ -52,6 +52,9 @@ class WorkerThread(QThread):
         logger = logging.getLogger()
         logger.info("starting the calculations .... ")
         network = self.project_data.get_epanetfile()
+        if(not network):
+            logger.warn("I did not get an epanet network file. I quit.")
+            return None
         logger.info(".. with epanet file: %s " % network)
         try:
             e1 = hs.pdd_service(network, coords=True, adfcalc=True)

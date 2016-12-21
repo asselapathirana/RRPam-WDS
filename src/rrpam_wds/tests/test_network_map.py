@@ -1,19 +1,16 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import logging
-import sys
-import time
-import unittest
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
-from PyQt5.QtWidgets import QApplication
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
-from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import NetworkMap
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
 def draw_a_network(aw, network=ex.networks[0], nodes=True, links=True):
@@ -31,28 +28,7 @@ def draw_a_network(aw, network=ex.networks[0], nodes=True, links=True):
     return e1, nwm
 
 
-class TestNetworkMap(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Testing optimal time graph")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_NetworkMap_is_derived_from_CurveDialogWithClosable(self):
         """NetworkMaph should be derived from CurveDialogWithClosable class"""
@@ -166,15 +142,5 @@ class TestNetworkMap(unittest.TestCase):
         self.assertEqual(link.curveparam._DataSet__icon, u.get_icon(l))
 
 
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = TestNetworkMap()
-        ot.setUp()
-        ot.test_links_and_their_labels_do_have_id_s()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
-
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

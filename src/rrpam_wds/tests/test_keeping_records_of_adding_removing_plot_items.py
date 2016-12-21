@@ -1,39 +1,14 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
-import sys
-import time
-import unittest
 
 import mock
 from guiqwt.curve import CurveItem
 from guiqwt.shapes import EllipseShape
-from PyQt5.QtWidgets import QApplication
 
-from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
-class test_keeping_records(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Records tests")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_riskmatrix_report_adding_to_the_register(self):
         rm = self.aw.riskmatrix
@@ -114,15 +89,5 @@ class test_keeping_records(unittest.TestCase):
         self.assertEqual(len(otg2.myplotitems), 0)
 
 
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = test_keeping_records()
-        ot.setUp()
-        ot.test_deleting_a_curve_in_optimaltimegraph_removes_all_three_curves()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
-
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

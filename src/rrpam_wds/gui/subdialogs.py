@@ -288,7 +288,10 @@ class ProjectPropertiesDataset(dt.DataSet):
                 self.logger.info("Exception writing: %s,  %s" % (f, e))
 
     def get_epanetfile(self):
-        return os.path.join(os.path.dirname(self.projectname), self.fname)
+        try:
+            return os.path.join(os.path.dirname(self.projectname), self.fname)
+        except:
+            return None
 
     def set_network(self, results):
         if (isinstance(results, ResultSet)):

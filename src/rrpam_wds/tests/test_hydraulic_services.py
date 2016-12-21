@@ -1,42 +1,19 @@
-import logging
-import sys
-import time
-import unittest
 from unittest import SkipTest
 
 from epanettools.epanettools import EPANetSimulation
 from mock import patch
-from PyQt5.QtWidgets import QApplication
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
-from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 TOTAL_DEMAND_EX1 = 95045830.
 TOTAL_DEMAND_EX2 = 945660687.
 TOTAL_DEMAND_EX3 = 965890.
 
 
-class Testhydraulicservices(unittest.TestCase):
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Signalling tests")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-# @pytest.mark.skip(reason="no way of currently testing this")
-# def test_total_demand_returns_sum_of_nodal_demands():
-# assert False
+class TC(Test_Parent):
 
     def test_pdd_service_get_total_demand_calls_run_in_EPANetSimulation(self):
         self.e1 = hs.pdd_service(ex.networks[0])
@@ -125,4 +102,4 @@ class Testhydraulicservices(unittest.TestCase):
             .911, delta=.01)
 
 if __name__ == '__main__':  # pragma: no cover
-    unittest.main(verbosity=2)
+    main(TC, test=False)

@@ -1,42 +1,22 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
-import sys
-import time
-import unittest
 from uuid import uuid4
 
 from guiqwt.label import LabelItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
-from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.examples import examples as ex
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
-from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.tests.test_network_map import draw_a_network
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
 def uniquestring():
     return str(uuid4())
 
 
-class mdi_graph_test(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Testing multi document window")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
+class TC(Test_Parent):
 
     def selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id(self):
         e1, nwm = draw_a_network(self.aw, network=ex.networks[0])
@@ -90,23 +70,6 @@ class mdi_graph_test(unittest.TestCase):
         QTest.keyPress(self.graph, Qt.Key_Escape)
         self.assertTrue(self.graph.isVisible())
 
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
-
-    def test_dummy(self):
-        pass
-
-
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = mdi_graph_test()
-        ot.setUp()
-        ot.selection_of_any_item_with_id__will_result_in_selecting_all_items_with_that_id()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
 
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

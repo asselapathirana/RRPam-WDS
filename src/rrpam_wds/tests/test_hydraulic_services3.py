@@ -1,27 +1,16 @@
 import numbers
-import time
-import unittest
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 TOTAL_DEMAND_EX1 = 95045830.
 TOTAL_DEMAND_EX2 = 945660687.
 TOTAL_DEMAND_EX3 = 965890.
 
 
-class Testhydraulicservices(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        start = time.time()
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
+class TC(Test_Parent):
 
     def test_pdd_service_network_nodes_have_coordinates1(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2], coords=False, adfcalc=False)
@@ -71,4 +60,4 @@ class Testhydraulicservices(unittest.TestCase):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    unittest.main(verbosity=2)
+    main(TC, test=False)

@@ -1,16 +1,13 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
 import os
-import sys
 import time
-import unittest
 
 import mock
-from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds import constants as c
 from rrpam_wds.examples import networks
-from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
 def trigger_sub_menu_item(mainwindow, menutext, submenutext):
@@ -20,30 +17,7 @@ def trigger_sub_menu_item(mainwindow, menutext, submenutext):
     sm.trigger()  # don't use toggle, use trigger.
 
 
-class TestProjects(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-        start = time.time()
-        self.aw = MainWindow()
-        self.logger = logging.getLogger()
-        self.aw.setWindowTitle("RRPAMWDS Projject tests")
-        self.logger.info("Finished setup for the test. ")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        self.aw.pm.wait_to_finish()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_clicking_file_new_and_wait_for_network_to_be_displayed(self):
         """This is the test for opening and existing project. For the moment, the project details are hard-coded.
@@ -75,33 +49,5 @@ class TestProjects(unittest.TestCase):
                             if hasattr(x, "id_")]
                 self.assertGreater(len(idthings), 5)
 
-
-def clt(tc, fn, mainwindow=None):
-    if(not mainwindow):
-        tc.setUp()
-    else:
-        tc.aw = mainwindow
-    fn()
-    if(not mainwindow):
-        tc.tearDown()
-
-
-def main(test=True, mainwindow=None):
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        tc = TestProjects()
-        for a in dir(tc):
-            if (a.startswith(
-                    'test_')):  # test_sync
-                b = getattr(tc, a)
-                if(hasattr(b, '__call__')):
-                    print("Calling %s" % a)
-                    logger = logging.getLogger()
-                    logger.info("calling %s **********************************" % a)
-                    clt(tc, b, mainwindow)
-                    print("Called %s" % a)
-
-
 if __name__ == "__main__":
-    main(test=False)
+    main(TC, test=False)

@@ -1,13 +1,12 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
-import sys
 import time
-import unittest
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
 def trigger_sub_menu_item(mainwindow, menutext, submenutext):
@@ -17,28 +16,7 @@ def trigger_sub_menu_item(mainwindow, menutext, submenutext):
     sm.trigger()  # don't use toggle, use trigger.
 
 
-class TestGeometry(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("RRPAMWDS Projject tests")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_main_window_remember_geometry(self):
         oldgeometry = QtCore.QRect(10, 10, 1000, 750)
@@ -54,35 +32,5 @@ class TestGeometry(unittest.TestCase):
         self.assertEqual(self.aw.geometry(), oldgeometry)
 
 
-def clt(tc, fn, mainwindow=None):
-    if(not mainwindow):
-        tc.setUp()
-    else:
-        tc.aw = mainwindow
-    fn()
-    tc.aw.show()
-    tc.app.exec_()
-
-    if(not mainwindow):
-        tc.tearDown()
-
-
-def main(test=True, mainwindow=None):
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        tc = TestGeometry()
-        for a in dir(tc):
-            if (a.startswith(
-                    'test_')):  # test_sync
-                b = getattr(tc, a)
-                if(hasattr(b, '__call__')):
-                    print("Calling %s" % a)
-                    logger = logging.getLogger()
-                    logger.info("calling %s **********************************" % a)
-                    clt(tc, b, mainwindow)
-                    print("Called %s" % a)
-
-
 if __name__ == "__main__":
-    main(test=False)
+    main(TC, test=False)

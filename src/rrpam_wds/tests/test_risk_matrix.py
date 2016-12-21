@@ -1,40 +1,15 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
-import sys
-import time
-import unittest
 
 from guiqwt.label import LabelItem
 from guiqwt.shapes import EllipseShape
-from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
-from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import RiskMatrix
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
-class test_risk_matrix(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Testing risk matrix")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_Risk_Map_is_derived_from_CurveDialogWithClosable(self):
         self.rm = RiskMatrix(mainwindow=self.aw)
@@ -70,15 +45,5 @@ class test_risk_matrix(unittest.TestCase):
         self.rm.plot_item("bax", [15000.0, 100], title="bax")
 
 
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = test_risk_matrix()
-        ot.setUp()
-        ot.test_plot_item_will_create_a_circle()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
-
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

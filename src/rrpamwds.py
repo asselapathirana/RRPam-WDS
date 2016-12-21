@@ -11,16 +11,21 @@ from rrpam_wds import setpath  # isort:skip # NOQA
 
 app = QApplication([])
 if (len(sys.argv) > 1):  # first run tests
-
+    import time
     win = MainWindow()
-    win.show()
+    # win.show()
     import rrpam_wds.tests.test_optimal_time_graph as og
     og.main(test=False, mainwindow=win)
     import rrpam_wds.tests.test_main_window as mw
     win = None
+
     win = MainWindow()
     mw.main(test=False, mainwindow=win)
     sys.argv = [sys.argv[0]]
+    win = None
+    time.sleep(3)
+    app.processEvents()
+    time.sleep(1)
 
 win = MainWindow()
 win.show()

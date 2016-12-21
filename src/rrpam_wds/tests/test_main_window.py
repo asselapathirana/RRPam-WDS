@@ -1,40 +1,16 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import logging
-import sys
-import time
-import unittest
 
-from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMdiArea
 
-from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import NetworkMap
 from rrpam_wds.gui.dialogs import RiskMatrix
 from rrpam_wds.gui.dialogs import optimalTimeGraph
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
-class test_main_window(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication.instance() or QApplication(sys.argv)
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Testing main window")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        logger = logging.getLogger()
-        logger.info("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class test_main_window(Test_Parent):
 
     def test_mainwindow_is_derived_from_QMainWindow(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
@@ -97,31 +73,5 @@ class test_main_window(unittest.TestCase):
         self.aw.take_up_results(dummy)
         self.assertTrue(True)
 
-
-def clt(tc, fn, mainwindow=None):
-    if(not mainwindow):
-        tc.setUp()
-    else:
-        tc.aw = mainwindow
-    fn()
-    if(not mainwindow):
-        tc.tearDown()
-
-
-def main(test=True, mainwindow=None):
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        tc = test_main_window()
-        for a in dir(tc):
-            if (a.startswith('test_')):  # test_sync
-                b = getattr(tc, a)
-                if(hasattr(b, '__call__')):
-                    logger = logging.getLogger()
-                    logger.info("calling %s **********************************" % a)
-                    print("calling %s **********************************" % a)
-                    clt(tc, b, mainwindow)
-
-
 if __name__ == "__main__":
-    main(test=False)
+    main(test_main_window, test=False)
