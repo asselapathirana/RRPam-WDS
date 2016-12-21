@@ -12,4 +12,6 @@ PROJECTEXTENSION = ".rrp"
 HOMEDIR = os.path.expanduser("~")
 PROJECTDATADIREXT = ".datadir"
 
-class ResultSet: pass
+
+class ResultSet:
+    pass

@@ -2,6 +2,7 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
 import logging
 import os
+import pickle as pickle
 import shutil
 
 import guidata.dataset.dataitems as di
@@ -9,24 +10,23 @@ import guidata.dataset.datatypes as dt
 from guidata.dataset.qtwidgets import DataSetEditGroupBox
 from guidata.hdf5io import HDF5Reader
 from guidata.hdf5io import HDF5Writer
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMessageBox
-from rrpam_wds.constants import ResultSet
-
 
 import rrpam_wds.constants as c
 import rrpam_wds.gui.dialogs
-import numpy as np
-import cPickle as pickle
+from rrpam_wds.constants import ResultSet
 
 
-
-
-class ProjectGUI():
+class ProjectGUI(QObject):
     logger = logging.getLogger()
+    _new_project_signal = pyqtSignal()
 
     def __init__(self, parent):
+        super(ProjectGUI, self).__init__()
         self.parent = parent
         self.projectproperties = DataSetEditGroupBox(
             "title",
@@ -44,15 +44,31 @@ class ProjectGUI():
             msgBox.exec_()
             return None
 
+    def log(self):
+        try:
+            k = self.projectproperties.dataset
+            self.logger.info("A=%s, N=%s" % (k.A, k.N))
+        except Exception:
+            pass
+
     def rewrite_values_in_gui_with_variables(self):
+        self.logger.info("Writing: var>GUI ")
+        self.log()
         self.projectproperties.get()
-        
+
     def rewrite_values_in_variables_with_gui(self):
+        self.logger.info("Writing: GUI>var ")
+        self.log()
         self.projectproperties.set()
 
     def new_project(self):
         self.logger.info("New Project")
         # first step, get the name of the epanet file from the user.
+        if(self._new_project()):
+            # now we inform the project_manager to do the calculation
+            self._new_project_signal.emit()
+
+    def _new_project(self):
         epanetfile, filter = self._getSaveFileName2(self.parent,
                                                     "Select a valid EPANET 2.0 network file",
                                                     self.parent.EPANETLOC or c.HOMEDIR,
@@ -60,14 +76,13 @@ class ProjectGUI():
 
         epanetfile = self.check_epanetfile(epanetfile)
         if(not epanetfile):
-            return
+            return False
         msg = "New Project"
-        tmp = self._create_empty_project(msg, epanetfile)
-        if(tmp):
-            self.projectproperties.dataset.projectname = tmp
-            self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
-            self.parent.EPANETLOC = os.path.dirname(epanetfile)
-            self.rewrite_values_in_gui_with_variables()
+        self.projectproperties.dataset.projectname = self._create_empty_project(msg, epanetfile)
+        self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
+        self.parent.EPANETLOC = os.path.dirname(epanetfile)
+        self.rewrite_values_in_gui_with_variables()
+        return True
 
     def _getSaveFileName(self, *args, **kwargs):
         # why this function and _getSaveFileName2? for tests to mock this method easily.
@@ -84,8 +99,10 @@ class ProjectGUI():
         return QFileDialog.getOpenFileName(*args, **kwargs)
 
     def _create_empty_project(self, msg, epanetfile):
-
         projectfile = self.get_save_filename(msg)
+        self.logger.info(
+            "creating empty project with filename %s and epanetfile %s " %
+            (projectfile, epanetfile))
         if(not projectfile):
             return None
         else:
@@ -105,14 +122,15 @@ class ProjectGUI():
         self.projectproperties.dataset.write_data(prjname)
         if(not os.path.isdir(subdir)):
             os.mkdir(subdir)
+            self.logger.info("Created  directory %s" % subdir)
+
         if(epanetfile):
             base = os.path.basename(epanetfile)
             dst = os.path.join(os.path.dirname(prjname), base)
             shutil.copy(epanetfile, dst)
             self.projectproperties.dataset.fname = base
+            self.logger.info("copied epanet file to %s" % dst)
         return prjname
-
-
 
     def try_loading_project_properties(self, prj):
         try:
@@ -155,7 +173,7 @@ class ProjectGUI():
                                                         filter='*' + c.PROJECTEXTENSION)
             if(not projectfile):
                 return None
-            projectfile, dir, ext=self._get_dir_and_extention(projectfile)
+            projectfile, dir, ext = self._get_dir_and_extention(projectfile)
             self.logger.info("Selected file to open : %s " % projectfile)
             # check if it is a valid project
             if(self._valid_project(projectfile)):
@@ -190,7 +208,7 @@ class ProjectPropertiesDataset(dt.DataSet):
     """Project : """
     _bg4 = dt.BeginGroup("Project")
     projectname = di.StringItem("", help="Project path").set_prop("display", active=False)
-    _eg4 = dt.EndGroup("Project Location")    
+    _eg4 = dt.EndGroup("Project Location")
     _bg3 = dt.BeginGroup("Epanet file of this project")
     fname = di.StringItem("", help="Epanet file of this project").set_prop("display", active=False)
     _eg3 = dt.EndGroup("Epanet file of this project")
@@ -205,84 +223,76 @@ class ProjectPropertiesDataset(dt.DataSet):
                      help='', check=True)
     N = di.FloatItem("N0", default=2)
     _eg = dt.EndGroup("Aging rate")
-    #_bg_1= dt.BeginGroup("Nodes and Links")
-    #defaults1=np.array([('a', 1.0, 2)])
-    #nodes=di.FloatArrayItem("Nodes", default=defaults1, help='Node properties click to see', 
-                           #transpose=False, 
-                           #minmax="rows", 
-                           #check=True)
-    #defaults2=np.array([('a', 1.0, 2, .5, 1000)])
-    #links=di.FloatArrayItem("Links", default=defaults2, help='Link properties click to see', 
-                           #transpose=False, 
-                           #minmax="rows", 
-                           #check=True)    
-    #_eg_1= dt.EndGroup("Nodes and Links")
-    
-    
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
-        self.results=None
+        self.results = None
         super(ProjectPropertiesDataset, self).__init__(title, comment, icon)
 
     # def show(self):
     #    return self.edit()
     def get_nwstore_file(self, f):
-        return f+"__"
+        return f + "__"
 
     def read_data(self, projfile):
         if os.path.exists(projfile):
             try:
-                self.logger.info("Reading HDF 5 data from %s" % projfile)                
+                self.logger.info("Reading HDF 5 data from %s" % projfile)
                 reader = HDF5Reader(projfile)
                 self.deserialize(reader)
+                try:
+                    self.logger.info("Read A=%s" % self.A)
+                except AttributeError:
+                    pass
                 reader.close
-   
+
             except:
-                self.logger.info("Exception with HDF reader for file %s" % projfile)   
+                self.logger.info("Exception with HDF reader for file %s" % projfile)
                 return False
-            
-            f=self.get_nwstore_file(projfile)
-            
+
+            f = self.get_nwstore_file(projfile)
+
             try:
-                with open(f, 'r') as stream:
-                    self.logger.info("Reading results  from %s" % f)     
-                    self.results=pickle.load(stream)
+                with open(f, 'rb') as stream:
+                    self.logger.info("Reading results  from %s" % f)
+                    self.results = pickle.load(stream)
                     return True
             except Exception as e:
-                    self.logger.info("Exception reading saved results %s, %s" % (projfile, e))  
-                    results=None
+                    self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
                     return False
-
-        return False
+        else:
+            return False
 
     def write_data(self, projfile):
         try:
-            self.logger.info("Writing HDF 5 data to %s" % projfile)            
+            self.logger.info("Writing HDF 5 data to %s" % projfile)
             writer = HDF5Writer(projfile)
             self.serialize(writer)
+            try:
+                self.logger.info("Wrote A=%s" % self.A)
+            except AttributeError:
+                pass
             writer.close()
         except Exception as e:
             self.logger.exception("Exception with HDF writer for file %s" % e)
-            
-        f=self.get_nwstore_file(projfile)
-        
-        try:
-            if (not self.results):
-                return 
-            with open(f, 'w+') as stream:
-                self.logger.info("Writing results to %s" % f)     
-                pickle.dump(self.results,stream)
-        except Exception as e:
-                self.logger.info("Exception writing: %s,  %s" % (f,e))  
 
+        f = self.get_nwstore_file(projfile)
+
+        try:
+            # if (not self.results):
+            #    return
+            with open(f, 'wb+') as stream:
+                self.logger.info("Writing results to %s" % f)
+                pickle.dump(self.results, stream)
+        except Exception as e:
+                self.logger.info("Exception writing: %s,  %s" % (f, e))
 
     def get_epanetfile(self):
-        return os.path.join(os.path.dirname(self.projectname),self.fname)
-    
+        return os.path.join(os.path.dirname(self.projectname), self.fname)
+
     def set_network(self, results):
         if (isinstance(results, ResultSet)):
-            self.results=results
+            self.results = results
             return
         else:
             self.logger.warn("There was a problem with calculations ")
@@ -290,11 +300,12 @@ class ProjectPropertiesDataset(dt.DataSet):
                 self.logger.warn("Exception: %s " % results)
             else:
                 self.logger.warn("Unknown object of %s" % type(results))
-            self.results=None
+            self.results = None
             return
 
     def get_network(self):
         return self.results
+
 
 def main():
     _app = QApplication([])

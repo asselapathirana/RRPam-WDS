@@ -20,7 +20,7 @@ class test_main_window(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication.instance() or QApplication(sys.argv)        
+        self.app = QApplication.instance() or QApplication(sys.argv)
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing main window")

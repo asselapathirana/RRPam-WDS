@@ -2,6 +2,7 @@
 import logging
 
 import numpy as np
+from guidata.dataset.qtitemwidgets import FloatArrayWidget
 from guidata.py3compat import maxsize
 from guiqwt.curve import CurveItem
 from guiqwt.curve import CurvePlot
@@ -9,9 +10,8 @@ from guiqwt.curve import ItemListWidget
 from guiqwt.curve import get_icon
 from guiqwt.curve import seg_dist
 from PyQt5.QtCore import QPointF
-from guidata.dataset.qtitemwidgets import FloatArrayWidget
-from rrpam_wds.gui.utils import NumpyModel, table_editor
 
+from rrpam_wds.gui.utils import table_editor
 
 
 def _patch_all():
@@ -20,24 +20,24 @@ def _patch_all():
     _patch_curveitem_hit_test()
     _patch_curveplot___del__()
     _patch_floatarraywidget_edit_array()
-    
+
+
 def _patch_floatarraywidget_edit_array():
-    # save the original 
-    orig_edit_array=FloatArrayWidget.edit_array
-    
+    # no need to # save the original
+    # orig_edit_array = FloatArrayWidget.edit_array
+
     def custom_edit_array(self):
         """Open an array editor dialog"""
-        parent = self.parent_layout.parent
-        label = self.item.get_prop_value("display", "label")
-        #editor = arrayeditor.ArrayEditor(parent)
-        
+        # parent = self.parent_layout.parent
+        # label = self.item.get_prop_value("display", "label")
+        # editor = arrayeditor.ArrayEditor(parent)
+
         ret = table_editor(self.parent_layout.parent, self.arr)
         if (ret):
             self.update(self.arr)
-            
-                
-    #now monkey-patch
-    FloatArrayWidget.edit_array=custom_edit_array
+
+    # now monkey-patch
+    FloatArrayWidget.edit_array = custom_edit_array
 
 
 def _patch_curveplot___del__():

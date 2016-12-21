@@ -62,18 +62,19 @@ class TestProjects(unittest.TestCase):
 
     def test_clicking_new_project_will_call_new_project_method_in_subdialogs_project_class(self):
         with mock.patch.object(self.aw.projectgui, 'new_project', autospec=True) as mock_new_project:
-            with mock.patch.object(self.aw.pm, '_new_project') as mock_pm_np:            
+            with mock.patch.object(self.aw.pm, '_new_project'):
                 self.assertFalse(mock_new_project.called)
-                trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_project)
+                trigger_sub_menu_item(
+                    self.aw,
+                    self.aw.menuitems.file,
+                    self.aw.menuitems.new_project)
                 self.assertTrue(mock_new_project.called)
-             
 
     def test_clicking_open_project_will_call_open_project_method_in_subdialogs_project_class(self):
         with mock.patch.object(self.aw.projectgui, 'open_project', autospec=True) as mock_open_project:
             self.assertFalse(mock_open_project.called)
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.open_project)
             self.assertTrue(mock_open_project.called)
-
 
     def test_clicking_save_project_as_will_call_save_project_method_in_subdialogs_project_class(
             self):
@@ -122,10 +123,13 @@ class TestProjects(unittest.TestCase):
                     self.aw.projectgui.new_project()
                     self.assertTrue(mock_check_epanetfile.called)
                     self.assertTrue(mock__create_empty_project.called)
-                    
+
     def test_set_network_takes_only_ResultSet_objects(self):
         from rrpam_wds.constants import ResultSet
-        ds=self.aw.projectgui.projectproperties.dataset
+        logger = logging.getLogger()
+        logger.info(
+            "**** There will be some WARNINGS below. Don't worry (we are just testing :-) )")
+        ds = self.aw.projectgui.projectproperties.dataset
         self.assertFalse(ds.results)
         ds.set_network(None)
         self.assertFalse(ds.results)
@@ -133,100 +137,96 @@ class TestProjects(unittest.TestCase):
         self.assertFalse(ds.results)
         ds.set_network(ResultSet())
         self.assertTrue(ds.results)
-        
-        
-                    
+
     def test_calling_new_file_will_update_gui_from_data_not_otherway_around(self):
         def fn(mock_set, mock_get):
             self.assertFalse(mock_set.called)
             self.assertFalse(mock_get.called)
             self.aw.projectgui.new_project()
             self.assertFalse(mock_set.called)
-            self.assertTrue(mock_get.called)  
+            self.assertTrue(mock_get.called)
         self.run_in_total_mock_context(fn)
-        
+
     def test_calling_open_project_will_update_gui_from_data_not_otherway_around(self):
         def fn(mock_set, mock_get):
             self.assertFalse(mock_set.called)
             self.assertFalse(mock_get.called)
             self.aw.projectgui.open_project()
             self.assertFalse(mock_set.called)
-            self.assertTrue(mock_get.called)  
-        self.run_in_total_mock_context(fn)    
-        
+            self.assertTrue(mock_get.called)
+        self.run_in_total_mock_context(fn)
+
     def test_calling_new_project_will_update_gui_from_data_not_otherway_around(self):
         def fn(mock_set, mock_get):
             self.assertFalse(mock_set.called)
             self.assertFalse(mock_get.called)
             self.aw.projectgui.new_project()
             self.assertFalse(mock_set.called)
-            self.assertTrue(mock_get.called)  
-        self.run_in_total_mock_context(fn)      
-                    
-                    
+            self.assertTrue(mock_get.called)
+        self.run_in_total_mock_context(fn)
+
     def test_calling_save_project_will_update_gui_from_data_not_otherway_around(self):
         def fn(mock_set, mock_get):
             self.assertFalse(mock_set.called)
             self.assertFalse(mock_get.called)
             self.aw.projectgui.save_project()
             self.assertTrue(mock_set.called)
-            self.assertFalse(mock_get.called)  
-        self.run_in_total_mock_context(fn)    
-        
+            self.assertFalse(mock_get.called)
+        self.run_in_total_mock_context(fn)
+
     def test_calling_save_project_as_will_update_gui_from_data_not_otherway_around(self):
         def fn(mock_set, mock_get):
             self.assertFalse(mock_set.called)
             self.assertFalse(mock_get.called)
             self.aw.projectgui.save_project_as()
             self.assertTrue(mock_set.called)
-            self.assertFalse(mock_get.called)  
-        self.run_in_total_mock_context(fn)                    
-                    
-                    
+            self.assertFalse(mock_get.called)
+        self.run_in_total_mock_context(fn)
+
     def run_in_total_mock_context(self, f):
-        with mock.patch.object(self.aw.projectgui, 
-                               '_getSaveFileName', 
+        with mock.patch.object(self.aw.projectgui,
+                               '_getSaveFileName',
                                autospec=True) as mock__getSaveFileName:
-            with mock.patch.object(self.aw.projectgui, 
-                                   '_getSaveFileName2', 
-                                   autospec=True) as mock__getSaveFileName2:            
-                with mock.patch.object(self.aw.projectgui, 
-                                               '_getOpenFileName', 
-                                               autospec=True) as mock__getOpenFileName:            
-                    with mock.patch.object(self.aw.projectgui, 
-                                           'check_epanetfile', 
+            with mock.patch.object(self.aw.projectgui,
+                                   '_getSaveFileName2',
+                                   autospec=True) as mock__getSaveFileName2:
+                with mock.patch.object(self.aw.projectgui,
+                                       '_getOpenFileName',
+                                       autospec=True) as mock__getOpenFileName:
+                    with mock.patch.object(self.aw.projectgui,
+                                           'check_epanetfile',
                                            autospec=True) as mock_check_epanetfile:
-                        with mock.patch.object(self.aw.projectgui, 
-                                               '_create_empty_project', 
+                        with mock.patch.object(self.aw.projectgui,
+                                               '_create_empty_project',
                                                autospec=True) as mock__create_empty_project:
-                        
-                            with mock.patch.object(self.aw.projectgui.projectproperties, 
-                                                   'set', 
+
+                            with mock.patch.object(self.aw.projectgui.projectproperties,
+                                                   'set',
                                                    autospec=True) as mock_set:
                                 with mock.patch.object(self.aw.projectgui.projectproperties,
-                                                       'get', 
+                                                       'get',
                                                        autospec=True) as mock_get:
                                     with mock.patch.object(self.aw.projectgui,
-                                                                '_valid_project', 
-                                                                autospec=True) as mock__valid_project:
+                                                           '_valid_project',
+                                                           autospec=True) as mock__valid_project:
                                         with mock.patch.object(self.aw.projectgui,
-                                                                    '_save_project_to_dest', 
-                                                                    autospec=True) as mock__save_project_to_dest:
-                                   
-                                            mock__getSaveFileName.return_value = ("xxes", '*.rrp')                                     
-                                            mock__getSaveFileName2.return_value = ("tmp.inp", '*.inp')
-                                            mock__create_empty_project.return_value = 'bo'
-                                            mock__getOpenFileName.return_value = ("gox","*.rrp")
-                                            mock_check_epanetfile.return_value ="tmp.inp"
-                                            mock__valid_project.return_value = True
-                                            mock__save_project_to_dest.return_value = "some project"
-                                            f(mock_set, mock_get)
-                                    
-                                
-                        
-                        
-                    
-        
+                                                               '_save_project_to_dest',
+                                                               autospec=True) as mock__save_project_to_dest:
+                                            with mock.patch.object(self.aw.pm,
+                                                                   '_new_project',
+                                                                   autospec=True):
+
+                                                mock__getSaveFileName.return_value = (
+                                                    "xxes", '*.rrp')
+                                                mock__getSaveFileName2.return_value = (
+                                                    "tmp.inp", '*.inp')
+                                                mock__create_empty_project.return_value = 'bo'
+                                                mock__getOpenFileName.return_value = (
+                                                    "gox", "*.rrp")
+                                                mock_check_epanetfile.return_value = "tmp.inp"
+                                                mock__valid_project.return_value = True
+                                                mock__save_project_to_dest.return_value = "some project"
+                                                f(mock_set, mock_get)
 
 
 def clt(tc, fn, mainwindow=None):

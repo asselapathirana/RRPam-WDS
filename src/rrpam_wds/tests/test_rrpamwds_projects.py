@@ -27,13 +27,12 @@ class TestProjects(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication.instance() or QApplication(sys.argv)        
+        self.app = QApplication.instance() or QApplication(sys.argv)
         start = time.time()
         self.aw = MainWindow()
-        self.logger=logging.getLogger()
+        self.logger = logging.getLogger()
         self.aw.setWindowTitle("RRPAMWDS Projject tests")
         self.logger.info("Finished setup for the test. ")
-        
 
     def tearDown(self):
         global stop
@@ -41,7 +40,6 @@ class TestProjects(unittest.TestCase):
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
@@ -61,17 +59,12 @@ class TestProjects(unittest.TestCase):
             self.assertTrue(mock__open_project.called)
 
     def test_triggering_new_project_will_call_project_manager__new_project(self):
-        # need refactoring here. The following mock is needed to avoid file open dialog to open
-        # see _new_project method (copied below) in MainWindow - there is the issue!
-        # def _new_project(self):
-        #    self.projectgui.open_project()
-        #    self._new_project_signal.emit()
-        with mock.patch.object(self.aw.projectgui, "new_project", autospec=True):
-
-            with mock.patch.object(PM, '_new_project', autospec=True) as mock__new_project:
-                self.assertFalse(mock__new_project.called)
+        with mock.patch.object(self.aw.projectgui, "_new_project", autospec=True) as mock_pgui__new_project:
+            with mock.patch.object(PM, '_new_project', autospec=True) as mock_PM__new_project:
+                mock_pgui__new_project.return_value = True  # we fake a valid project
+                self.assertFalse(mock_PM__new_project.called)
                 self.aw._new_project()
-                self.assertTrue(mock__new_project.called)
+                self.assertTrue(mock_PM__new_project.called)
 
     def test_project_managers_new_project_will_cause_project_to_be_opend_in_main_window(
             self, other=None):
@@ -80,7 +73,7 @@ class TestProjects(unittest.TestCase):
             self = other
         with mock.patch.object(self.aw, '_display_project', autospec=True) as mock__display_project:
             self.aw.pm.new_project()
-            self.aw.pm.workerthread.wait()
+            self.aw.pm.wait_to_finish()
             QApplication.processEvents()  # this is very important before the assertion.
             # that is because we are not testing this within the Qt's main loop.
             time.sleep(0.1)
@@ -101,8 +94,8 @@ class TestProjects(unittest.TestCase):
             from rrpam_wds import hydraulic_services as hs
             time.sleep(1)
             e1 = hs.pdd_service(ex.networks[0], coords=True, adfcalc=True)
-            result.nodes = e1.nodes.values()
-            result.links = e1.links.values()
+            result.nodes = list(e1.nodes.values())
+            result.links = list(e1.links.values())
             for link in result.links:
                 link.prob = random.random() * 100.
                 link.cons = (1 - link.ADF) * 1000
@@ -111,7 +104,7 @@ class TestProjects(unittest.TestCase):
         # now monkey patch
         WorkerThread.new_project = custom_new_project
         self.aw.pm.new_project()
-        self.aw.pm.workerthread.wait()
+        self.aw.pm.wait_to_finish()
         self.app.processEvents()  # give some time for the gui to plot
         time.sleep(3)  # give some time for the gui to plot
 

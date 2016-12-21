@@ -50,11 +50,11 @@ class Testhydraulicservices(unittest.TestCase):
             self.assertIsInstance(node.y, numbers.Number)
             self.assertIsInstance(node.x, numbers.Number)
 
-    def  test_pdd_service_network_links_have_nodes_at_ends(self):
+    def test_pdd_service_network_links_have_nodes_at_ends(self):
         self.e1 = hs.pdd_service(ex.examples.networks[0], coords=True)
-        nodes=list(self.e1.nodes.values())
+        nodes = list(self.e1.nodes.values())
         for i, link in self.e1.links.items():
-            self.assertIn(link.start,nodes)
+            self.assertIn(link.start, nodes)
 
     def test_pdd_service_network_links_vertices_are_properly_read(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2])

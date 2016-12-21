@@ -23,7 +23,8 @@ class TestGeometry(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication(sys.argv)
+        self.app = QApplication.instance() or QApplication(sys.argv)
+
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("RRPAMWDS Projject tests")

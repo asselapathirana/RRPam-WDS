@@ -16,7 +16,8 @@ class TestLoggers(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication(sys.argv)
+        self.app = QApplication.instance() or QApplication(sys.argv)
+
         start = time.time()
 
     def tearDown(self):

@@ -38,24 +38,11 @@ class TestProjects(unittest.TestCase):
         # clean it and create it
         self.delifexists(c.HOMEDIR, create=True)
 
-        # monkey-patch show method in rrpam_wds.gui.subdialogs.ProjectProperties
-        def custom_show(self):
-            self.logger.info("Show is being faked by empty method.. that just returns True")
-            self.fname = os.path.join(c.HOMEDIR, "foo1.inp")
-            with open(self.fname, "w+"):
-                pass
-            self.A = 5.0
-            self.N = 1.2
-            self.DRate = .2
-            return (True)
-
-        sub.ProjectPropertiesDataset.show = custom_show
-        # done moneky patching
-
     def tearDown(self):
         global stop
         stop = time.time()
         logger = logging.getLogger()
+        self.aw.pm.wait_to_finish()
         logger.info("calculation took %0.2f seconds." % (stop - start))
         self.app.quit()
         self.aw = None
@@ -112,7 +99,7 @@ class TestProjects(unittest.TestCase):
         self.app.exit()
         self.app = None
         time.sleep(1)
-        self.app = QApplication([])
+        self.app = QApplication.instance() or QApplication(sys.argv)
         self.aw = MainWindow()
 
     def test_save_project_will_save_the_project_data_to_the_project_file_and_open_project_will_read_it(
@@ -126,7 +113,12 @@ class TestProjects(unittest.TestCase):
 
                 self.assertFalse(os.path.isdir(sf))
                 self.aw.projectgui.new_project()
+                logger = logging.getLogger()
+                logger.info("User changes A value on GUI")
                 oldA = self.aw.projectgui.projectproperties.dataset.A = 25.0
+                self.aw.projectgui.rewrite_values_in_gui_with_variables()
+                logger.info("User changed A=%s value on GUI" % oldA)
+                # done user changing
                 self.aw.projectgui.save_project()
                 self.assertTrue(os.path.isfile(sf + c.PROJECTEXTENSION))
                 self.assertTrue(os.path.isdir(sf + c.PROJECTDATADIREXT))
@@ -187,7 +179,7 @@ def main(test=True, mainwindow=None):
         tc = TestProjects()
         for a in dir(tc):
             if (a.startswith(
-                    'test_save_project_as_with_filename_with_extention_or_without_will_create_project_file_and_directory')):  # test_sync
+                    'test_')):  # test_sync
                 b = getattr(tc, a)
                 if(hasattr(b, '__call__')):
                     print("************** calling %s **********************************" % a)

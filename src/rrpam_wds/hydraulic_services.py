@@ -3,12 +3,20 @@ import tempfile
 
 from epanettools.epanettools import EPANetSimulation
 from epanettools.epanettools import Link
-from epanettools.epanettools import Node, Nodes, Links
+from epanettools.epanettools import Links
+from epanettools.epanettools import Node
+from epanettools.epanettools import Nodes
 
 logger = logging.getLogger()
 
-class _Link: pass
-class _Node: pass
+
+class _Link:
+    pass
+
+
+class _Node:
+    pass
+
 
 class pdd_service(object):
 
@@ -45,11 +53,13 @@ class pdd_service(object):
                 node.y
         except AttributeError as e:
 
-            logger.info(
+            logger.warn("Exception raised(see below): %e" % e)
+            logger.warn(
                 "There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
-            logger.info("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
-            
-            raise AttributeError("There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
+            logger.warn("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
+
+            raise AttributeError(
+                "There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
 
         for i, link in self.links.items():
             if (link.start.x == link.end.x):
@@ -70,37 +80,41 @@ class pdd_service(object):
             self.links[vals[0]].vertices.append((float(vals[1]), float(vals[2])))
 
     def open_network(self, epanet_network):
+        logger.info("Opening network %s" % epanet_network)
         self.es = EPANetSimulation(epanet_network, pdd=True)
         if(self.adfcalc):
+            logger.info("Doing ADF calculations")
             self.es.adfcalc(diafact=self.diafact)
+        else:
+            logger.info("Skipping ADF")
         self._set_static_values()
         # set nodes, links for easy access!
-        
-        self.nodes=Nodes()
-        self.links=Links()
-        for key,value in self.es.network.nodes.iteritems():
-            n=_Node()
-            n.id=value.id
-            #n.x=value.x
-            #n.y=value.y
-            self.nodes[key]=n
-        
-        for key,value in self.es.network.links.iteritems():
-            l=_Link()
-            l.id=value.id
-            l.length=value.length
-            l.diameter=value.diameter
+
+        self.nodes = Nodes()
+        self.links = Links()
+        logger.info("Mapping nodes and links to new objects")
+        for key, value in self.es.network.nodes.items():
+            n = _Node()
+            n.id = value.id
+            # n.x=value.x
+            # n.y=value.y
+            self.nodes[key] = n
+
+        for key, value in self.es.network.links.items():
+            l = _Link()
+            l.id = value.id
+            l.length = value.length
+            l.diameter = value.diameter
             try:
-                l.ADF=value.ADF
+                l.ADF = value.ADF
             except:
                 pass
-            l.start=self.nodes[value.start.id]
-            l.end=self.nodes[value.end.id]
-            self.links[key]=l     
-        
-        
-        #self.nodes = self.es.network.nodes
-        #self.links = self.es.network.links
+            l.start = self.nodes[value.start.id]
+            l.end = self.nodes[value.end.id]
+            self.links[key] = l
+
+        # self.nodes = self.es.network.nodes
+        # self.links = self.es.network.links
 
     def _set_static_values(self):
         """ Adds attibutes of length, diameter for easy access."""

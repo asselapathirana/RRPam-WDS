@@ -1,20 +1,17 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import logging
 import os
-import random
 import sys
 import time
 import unittest
 
 import mock
-from guiqwt.curve import CurveItem
-from guiqwt.shapes import EllipseShape
 from PyQt5.QtWidgets import QApplication
 
-from rrpam_wds.gui.dialogs import MainWindow
-from rrpam_wds.project_manager import ProjectManager as PM
 from rrpam_wds import constants as c
 from rrpam_wds.examples import networks
+from rrpam_wds.gui.dialogs import MainWindow
+
 
 def trigger_sub_menu_item(mainwindow, menutext, submenutext):
     filemenu = [x for x in mainwindow.menuBar().actions() if x.text() == menutext][0]
@@ -29,21 +26,20 @@ class TestProjects(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication.instance() or QApplication(sys.argv)        
+        self.app = QApplication.instance() or QApplication(sys.argv)
         start = time.time()
         self.aw = MainWindow()
-        self.logger=logging.getLogger()
+        self.logger = logging.getLogger()
         self.aw.setWindowTitle("RRPAMWDS Projject tests")
         self.logger.info("Finished setup for the test. ")
-        
 
     def tearDown(self):
         global stop
         stop = time.time()
+        self.aw.pm.wait_to_finish()
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (stop - start))
         self.aw = None
-
 
     def runTest(self):
         """ otherwise python 2.7 returns an error
@@ -58,17 +54,27 @@ class TestProjects(unittest.TestCase):
                 sf = os.path.join(tempfile.tempdir, "xxx3xp")
                 mock__getSaveFileName.return_value = (sf, c.PROJECTEXTENSION)
                 mock__getSaveFileName2.return_value = (networks[0], '*.inp')
+                time.sleep(.1)
                 self.app.processEvents()
-                idthings=[x for x in self.aw.networkmap.get_plot().get_items() 
-                                                if hasattr(x,"id_")]
-                self.assertEqual(0, len(idthings))                
-                # now we can non-interactively test new_project. 
-                trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.new_project)
+                idthings = [x for x in self.aw.networkmap.get_plot().get_items()
+                            if hasattr(x, "id_")]
+                self.assertEqual(0, len(idthings))
+                # now we can non-interactively test new_project.
+                trigger_sub_menu_item(
+                    self.aw,
+                    self.aw.menuitems.file,
+                    self.aw.menuitems.new_project)
+                time.sleep(.1)
+                self.app.processEvents()
+                # make sure the thread finishes
+                self.aw.pm.wait_to_finish()
+                # but give some time for gui to plot too.
+                self.app.processEvents()
                 time.sleep(1)
-                self.app.processEvents()
-                idthings=[x for x in self.aw.networkmap.get_plot().get_items() 
-                                 if hasattr(x,"id_")]
-                self.assertGreater(len(idthings),5)
+                idthings = [x for x in self.aw.networkmap.get_plot().get_items()
+                            if hasattr(x, "id_")]
+                self.assertGreater(len(idthings), 5)
+
 
 def clt(tc, fn, mainwindow=None):
     if(not mainwindow):

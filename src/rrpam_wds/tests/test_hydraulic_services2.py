@@ -1,10 +1,10 @@
+import pickle as pickle
+import tempfile
 import time
 import unittest
-import cPickle as pickle
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
-import tempfile
 
 TOTAL_DEMAND_EX1 = 95045830.
 TOTAL_DEMAND_EX2 = 945660687.
@@ -39,20 +39,17 @@ class Testhydraulicservices(unittest.TestCase):
         for i, link in self.e3.links.items():
             # logger = logging.getLogger()
             print("%s\t %0.3f" % (link.id, link.ADF))
-            
-            
+
     def test_pdd_service_network_links_are_picklable(self):
         self.e1 = hs.pdd_service(ex.networks[0], coords=True, adfcalc=False)
-        import StringIO
-        i,name=tempfile.mkstemp(suffix=".rrpamwds_test")
-        with open(name,'w+') as output:
-            l=self.e1.links[1]
-            pickle.dump(l,output)
-        with open(name,'r') as inp:
-            l_=pickle.load(inp)
-        self.assertEqual(l.start.x,l_.start.x)
-        
-        
+        i, name = tempfile.mkstemp(suffix=".rrpamwds_test")
+        with open(name, 'wb+') as output:
+            l = self.e1.links[1]
+            pickle.dump(l, output)
+        with open(name, 'rb') as inp:
+            l_ = pickle.load(inp)
+        self.assertEqual(l.start.x, l_.start.x)
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main(verbosity=2)

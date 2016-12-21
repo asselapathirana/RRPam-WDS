@@ -16,7 +16,8 @@ class test_reset_zoom_tool(unittest.TestCase):
 
     def setUp(self):
         global start
-        self.app = QApplication(sys.argv)
+        self.app = QApplication.instance() or QApplication(sys.argv)
+
         start = time.time()
         self.aw = MainWindow()
         self.aw.setWindowTitle("Testing optimal time graph")

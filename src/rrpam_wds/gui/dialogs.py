@@ -24,7 +24,6 @@ from numpy import min
 from numpy import pi
 from numpy import sin
 from PyQt5 import QtCore
-from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction
@@ -77,7 +76,11 @@ class LogDialog(QDialog):
     @pyqtSlot(object)
     def reciever(self, object):
         # print("I Got: ", str(object))
-        self.logwindow.appendPlainText(object)
+        if (QApplication.instance()):
+            # ^^ this is done as a safeguard of segfaults when called many tests together in pytest
+            # Sometimes this method is called when there is no vailid Qapplication instance
+            #  then appendPlainText segfaults.
+            self.logwindow.appendPlainText(object)
 
     def get_text(self):
         return self.logwindow.toPlainText()
@@ -239,10 +242,10 @@ class RiskMatrix(CurveDialogWithClosable):
     def plot_links(self, links):
         if (not links):
             return
-        if (not (hasattr(links[0],"cons") and hasattr(links[0],"prob"))):
-            logger=logging.getLogger()
+        if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
+            logger = logging.getLogger()
             logger.info("The link does not have cons, prob attributes. Can not plot risk.")
-            return 
+            return
         adfs = [x.cons for x in links]
         prob = [x.prob for x in links]
         # first compute bounding box
@@ -304,7 +307,7 @@ class NetworkMap(CurveDialogWithClosable):
         self.draw_network(nodes, links)
 
     def draw_network(self, nodes, links):
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         if(nodes):
             logger.info("Drawing nodes")
             self.draw_nodes(nodes)
@@ -465,8 +468,6 @@ class MainWindow(QMainWindow):
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
 
-    _new_project_signal = pyqtSignal()
-
     class MenuItems:
         pass
     menuitems = MenuItems
@@ -569,7 +570,7 @@ class MainWindow(QMainWindow):
 
     def connect_project_manager(self):
         self.pm = PM(self.projectgui.projectproperties.dataset)
-        self._new_project_signal.connect(self.pm.new_project)
+        self.projectgui._new_project_signal.connect(self.pm.new_project)
         self.pm.heres_a_project_signal.connect(self.take_up_results)
 
     def _standard_windows(self):
@@ -675,12 +676,10 @@ class MainWindow(QMainWindow):
 
     def _new_project(self):
         self.projectgui.new_project()
-        self._new_project_signal.emit()
 
     def _open_project(self):
         """Opening a project"""
         self.projectgui.open_project()
-
 
     @pyqtSlot(object)
     def take_up_results(self, results):
@@ -693,15 +692,14 @@ class MainWindow(QMainWindow):
         self._display_project(results)
 
     def _display_project(self, results=None):
-        if ( not results):
-            results=self.projectgui.projectproperties.dataset.get_network()
+        if (not results):
+            results = self.projectgui.projectproperties.dataset.get_network()
         nodes = getattr(results, "nodes", None)
         links = getattr(results, "links", None)
-            
+
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.riskmatrix.plot_links(links)
-        
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)
