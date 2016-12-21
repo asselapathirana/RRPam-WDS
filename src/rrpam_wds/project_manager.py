@@ -53,7 +53,10 @@ class WorkerThread(QThread):
         logger = logging.getLogger()
         logger.info("starting the calculations .... ")
         network=self.project_data.get_epanetfile()
-        e1 = hs.pdd_service(network, coords=True, adfcalc=True)
+        try:
+            e1 = hs.pdd_service(network, coords=True, adfcalc=True)
+        except Exception as e:
+            return e
         rs=ResultSet()
         
         rs.links=e1.links.values()

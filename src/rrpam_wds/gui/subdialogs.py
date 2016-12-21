@@ -12,6 +12,8 @@ from guidata.hdf5io import HDF5Writer
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMessageBox
+from rrpam_wds.constants import ResultSet
+
 
 import rrpam_wds.constants as c
 import rrpam_wds.gui.dialogs
@@ -42,8 +44,11 @@ class ProjectGUI():
             msgBox.exec_()
             return None
 
-    def update_project_properties_gui(self):
+    def rewrite_values_in_gui_with_variables(self):
         self.projectproperties.get()
+        
+    def rewrite_values_in_variables_with_gui(self):
+        self.projectproperties.set()
 
     def new_project(self):
         self.logger.info("New Project")
@@ -62,7 +67,7 @@ class ProjectGUI():
             self.projectproperties.dataset.projectname = tmp
             self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
             self.parent.EPANETLOC = os.path.dirname(epanetfile)
-            self.update_project_properties_gui()
+            self.rewrite_values_in_gui_with_variables()
 
     def _getSaveFileName(self, *args, **kwargs):
         # why this function and _getSaveFileName2? for tests to mock this method easily.
@@ -133,14 +138,14 @@ class ProjectGUI():
     def save_project(self):
         self.logger.info("Saving the project")
         # Implement the actions needed to save the project here.
+        # first update any user changes in parameters
+        self.rewrite_values_in_variables_with_gui()
         self._save_project_to_dest(self.projectproperties.dataset.projectname)
-        self.update_project_properties_gui()  # not really needed for this function.
 
     def save_project_as(self):
         msg = "Save project as"
         self.projectproperties.dataset.projectname = self.get_save_filename(msg)
         self.save_project()
-        self.update_project_properties_gui()
 
     def open_project(self):
         while (True):
@@ -156,13 +161,14 @@ class ProjectGUI():
             if(self._valid_project(projectfile)):
                 self.projectproperties.dataset.projectname = projectfile
                 self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
+                self.parent._display_project()
                 break
             else:
                 self.logger.info("Project loading failed: Not a valid project")
                 return None
 
         self.logger.info("Open Project valid")
-        self.update_project_properties_gui()
+        self.rewrite_values_in_gui_with_variables()
         return (projectfile)
 
     def _valid_project(self, prj):
@@ -275,8 +281,19 @@ class ProjectPropertiesDataset(dt.DataSet):
         return os.path.join(os.path.dirname(self.projectname),self.fname)
     
     def set_network(self, results):
-        self.results=results
-    def get_results(self):
+        if (isinstance(results, ResultSet)):
+            self.results=results
+            return
+        else:
+            self.logger.warn("There was a problem with calculations ")
+            if (isinstance(results, Exception)):
+                self.logger.warn("Exception: %s " % results)
+            else:
+                self.logger.warn("Unknown object of %s" % type(results))
+            self.results=None
+            return
+
+    def get_network(self):
         return self.results
 
 def main():

@@ -37,7 +37,7 @@ class Testhydraulicservices(unittest.TestCase):
             self.assertIsInstance(node.x, numbers.Number)
 
     def test_pdd_service_network_nodes_have_coordinates2(self):
-        self.e1 = hs.pdd_service(ex.examples.networks[2], coords=True)
+        self.e1 = hs.pdd_service(ex.examples.networks[2], coords=True, adfcalc=False)
         # with self.assertRaises(AttributeError):
         #    self.e1 = hs.pdd_service(ex.examples.networks[1], coords=True)
         for i, node in self.e1.nodes.items():
@@ -45,16 +45,22 @@ class Testhydraulicservices(unittest.TestCase):
             self.assertIsInstance(node.x, numbers.Number)
 
     def test_pdd_service_network_nodes_have_coordinates3(self):
-        self.e4 = hs.pdd_service(ex.examples.networks[3], coords=True)
+        self.e4 = hs.pdd_service(ex.examples.networks[3], coords=True, adfcalc=False)
         for i, node in self.e4.nodes.items():
             self.assertIsInstance(node.y, numbers.Number)
             self.assertIsInstance(node.x, numbers.Number)
+
+    def  test_pdd_service_network_links_have_nodes_at_ends(self):
+        self.e1 = hs.pdd_service(ex.examples.networks[0], coords=True)
+        nodes=list(self.e1.nodes.values())
+        for i, link in self.e1.links.items():
+            self.assertIn(link.start,nodes)
 
     def test_pdd_service_network_links_vertices_are_properly_read(self):
         self.e3 = hs.pdd_service(ex.examples.networks[2])
         with self.assertRaises(AttributeError):
             self.e3.links.vertices
-        self.e3 = hs.pdd_service(ex.examples.networks[2], coords=True)
+        self.e3 = hs.pdd_service(ex.examples.networks[2], coords=True, adfcalc=False)
         self.assertEqual(self.e3.links['P1'].vertices, [(-6800.00, 6600.00)])
         self.assertEqual(self.e3.links['PUMP1'].vertices, [
                          (-10431.18, 6592.72), (-9800.00, 6600.00)])

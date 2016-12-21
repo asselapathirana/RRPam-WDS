@@ -304,13 +304,16 @@ class NetworkMap(CurveDialogWithClosable):
         self.draw_network(nodes, links)
 
     def draw_network(self, nodes, links):
+        logger=logging.getLogger()
         if(nodes):
+            logger.info("Drawing nodes")
             self.draw_nodes(nodes)
         # we don't want users to select grid, or nodes and they should not appear in the item list.
         # So lock'em up.
         self.set_all_private()
 
         if(links):
+            logger.info("Drawing links")
             self.draw_links(links)
         self.get_plot().do_autoscale(replot=True)
 
@@ -462,7 +465,7 @@ class MainWindow(QMainWindow):
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
 
-    _open_project_signal = pyqtSignal()
+    _new_project_signal = pyqtSignal()
 
     class MenuItems:
         pass
@@ -566,7 +569,7 @@ class MainWindow(QMainWindow):
 
     def connect_project_manager(self):
         self.pm = PM(self.projectgui.projectproperties.dataset)
-        self._open_project_signal.connect(self.pm.new_project)
+        self._new_project_signal.connect(self.pm.new_project)
         self.pm.heres_a_project_signal.connect(self.take_up_results)
 
     def _standard_windows(self):
@@ -672,7 +675,7 @@ class MainWindow(QMainWindow):
 
     def _new_project(self):
         self.projectgui.new_project()
-        self._open_project_signal.emit()
+        self._new_project_signal.emit()
 
     def _open_project(self):
         """Opening a project"""
@@ -690,13 +693,10 @@ class MainWindow(QMainWindow):
         self._display_project(results)
 
     def _display_project(self, results=None):
-        if (results):
-            nodes = getattr(results, "nodes", None)
-            links = getattr(results, "links", None)
-        else:
+        if ( not results):
             results=self.projectgui.projectproperties.dataset.get_network()
-            nodes=results.nodes
-            links=results.links
+        nodes = getattr(results, "nodes", None)
+        links = getattr(results, "links", None)
             
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)

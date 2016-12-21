@@ -48,7 +48,8 @@ class pdd_service(object):
             logger.info(
                 "There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
             logger.info("Offending item: %s: Node: %s (%d)" % (epanet_network, node.id, i))
-            raise e
+            
+            raise AttributeError("There is an error in your network file, some nodes do not have coordinates. Fix them and retry please.")
 
         for i, link in self.links.items():
             if (link.start.x == link.end.x):
@@ -94,7 +95,7 @@ class pdd_service(object):
             except:
                 pass
             l.start=self.nodes[value.start.id]
-            l.end=self.nodes[value.start.id]
+            l.end=self.nodes[value.end.id]
             self.links[key]=l     
         
         
