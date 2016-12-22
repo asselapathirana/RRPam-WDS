@@ -90,6 +90,26 @@ class LogDialog(QDialog):
         self.parent.hide_log_window()
 
 
+class DataWindow(QDialog):
+
+    def __init__(self, mainwindow, parent=None):
+
+        super(DataWindow, self).__init__(parent=parent)
+        self.setWindowTitle("Data Editor")
+        self.selected_holder = mainwindow.selected_holder
+        self.add_some_junk()
+
+    def add_some_junk(self):
+        from PyQt5.QtWidgets import QLabel
+        layout = QVBoxLayout(self)
+        lab = QLabel("Foo Foo Foo Foo bar", self)
+        layout.addWidget(lab)
+
+    def closeEvent(self, evnt):
+        evnt.ignore()
+        self.setWindowState(QtCore.Qt.WindowMinimized)
+
+
 class CurveDialogWithClosable(CurveDialog):
 
     """The mother dialog from which all the graph windows inherit from
@@ -574,6 +594,7 @@ class MainWindow(QMainWindow):
         self.pm.heres_a_project_signal.connect(self.take_up_results)
 
     def _standard_windows(self):
+        self.add_datawindow()
         self.add_networkmap()
         self.add_riskmatrix()
         self.optimaltimegraphs = {}
@@ -613,6 +634,12 @@ class MainWindow(QMainWindow):
         wlc = optimalTimeGraph(mainwindow=self)
         self.mdi.addSubWindow(wlc)
         wlc.show()
+
+    def add_datawindow(self):
+        if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), DataWindow)])):
+            self.datawindow = DataWindow(mainwindow=self, parent=self.mdi)
+            self.mdi.addSubWindow(self.datawindow)
+            self.datawindow.show()
 
     def add_riskmatrix(self):
         if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), RiskMatrix)])):
