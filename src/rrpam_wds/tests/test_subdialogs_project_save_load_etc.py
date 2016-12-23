@@ -84,10 +84,10 @@ class TC(Test_Parent):
                 self.assertFalse(os.path.isdir(sf))
                 self.aw.projectgui.new_project()
                 logger = logging.getLogger()
-                logger.info("User changes A value on GUI")
-                oldA = self.aw.projectgui.projectproperties.dataset.A = 25.0
+                logger.info("User changes discountrate value on GUI")
+                discountrate = self.aw.projectgui.projectproperties.dataset.discountrate = 3.4discountrate
                 self.aw.projectgui.rewrite_values_in_gui_with_variables()
-                logger.info("User changed A=%s value on GUI" % oldA)
+                logger.info("User changed discountrate=%s value on GUI" % discountrate)
                 # done user changing
                 self.aw.projectgui.save_project()
                 self.assertTrue(os.path.isfile(sf + c.PROJECTEXTENSION))
@@ -97,7 +97,7 @@ class TC(Test_Parent):
 
                 self.assertEqual(self.aw.LASTPROJECT, sf + c.PROJECTEXTENSION)
 
-        oldvals = {"A": oldA, "fname": os.path.basename(nw)}
+        oldvals = {"discountrate": discountrate, "fname": os.path.basename(nw)}
         self.open_and_check(sf, oldvals)
         return sf, oldvals
 
@@ -114,7 +114,7 @@ class TC(Test_Parent):
         with mock.patch.object(self.aw.projectgui, '_getOpenFileName', autospec=True) as mock__getOpenFileName:
             mock__getOpenFileName.return_value = (sf + c.PROJECTEXTENSION, c.PROJECTEXTENSION)
             self.aw.projectgui.open_project()
-            self.assertEqual(oldvals['A'], self.aw.projectgui.projectproperties.dataset.A)
+            self.assertEqual(oldvals['discountrate'], self.aw.projectgui.projectproperties.dataset.discountrate)
             self.assertEqual(oldvals['fname'], self.aw.projectgui.projectproperties.dataset.fname)
 
     def test_save_project_as_with_filename_with_extention_or_without_will_create_project_file_and_directory(
