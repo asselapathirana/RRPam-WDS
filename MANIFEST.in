@@ -25,7 +25,7 @@ exclude  *.old
 exclude service
 include freeze.py  
 include setupdata.py
-
+exclude ui
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib  output.txt
 recursive-exclude junk *
@@ -37,6 +37,9 @@ global-exclude  *.log.[0-9]
 recursive-exclude service *
 
 global-exclude *.swp
+global-exclude *.bash
+global-exclude *.ui
+
 global-exclude prof.out
 
 

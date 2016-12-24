@@ -2,32 +2,33 @@ import logging
 import sys
 import time
 import unittest
-from PyQt5.QtTest import QTest
-from PyQt5.QtCore import Qt
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from rrpam_wds.gui.dialogs import MainWindow
 
+
 def set_text_textbox(item, value=""):
     for i in range(10):
-        QTest.keyPress(item,Qt.Key_Backspace)
-        QTest.keyPress(item,Qt.Key_Delete)    
-    QTest.keyClicks(item,str(value))
+        QTest.keyPress(item, Qt.Key_Backspace)
+        QTest.keyPress(item, Qt.Key_Delete)
+    QTest.keyClicks(item, str(value))
 
-def set_text_spinbox(item, value=""): # useful for qtests. 
 
-    
+def set_text_spinbox(item, value=""):  # useful for qtests.
+
     for i in range(3):
-        QTest.keyPress(item,Qt.Key_Backspace)
-        QTest.keyPress(item,Qt.Key_Delete)
-    QTest.keyClicks(item,str(value))  
-    QTest.keyPress(item,Qt.Key_Return) 
+        QTest.keyPress(item, Qt.Key_Backspace)
+        QTest.keyPress(item, Qt.Key_Delete)
+    QTest.keyClicks(item, str(value))
+    QTest.keyPress(item, Qt.Key_Return)
+
 
 class Test_Parent(unittest.TestCase):
     start = 0
     stop = 0
-    
 
     def setUp(self):
         self.app = QApplication.instance() or QApplication(sys.argv)

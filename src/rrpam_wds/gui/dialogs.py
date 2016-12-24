@@ -5,8 +5,6 @@ import math
 import random
 import sys
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
@@ -26,6 +24,8 @@ from numpy import min
 from numpy import pi
 from numpy import sin
 from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction
@@ -39,12 +39,14 @@ from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QSlider
 from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
+
 import rrpam_wds.constants as c
 import rrpam_wds.gui.subdialogs
 import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
-from rrpam_wds.gui import monkey_patch_guiqwt_guidata, _property_widget
+from rrpam_wds.gui import _property_widget
+from rrpam_wds.gui import monkey_patch_guiqwt_guidata
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
@@ -61,19 +63,20 @@ CONF.set("plot", "selection/distance", 10.0)
 
 STYLE = style_generator()
 
+
 class PropertyGroupGUI(object):
+
     def __init__(self, frame):
-        self.active=False
-        self.frame=frame
-        
+        self.active = False
+        self.frame = frame
+
     def show(self):
-        self.active=True
+        self.active = True
         self.frame.show()
-        
+
     def hide(self):
-        self.active=False
+        self.active = False
         self.frame.hide()
-    
 
 
 class LogDialog(QDialog):
@@ -120,90 +123,94 @@ class DataWindow(QDialog):
         self.connect_signals()
 
     def initialize_assetgroups(self):
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         logger.info("Initializing assetgrouplist=[] and activenumberofgroups=0 ")
-        self.assetgrouplist=[]
-        self.activenumberofgroups=0
-        if(hasattr(self,'ui')):
-            import sip
-            # if there are any active ones fully remove them. 
-            for i in reversed(range(self.ui.assetgroup_container_parent_layout.count())): 
-                w=self.ui.assetgroup_container_parent_layout.itemAt(i).widget()
+        self.assetgrouplist = []
+        self.activenumberofgroups = 0
+        if(hasattr(self, 'ui')):
+            pass
+            # if there are any active ones fully remove them.
+            for i in reversed(range(self.ui.assetgroup_container_parent_layout.count())):
+                w = self.ui.assetgroup_container_parent_layout.itemAt(i).widget()
                 if(w):
                     w.hide()
-                    w.setParent(None)     
+                    w.setParent(None)
                     w.deleteLater()
-            #for group in self.assetgrouplist:
+            # for group in self.assetgrouplist:
             #    group.hide()
             #    self.ui.assetgroup_container_parent_layout.removeWidget(group.frame)
-            #    sip.delete(group.frame)            
+            #    sip.delete(group.frame)
             # now initialize
-
-
 
     def setup_ui(self):
         self.ui = _property_widget.Ui_projectDataWidget()
-        self.ui.setupUi(self)   
-        #self.ui.no_groups.valueChanged.disconnect()   
+        self.ui.setupUi(self)
+        # self.ui.no_groups.valueChanged.disconnect()
 
     def connect_signals(self):
         self.ui.no_groups.valueChanged.connect(self._set_no_groups)
-    
+
     def customize_ui(self):
-        self.spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.spacerItem1 = QtWidgets.QSpacerItem(
+            40,
+            20,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding)
         self._set_no_groups(1)
-        
+
     def get_information(self, all=False):
-        """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations. 
+        """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations.
         if all=True, then it will return ALL items in assetgrouplist (e.g. for saving)"""
         if (not all):
-            return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text()), x.age.value()) for x in self.assetgrouplist[:self.activenumberofgroups]]
+            gr = [(float(x.A.text()), float(x.N0.text()), x.age.value())
+                  for x in self.assetgrouplist[:self.activenumberofgroups]]
+            return self.activenumberofgroups, gr
         else:
             return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text()), x.age.value()) for x in self.assetgrouplist]
-       
-    def set_information(self,results_):
-        active=int(results_[0]) # just in case it is a string!
-        results=results_[1]
+
+    def set_information(self, results_):
+        active = int(results_[0])  # just in case it is a string!
+        results = results_[1]
         self.initialize_assetgroups()
         for ct, value in enumerate(results):
-            self.add_assetgroup(ct, value) 
+            self.add_assetgroup(ct, value)
         self.ui.no_groups.setValue(active)
-        self._set_no_groups(active) # this is needed, as ^^ we change the value manually, signal does not fire. 
-        
+        self._set_no_groups(active)
+        # this is needed, as ^^ we change the value manually, signal does not
+        # fire.
 
     def _set_no_groups(self, ngroups):
         # first remove that spacer
         self.ui.assetgroup_container_parent_layout.removeItem(self.spacerItem1)
-        need=ngroups-self.activenumberofgroups
-        self.activenumberofgroups=ngroups
-        logger=logging.getLogger()
-        if(need>0):
-            logger.info("Need %d number of asset groups more." % need)            
-            needtocreate=ngroups-len(self.assetgrouplist)
-            st=len(self.assetgrouplist)
-            if(needtocreate>0):
-                logger.info("Need to create %d new" %needtocreate)                            
+        need = ngroups - self.activenumberofgroups
+        self.activenumberofgroups = ngroups
+        logger = logging.getLogger()
+        if(need > 0):
+            logger.info("Need %d number of asset groups more." % need)
+            needtocreate = ngroups - len(self.assetgrouplist)
+            st = len(self.assetgrouplist)
+            if(needtocreate > 0):
+                logger.info("Need to create %d new" % needtocreate)
                 for i in range(needtocreate):
-                    self.add_assetgroup(st+i)
-        # now unhide 
-        logger.info("Unhiding from 0 to %d" %ngroups)                                                    
+                    self.add_assetgroup(st + i)
+        # now unhide
+        logger.info("Unhiding from 0 to %d" % ngroups)
         for i in range(ngroups):
             self.assetgrouplist[i].show()
-        logger.info("Hiding from %d to %d" % (ngroups, len(self.assetgrouplist)))                                                    
-        for i in range(ngroups,len(self.assetgrouplist)):
+        logger.info("Hiding from %d to %d" % (ngroups, len(self.assetgrouplist)))
+        for i in range(ngroups, len(self.assetgrouplist)):
             self.assetgrouplist[i].hide()
-            
-        # now add the spacer 
+
+        # now add the spacer
         self.ui.assetgroup_container_parent_layout.addItem(self.spacerItem1)
-        items = list(self.ui.assetgroup_container_parent_layout.itemAt(i) for i in range(self.ui.assetgroup_container_parent_layout.count())) 
+        items = list(self.ui.assetgroup_container_parent_layout.itemAt(i)
+                     for i in range(self.ui.assetgroup_container_parent_layout.count()))
         logger.info("List of widgets: %s " % items)
-        
-            
 
     def add_assetgroup(self, i, values=None):
         """values will be used as (A0, N0, age)"""
 
-        ag=PropertyGroupGUI(frame=QFrame())
+        ag = PropertyGroupGUI(frame=QFrame())
         ag.container_layout = QtWidgets.QHBoxLayout()
         ag.container_layout.setObjectName("assetgroup_container_layout")
         ag.no_label = QtWidgets.QLabel(self.ui.groupBox)
@@ -232,50 +239,54 @@ class DataWindow(QDialog):
         ag.age.setMaximum(999)
         ag.age.setObjectName("assetgroup_age")
         ag.container_layout.addWidget(ag.age)
-        ag.spacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        ag.spacer = QtWidgets.QSpacerItem(
+            40,
+            20,
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Minimum)
         ag.container_layout.addItem(ag.spacer)
-       
+
         ag.frame.setLayout(ag.container_layout)
-        self.ui.assetgroup_container_parent_layout.addWidget(ag.frame)         
-        
+        self.ui.assetgroup_container_parent_layout.addWidget(ag.frame)
+
         _translate = QtCore.QCoreApplication.translate
-        
+
         ag.no_label.setText(_translate("projectDataWidget", "G_%02d" % i))
         ag.A_label.setText(_translate("projectDataWidget", "A"))
         ag.N0_label.setText(_translate("projectDataWidget", "N0"))
-        ag.age_label.setText(_translate("projectDataWidget", "Age")) 
-        
+        ag.age_label.setText(_translate("projectDataWidget", "Age"))
+
         # set defaults
         if(values):
             try:
                 ag.A.setText(str(values[0]))
                 ag.N0.setText(str(values[1]))
                 ag.age.setValue(int(values[2]))
-            except Exception as e :
-                logger=logging.getLogger()
-                logger.exception("Error trying to set values with %s (Exception: %s)" % (values,e))
-                values=None
+            except Exception as e:
+                logger = logging.getLogger()
+                logger.exception("Error trying to set values with %s (Exception: %s)" % (values, e))
+                values = None
         if(not values):
             ag.A.setText(str(c.DEFAULT_A))
             ag.N0.setText(str(c.DEFAULT_N0))
-            ag.age.setValue(int(c.DEFAULT_age))            
-        
+            ag.age.setValue(int(c.DEFAULT_age))
+
         # Add validators
-        
-        ag.valNumber=QtGui.QDoubleValidator()
+
+        ag.valNumber = QtGui.QDoubleValidator()
         ag.A.setValidator(ag.valNumber)
         ag.N0.setValidator(ag.valNumber)
-        #ag.valInt=QtGui.QIntValidator()
-        #ag.age.setValidator(ag.valInt)
-        
-        # ###################
+        # ag.valInt=QtGui.QIntValidator()
+        # ag.age.setValidator(ag.valInt)
+
+        #
         self.assetgrouplist.append(ag)
         ag.A.textChanged.connect(self._validate_property_groups)
         ag.N0.textChanged.connect(self._validate_property_groups)
         ag.age.valueChanged.connect(self._validate_property_groups)
-        
+
     def _validate_property_groups(self, item):
-        
+
         for group in self.assetgrouplist:
             try:
                 float(group.A.text())
@@ -289,21 +300,21 @@ class DataWindow(QDialog):
             try:
                 int(group.age.text())
             except:
-                group.age.setValue(group.age.getValue())   
-                
+                group.age.setValue(group.age.getValue())
+
     def get_active_groups(self):
         return [x for x in self.assetgrouplist if x.active]
-            
 
     def closeEvent(self, evnt):
         evnt.ignore()
         self.setWindowState(QtCore.Qt.WindowMinimized)
-  
+
     def keyPressEvent(self, e):
         if (e.key() != QtCore.Qt.Key_Escape):
             super(DataWindow, self).keyPressEvent(e)
         else:
             pass
+
 
 class CurveDialogWithClosable(CurveDialog):
 

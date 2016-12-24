@@ -95,11 +95,10 @@ class TC(Test_Parent):
                 with mock.patch.object(self.aw.projectgui, '_create_empty_project', autospec=True) as mock__create_empty_project:
                     mock__getSaveFileName2.return_value = ("tmp", '*.inp')
                     mock__create_empty_project.return_value = None
-                    mock_check_epanetfile.return_value = False # so that new project creation will stop after check_epanet call. 
+                    mock_check_epanetfile.return_value = False  # so that new project creation will stop after check_epanet call.
                     self.assertFalse(mock_check_epanetfile.called)
                     self.aw.projectgui.new_project()
                     self.assertTrue(mock_check_epanetfile.called)
-                    
 
     def test_set_network_takes_only_ResultSet_objects(self):
         from rrpam_wds.constants import ResultSet

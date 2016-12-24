@@ -114,7 +114,9 @@ class TC(Test_Parent):
         with mock.patch.object(self.aw.projectgui, '_getOpenFileName', autospec=True) as mock__getOpenFileName:
             mock__getOpenFileName.return_value = (sf + c.PROJECTEXTENSION, c.PROJECTEXTENSION)
             self.aw.projectgui.open_project()
-            self.assertEqual(oldvals['discountrate'], self.aw.projectgui.projectproperties.dataset.discountrate)
+            self.assertEqual(
+                oldvals['discountrate'],
+                self.aw.projectgui.projectproperties.dataset.discountrate)
             self.assertEqual(oldvals['fname'], self.aw.projectgui.projectproperties.dataset.fname)
 
     def test_save_project_as_with_filename_with_extention_or_without_will_create_project_file_and_directory(

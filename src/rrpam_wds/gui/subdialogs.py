@@ -120,12 +120,12 @@ class ProjectGUI(QObject):
 
         self.logger.info("Getting values from datawindow..")
         # First get latest values from dataWindow
-        inf=self.parent.datawindow.get_information(all=True)
-        self.projectproperties.dataset.projectgroup_to_save_or_load=inf
-        self.logger.info("Now writing data")  
+        inf = self.parent.datawindow.get_information(all=True)
+        self.projectproperties.dataset.projectgroup_to_save_or_load = inf
+        self.logger.info("Now writing data")
         prjname, subdir, ext = c._get_dir_and_extention(projectfile)
-        self.projectproperties.dataset.write_data(prjname)        
-      
+        self.projectproperties.dataset.write_data(prjname)
+
         if(not os.path.isdir(subdir)):
             os.mkdir(subdir)
             self.logger.info("Created  directory %s" % subdir)
@@ -151,8 +151,6 @@ class ProjectGUI(QObject):
         except Exception as e:
             self.logger.exception("Could not load the project properties: %s" % e)
         return False
-
-
 
     def save_project(self):
         self.logger.info("Saving the project")
@@ -226,11 +224,11 @@ class ProjectPropertiesDataset(dt.DataSet):
     # def show(self):
     #    return self.edit()
     def get_nwstore_file(self, f):
-        return os.path.join(c._get_dir_and_extention(f)[1],"network." + "__")
-    
+        return os.path.join(c._get_dir_and_extention(f)[1], "network." + "__")
+
     def get_assetgroups_file(self, f):
-        return os.path.join(c._get_dir_and_extention(f)[1],"assetgroups." + "__")
-    
+        return os.path.join(c._get_dir_and_extention(f)[1], "assetgroups." + "__")
+
     def read_data(self, projfile):
         if os.path.exists(projfile):
             try:
@@ -249,7 +247,7 @@ class ProjectPropertiesDataset(dt.DataSet):
 
             if (not self._read_network_data(projfile)):
                 return False
-                
+
             if (not self._read_asset_group_data(projfile)):
                 return False
             return True
@@ -261,9 +259,9 @@ class ProjectPropertiesDataset(dt.DataSet):
         try:
             with open(f, 'rb') as stream:
                 self.logger.info("Reading results  from %s" % f)
-                self.projectgroup_to_save_or_load=pickle.load(stream)
-                l=self.projectgroup_to_save_or_load
-                self.logger.info("read %d items, list: %s" % (len(l),l))
+                self.projectgroup_to_save_or_load = pickle.load(stream)
+                l = self.projectgroup_to_save_or_load
+                self.logger.info("read %d items, list: %s" % (len(l), l))
         except Exception as e:
                 self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
                 return False
@@ -302,14 +300,14 @@ class ProjectPropertiesDataset(dt.DataSet):
 
     def _write_assetgroup_data(self, projfile):
         f = self.get_assetgroups_file(projfile)
-        
+
         try:
             with open(f, 'wb+') as stream:
                 self.logger.info("Writing results to %s" % f)
                 pickle.dump(self.projectgroup_to_save_or_load, stream)
                 return True
         except Exception as e:
-                self.logger.info("Exception writing: %s,  %s" % (f, e))  
+                self.logger.info("Exception writing: %s,  %s" % (f, e))
                 return False
 
     def _write_network_data(self, projfile):
@@ -323,7 +321,6 @@ class ProjectPropertiesDataset(dt.DataSet):
         except Exception as e:
                 self.logger.info("Exception writing: %s,  %s" % (f, e))
                 return False
-                
 
     def get_epanetfile(self):
         try:
