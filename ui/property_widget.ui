@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>351</height>
+    <width>424</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -34,7 +34,7 @@
      <item>
       <widget class="QTabWidget" name="asset_groups_and_assignments">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="asset_groups">
         <property name="toolTip">
@@ -96,8 +96,8 @@
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>483</width>
-                         <height>227</height>
+                         <width>348</width>
+                         <height>292</height>
                         </rect>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -192,76 +192,114 @@
                </spacer>
               </item>
               <item row="1" column="0">
-               <widget class="QGroupBox" name="groupBox_3">
+               <widget class="QGroupBox" name="layoutx">
                 <property name="title">
                  <string>Assigned Groups</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_3">
                  <item>
-                  <layout class="QHBoxLayout" name="indiviual_asset_container_layout">
-                   <item>
-                    <widget class="QLabel" name="label_2">
-                     <property name="maximumSize">
-                      <size>
-                       <width>50</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>ID: </string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="my_id">
-                     <property name="minimumSize">
-                      <size>
-                       <width>100</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>200</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>idvalue</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="label_3">
-                     <property name="text">
-                      <string>Group</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="my_group">
-                     <property name="maximumSize">
-                      <size>
-                       <width>100</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_2">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
+                  <widget class="QScrollArea" name="scrollArea_2">
+                   <property name="widgetResizable">
+                    <bool>true</bool>
+                   </property>
+                   <widget class="QWidget" name="scrollAreaWidgetContents">
+                    <property name="geometry">
+                     <rect>
+                      <x>0</x>
+                      <y>0</y>
+                      <width>332</width>
+                      <height>105</height>
+                     </rect>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_6">
+                     <item>
+                      <layout class="QVBoxLayout" name="assign_asset_item_parent_layout">
+                       <item>
+                        <widget class="QFrame" name="assign_asset_item">
+                         <layout class="QHBoxLayout" name="indiviual_asset_container_layout_4">
+                          <item>
+                           <widget class="QLabel" name="label_8">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>ID: </string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="my_id">
+                            <property name="minimumSize">
+                             <size>
+                              <width>100</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>200</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>idvalue</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_9">
+                            <property name="text">
+                             <string>Group</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="my_group">
+                            <property name="maximumSize">
+                             <size>
+                              <width>100</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="horizontalSpacer_6">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>40</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="assign_asset_item_spacer_after_items">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </widget>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -293,22 +331,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>252</x>
-     <y>66</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>my_group</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>grouptocopy</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>276</x>
-     <y>137</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>230</x>
      <y>66</y>
     </hint>
    </hints>
