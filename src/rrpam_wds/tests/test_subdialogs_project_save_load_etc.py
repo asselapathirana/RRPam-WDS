@@ -85,7 +85,7 @@ class TC(Test_Parent):
                 self.aw.projectgui.new_project()
                 logger = logging.getLogger()
                 logger.info("User changes discountrate value on GUI")
-                discountrate = self.aw.projectgui.projectproperties.dataset.discountrate = 3.4discountrate
+                discountrate = self.aw.projectgui.projectproperties.dataset.discountrate = 3.4
                 self.aw.projectgui.rewrite_values_in_gui_with_variables()
                 logger.info("User changed discountrate=%s value on GUI" % discountrate)
                 # done user changing

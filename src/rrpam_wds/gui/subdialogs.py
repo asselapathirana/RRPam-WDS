@@ -47,7 +47,7 @@ class ProjectGUI(QObject):
     def log(self):
         try:
             k = self.projectproperties.dataset
-            self.logger.info("A=%s, N=%s" % (k.A, k.N))
+            self.logger.info("discount rate =%s" % (k.discountrate))
         except Exception:
             pass
 
@@ -118,8 +118,14 @@ class ProjectGUI(QObject):
 
     def _save_project_to_dest(self, projectfile, epanetfile=None):
 
-        prjname, subdir, ext = self._get_dir_and_extention(projectfile)
-        self.projectproperties.dataset.write_data(prjname)
+        self.logger.info("Getting values from datawindow..")
+        # First get latest values from dataWindow
+        inf=self.parent.datawindow.get_information(all=True)
+        self.projectproperties.dataset.projectgroup_to_save_or_load=inf
+        self.logger.info("Now writing data")  
+        prjname, subdir, ext = c._get_dir_and_extention(projectfile)
+        self.projectproperties.dataset.write_data(prjname)        
+      
         if(not os.path.isdir(subdir)):
             os.mkdir(subdir)
             self.logger.info("Created  directory %s" % subdir)
@@ -137,21 +143,16 @@ class ProjectGUI(QObject):
             self.logger.info("Trying to read properties from %s " % prj)
             if(self.projectproperties.dataset.read_data(prj)):
                 self.logger.info(" %s project read successfully." % prj)
+                # now update the dataWindow
+                self.parent.datawindow.set_information(
+                    self.projectproperties.dataset.projectgroup_to_save_or_load)
+                self.logger.info("Updated dataWindow")
                 return True
         except Exception as e:
             self.logger.exception("Could not load the project properties: %s" % e)
         return False
 
-    def _get_dir_and_extention(self, projectname):
-        self.logger.info("Analysing prjname : %s", projectname)
-        if(projectname[-4:] != c.PROJECTEXTENSION):
-            t = projectname + c.PROJECTEXTENSION
-        else:
-            t = projectname
-        prjname, subdir, ext = (t, t[:-4] + c.PROJECTDATADIREXT, t[-4:])
-        self.logger.info("Returning prjname:%s, subdir:%s and ext:%s" % (prjname, subdir, ext))
 
-        return prjname, subdir, ext
 
     def save_project(self):
         self.logger.info("Saving the project")
@@ -173,7 +174,7 @@ class ProjectGUI(QObject):
                                                         filter='*' + c.PROJECTEXTENSION)
             if(not projectfile):
                 return None
-            projectfile, dir, ext = self._get_dir_and_extention(projectfile)
+            projectfile, dir, ext = c._get_dir_and_extention(projectfile)
             self.logger.info("Selected file to open : %s " % projectfile)
             # check if it is a valid project
             if(self._valid_project(projectfile)):
@@ -193,7 +194,7 @@ class ProjectGUI(QObject):
         """Check if prj represents a valid project. """
         if (not os.path.isfile(prj)):
             return False
-        if (not os.path.isdir(self._get_dir_and_extention(prj)[1])):
+        if (not os.path.isdir(c._get_dir_and_extention(prj)[1])):
             return False
         # Try opening
         self.logger.info("Now calling try_loading_project_properties ")
@@ -208,21 +209,14 @@ class ProjectPropertiesDataset(dt.DataSet):
     """Project : """
     _bg4 = dt.BeginGroup("Project")
     projectname = di.StringItem("", help="Project path").set_prop("display", active=False)
-    _eg4 = dt.EndGroup("Project Location")
+    _eg4 = dt.EndGroup("Project")
     _bg3 = dt.BeginGroup("Epanet file of this project")
     fname = di.StringItem("", help="Epanet file of this project").set_prop("display", active=False)
     _eg3 = dt.EndGroup("Epanet file of this project")
     di.FileOpenItem("Select Epanet file (open)", ("inp", "eta"))
     _bg2 = dt.BeginGroup("Discount rate (%)")
-    DRate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)
+    discountrate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)
     _eg2 = dt.EndGroup("Discount rate (%)")
-    _bg = dt.BeginGroup("Aging rate")
-    A = di.FloatItem(" A", default=1, min=None, max=None,
-                     nonzero=True, unit='',
-                     slider=False,
-                     help='', check=True)
-    N = di.FloatItem("N0", default=2)
-    _eg = dt.EndGroup("Aging rate")
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
@@ -232,8 +226,11 @@ class ProjectPropertiesDataset(dt.DataSet):
     # def show(self):
     #    return self.edit()
     def get_nwstore_file(self, f):
-        return f + "__"
-
+        return os.path.join(c._get_dir_and_extention(f)[1],"network." + "__")
+    
+    def get_assetgroups_file(self, f):
+        return os.path.join(c._get_dir_and_extention(f)[1],"assetgroups." + "__")
+    
     def read_data(self, projfile):
         if os.path.exists(projfile):
             try:
@@ -241,7 +238,7 @@ class ProjectPropertiesDataset(dt.DataSet):
                 reader = HDF5Reader(projfile)
                 self.deserialize(reader)
                 try:
-                    self.logger.info("Read A=%s" % self.A)
+                    self.logger.info("Read discountrate=%s" % self.discountrate)
                 except AttributeError:
                     pass
                 reader.close
@@ -250,18 +247,39 @@ class ProjectPropertiesDataset(dt.DataSet):
                 self.logger.info("Exception with HDF reader for file %s" % projfile)
                 return False
 
-            f = self.get_nwstore_file(projfile)
-
-            try:
-                with open(f, 'rb') as stream:
-                    self.logger.info("Reading results  from %s" % f)
-                    self.results = pickle.load(stream)
-                    return True
-            except Exception as e:
-                    self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
-                    return False
+            if (not self._read_network_data(projfile)):
+                return False
+                
+            if (not self._read_asset_group_data(projfile)):
+                return False
+            return True
         else:
             return False
+
+    def _read_asset_group_data(self, projfile):
+        f = self.get_assetgroups_file(projfile)
+        try:
+            with open(f, 'rb') as stream:
+                self.logger.info("Reading results  from %s" % f)
+                self.projectgroup_to_save_or_load=pickle.load(stream)
+                l=self.projectgroup_to_save_or_load
+                self.logger.info("read %d items, list: %s" % (len(l),l))
+        except Exception as e:
+                self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
+                return False
+        return True
+
+    def _read_network_data(self, projfile):
+        f = self.get_nwstore_file(projfile)
+
+        try:
+            with open(f, 'rb') as stream:
+                self.logger.info("Reading results  from %s" % f)
+                self.results = pickle.load(stream)
+                return True
+        except Exception as e:
+                self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
+                return False
 
     def write_data(self, projfile):
         try:
@@ -276,16 +294,36 @@ class ProjectPropertiesDataset(dt.DataSet):
         except Exception as e:
             self.logger.exception("Exception with HDF writer for file %s" % e)
 
+        if(not self._write_network_data(projfile)):
+            return False
+        if(not self._write_assetgroup_data(projfile)):
+            return False
+        return True
+
+    def _write_assetgroup_data(self, projfile):
+        f = self.get_assetgroups_file(projfile)
+        
+        try:
+            with open(f, 'wb+') as stream:
+                self.logger.info("Writing results to %s" % f)
+                pickle.dump(self.projectgroup_to_save_or_load, stream)
+                return True
+        except Exception as e:
+                self.logger.info("Exception writing: %s,  %s" % (f, e))  
+                return False
+
+    def _write_network_data(self, projfile):
         f = self.get_nwstore_file(projfile)
 
         try:
-            # if (not self.results):
-            #    return
             with open(f, 'wb+') as stream:
                 self.logger.info("Writing results to %s" % f)
                 pickle.dump(self.results, stream)
+                return True
         except Exception as e:
                 self.logger.info("Exception writing: %s,  %s" % (f, e))
+                return False
+                
 
     def get_epanetfile(self):
         try:
