@@ -10,11 +10,11 @@ from PyQt5.QtWidgets import QApplication
 from rrpam_wds.gui.dialogs import MainWindow
 
 
-def set_text_textbox(item, value=""):
-    for i in range(10):
-        QTest.keyPress(item, Qt.Key_Backspace)
-        QTest.keyPress(item, Qt.Key_Delete)
+def set_text_textbox(item, value="", enter=False):
+    item.clear()
     QTest.keyClicks(item, str(value))
+    if (enter):
+        QTest.keyPress(item, Qt.Key_Return)
 
 
 def set_text_spinbox(item, value=""):  # useful for qtests.

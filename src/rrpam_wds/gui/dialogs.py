@@ -39,6 +39,10 @@ from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QSlider
 from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtCore import pyqtSignal   
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal   
+
 
 import rrpam_wds.constants as c
 import rrpam_wds.gui.subdialogs
@@ -64,11 +68,14 @@ CONF.set("plot", "selection/distance", 10.0)
 STYLE = style_generator()
 
 
-class PropertyGroupGUI(object):
+class PropertyGroupGUI(QObject):
+    
+    logger=logging.getLogger()            
 
     def __init__(self, frame):
         self.active = False
         self.frame = frame
+        super(PropertyGroupGUI,self).__init__()
 
     def show(self):
         self.active = True
@@ -77,10 +84,26 @@ class PropertyGroupGUI(object):
     def hide(self):
         self.active = False
         self.frame.hide()
-
+        
+    def selected(self):
+        if(hasattr(self,"my_selected")):
+            self.logger.info("returning my (%s) checkbox state" % self)
+            return self.my_selected.isChecked()
+        self.logger.info("No checkbox in me (%s), so returning False for selected state." % self)
+        return False
+                   
+    def select(self, select=True):
+        if(hasattr(self,"my_selected")):
+            self.logger.info("making me (%s) selected=%s" % (self, select))
+            self.my_selected.setChecked(select)
+        else:
+            self.logger.info("No checkbox in me (%s). So ignoring select request." % self)
+        
+        
+            
 
 class LogDialog(QDialog):
-
+    
     def __init__(self, parent=None):
         super(LogDialog, self).__init__()
         self.parent = parent
@@ -110,17 +133,62 @@ class LogDialog(QDialog):
 
 
 class DataWindow(QDialog):
-
+    groups_changed=pyqtSignal(list)
+    myselectionchanged_signal=pyqtSignal(object)
+    
     def __init__(self, mainwindow, parent=None):
 
         super(DataWindow, self).__init__(parent=parent)
         self.setWindowTitle("Data Editor")
         self.setWindowIcon(get_icon("data.png"))
         self.initialize_assetgroups()
+        self.initalize_assign_asset_groups()
         self.selected_holder = mainwindow.selected_holder
         self.setup_ui()
         self.customize_ui()
         self.connect_signals()
+        self._update_all() # always call this at the end of _init_
+
+    def draw_network(self, links):
+        logger=logging.getLogger()        
+        if( not links):
+            logger.info("Links sent was None. Ignoring request to draw!")
+            return 
+        logger.info("Drawing links (%s)" % links)
+        
+        for link in links:
+            self.add_assign_asset_item(link.id)
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.ui.assign_asset_item_parent_layout.addItem(spacerItem)   
+        
+    def _update_all(self):
+        self._set_no_groups(1) # 
+        
+    def get_items(self):
+        return self.myplotitems.values()
+    
+    def select_some_items(self, list_):
+        logger=logging.getLogger()
+        try:
+            for target in self.myplotitems.values():
+                target.select(False)
+            for target in list_:
+                target.select()
+        except Exception as e:
+            logger.exception("Error at select_some_items (%s) " %e)
+        
+    def myselectionchanged(self,state):
+        logger=logging.getLogger()
+        logger.info("Passing on a signal with my reference...")
+        self.myselectionchanged_signal.emit(self)
+        
+
+    def initalize_assign_asset_groups(self):
+        self.myplotitems = {}
+        if(hasattr(self, 'ui')):
+            layout=self.ui.assign_asset_item_parent_layout
+            self._delete_all_children_in_layout(layout)
+
 
     def initialize_assetgroups(self):
         logger = logging.getLogger()
@@ -128,19 +196,17 @@ class DataWindow(QDialog):
         self.assetgrouplist = []
         self.activenumberofgroups = 0
         if(hasattr(self, 'ui')):
-            pass
-            # if there are any active ones fully remove them.
-            for i in reversed(range(self.ui.assetgroup_container_parent_layout.count())):
-                w = self.ui.assetgroup_container_parent_layout.itemAt(i).widget()
-                if(w):
-                    w.hide()
-                    w.setParent(None)
-                    w.deleteLater()
-            # for group in self.assetgrouplist:
-            #    group.hide()
-            #    self.ui.assetgroup_container_parent_layout.removeWidget(group.frame)
-            #    sip.delete(group.frame)
-            # now initialize
+            layout=self.ui.assetgroup_container_parent_layout        
+            self._delete_all_children_in_layout(layout)
+
+    def _delete_all_children_in_layout(self, layout):
+        for i in reversed(range(layout.count())):
+            w = layout.itemAt(i).widget()
+            if(w):
+                w.hide()
+                w.setParent(None)
+                w.deleteLater()
+
 
     def setup_ui(self):
         self.ui = _property_widget.Ui_projectDataWidget()
@@ -149,6 +215,16 @@ class DataWindow(QDialog):
 
     def connect_signals(self):
         self.ui.no_groups.valueChanged.connect(self._set_no_groups)
+        self.groups_changed.connect(self._update_grouptocopy)
+        self.myselectionchanged_signal.connect(self.selected_holder)
+        
+        
+    def _update_grouptocopy(self, listofgroups):
+        logger = logging.getLogger()
+        logger.info("Updating grouptocopy choices.")
+        self.ui.grouptocopy.clear()
+        self.ui.grouptocopy.addItems(listofgroups)
+    
 
     def customize_ui(self):
         self.spacerItem1 = QtWidgets.QSpacerItem(
@@ -156,7 +232,16 @@ class DataWindow(QDialog):
             20,
             QtWidgets.QSizePolicy.Minimum,
             QtWidgets.QSizePolicy.Expanding)
-        self._set_no_groups(1)
+
+    def get_plot(self):
+        """This weird method is here so that this object confirms to the pattern
+        of other sub-window types (which all have plots). In this case we just return a referene
+        to this object. """
+        return self    
+
+    def get_selected_items(self):
+        """we are mimicking get_selected_items method of guiqwt.BasePlot widget"""
+        return [x for x in self.myplotitems.values() if x.selected()]
 
     def get_information(self, all=False):
         """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations.
@@ -206,6 +291,70 @@ class DataWindow(QDialog):
         items = list(self.ui.assetgroup_container_parent_layout.itemAt(i)
                      for i in range(self.ui.assetgroup_container_parent_layout.count()))
         logger.info("List of widgets: %s " % items)
+        logger.info("Sending signal: group choices updated.")
+        self.groups_changed.emit([self._getgroupname(i) for i in range(self.activenumberofgroups)])
+       
+    def add_plot_item_to_record(self, id_, item):
+        """All the plot items register here by calling this method. See also: remove_plot_item_from_record"""
+        # TODO : CurveDialogWithClosable currently copies this function
+        # need to implement multiple inheritance and make DRY        
+        self.myplotitems[id_] = item
+
+    def remove_plot_item_from_record(self, id_):
+        """When removing a plot item it should be notified to this function. See also: add_plot_item_to_record """
+        # TODO : CurveDialogWithClosable currently copies this function
+        # need to implement multiple inheritance and make DRY         
+        del self.myplotitems[id_]    
+
+    def add_assign_asset_item(self, id_):
+        ag = PropertyGroupGUI(frame=QFrame())
+        ag.assign_asset_item = QtWidgets.QFrame(self.ui.scrollAreaWidgetContents)
+        ag.assign_asset_item.setObjectName("assign_asset_item")
+        ag.indiviual_asset_container_layout_4 = QtWidgets.QHBoxLayout(ag.assign_asset_item)
+        ag.indiviual_asset_container_layout_4.setObjectName("indiviual_asset_container_layout_4")
+        ag.label_8 = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.label_8.setMaximumSize(QtCore.QSize(50, 16777215))
+        ag.label_8.setObjectName("label_8")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.label_8)
+        ag.my_id = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.my_id.setMinimumSize(QtCore.QSize(100, 0))
+        ag.my_id.setMaximumSize(QtCore.QSize(200, 16777215))
+        ag.my_id.setObjectName("my_id")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_id)
+
+        ag.my_selected = QtWidgets.QCheckBox(ag.assign_asset_item)
+        ag.my_selected.setObjectName("my_selected")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_selected)        
+
+        ag.label_9 = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.label_9.setObjectName("label_9")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.label_9)
+        ag.my_group = QtWidgets.QComboBox(ag.assign_asset_item)
+        ag.my_group.setMaximumSize(QtCore.QSize(100, 16777215))
+        ag.my_group.setObjectName("my_group")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_group)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        ag.indiviual_asset_container_layout_4.addItem(spacerItem3)
+        self.ui.assign_asset_item_parent_layout.addWidget(ag.assign_asset_item)
+       
+        # set text
+        _translate = QtCore.QCoreApplication.translate
+        
+        ag.label_8.setText(_translate("projectDataWidget", "ID: "))
+        ag.my_id.setText(id_)
+        ag.label_9.setText(_translate("projectDataWidget", "Group"))    
+        
+        # connect signal
+        ag.my_selected.stateChanged.connect(self.myselectionchanged)
+        
+        # add this to the record. 
+        # 1. Add _id to aq
+        # 2. then add aq to the record
+        ag.id_=id_
+        self.add_plot_item_to_record(id_, ag)
+        
+    def _getgroupname(self, i):
+        return "G_%02d" % i
 
     def add_assetgroup(self, i, values=None):
         """values will be used as (A0, N0, age)"""
@@ -251,7 +400,7 @@ class DataWindow(QDialog):
 
         _translate = QtCore.QCoreApplication.translate
 
-        ag.no_label.setText(_translate("projectDataWidget", "G_%02d" % i))
+        ag.no_label.setText(_translate("projectDataWidget", self._getgroupname(i)))
         ag.A_label.setText(_translate("projectDataWidget", "A"))
         ag.N0_label.setText(_translate("projectDataWidget", "N0"))
         ag.age_label.setText(_translate("projectDataWidget", "Age"))
@@ -285,8 +434,9 @@ class DataWindow(QDialog):
         ag.N0.textChanged.connect(self._validate_property_groups)
         ag.age.valueChanged.connect(self._validate_property_groups)
 
-    def _validate_property_groups(self, item):
-
+    def _validate_property_groups(self, item=None):
+        logger=logging.getLogger()
+        logger.info("Validating property groups...")
         for group in self.assetgrouplist:
             try:
                 float(group.A.text())
@@ -296,11 +446,10 @@ class DataWindow(QDialog):
                 float(group.N0.text())
             except:
                 group.N0.setText(str(c.DEFAULT_N0))
-            return
             try:
                 int(group.age.text())
             except:
-                group.age.setValue(group.age.getValue())
+                group.age.setValue(group.age.value())
 
     def get_active_groups(self):
         return [x for x in self.assetgrouplist if x.active]
@@ -394,10 +543,14 @@ class CurveDialogWithClosable(CurveDialog):
 
     def add_plot_item_to_record(self, id_, item):
         """All the plot items register here by calling this method. See also: remove_plot_item_from_record"""
+        # TODO : DataWindow currently copies this function
+        # need to implement multiple inheritance and make DRY
         self.myplotitems[id_] = item
 
     def remove_plot_item_from_record(self, id_):
         """When removing a plot item it should be notified to this function. See also: add_plot_item_to_record """
+        # TODO : DataWindow currently copies this function
+        # need to implement multiple inheritance and make DRY        
         del self.myplotitems[id_]
 
     def __item_removed(self, goner):
@@ -452,7 +605,7 @@ class RiskMatrix(CurveDialogWithClosable):
         l = self.get_plot().PREFERRED_AXES_LIMITS
         SCALE = self.get_scale(consequence, probability, l)
         return consequence - SCALE, probability + SCALE,\
-            consequence + SCALE, probability - SCALE
+               consequence + SCALE, probability - SCALE
 
     def get_scale(self, consequence, probability, l):
         SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
@@ -808,8 +961,12 @@ class MainWindow(QMainWindow):
 
     def selected_holder(self, widget):
         """ When mocking remember do not patch slots. This is a slot. So, instead patch the function this calls below. """
+        logger = logging.getLogger()
+        logger.info("Got message of change from: %s" % widget)
         if(self.update_selected_items):
             self.update_all_plots_with_selection(widget)
+            
+
 
     def update_all_plots_with_selection(self, widget):
         logger = logging.getLogger()
@@ -819,6 +976,7 @@ class MainWindow(QMainWindow):
             subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
             subplots.append(self.riskmatrix.get_plot())
             subplots.append(self.networkmap.get_plot())
+            subplots.append(self.datawindow.get_plot())
             # OK, now remove the plot represented by the argument 'widget'
             subplots = filter(lambda a: a != widget, subplots)
             # now select the selections of 'widget' in them.
@@ -831,10 +989,11 @@ class MainWindow(QMainWindow):
                 # now update
                 p.select_some_items(targets)
                 # don't forget to reset
-                self.update_selected_items = True
-        except:
+                
+        except Exception as e:
             logger = logging.getLogger()
-            logger.info("non selectable item!")
+            logger.exception("non selectable item! (%s)" % e)
+        self.update_selected_items = True
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)
@@ -932,6 +1091,7 @@ class MainWindow(QMainWindow):
 
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
+        self.datawindow.draw_network(links)
         self.riskmatrix.plot_links(links)
 
     def addSubWindow(self, *args, **kwargs):
