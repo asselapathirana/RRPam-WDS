@@ -41,18 +41,18 @@ class TC(Test_Parent):
         A2 = 1.2e-4
         age2 = 28
         N01 = 2.2e-1
-        one=self.aw.datawindow.assetgrouplist[11]
+        one = self.aw.datawindow.assetgrouplist[11]
         set_text_textbox(one.A, A1)
-        A1=float(one.A.text())
+        A1 = float(one.A.text())
         set_text_spinbox(one.age, age1)
-        age1=float(one.age.text())
+        age1 = float(one.age.text())
         box = self.aw.datawindow.assetgrouplist[2]
         set_text_textbox(box.A, A2)
-        A2=float(box.A.text())
+        A2 = float(box.A.text())
         set_text_textbox(box.N0, N01)
-        N01=float(box.N0.text())
+        N01 = float(box.N0.text())
         set_text_spinbox(box.age, age2)
-        age2=float(box.age.text())
+        age2 = float(box.age.text())
         set_text_spinbox(item, 4)
         QTest.keyPress(item, Qt.Key_Return)  # now we have only 4 active items
         active, values = self.aw.datawindow.get_information(all=True)

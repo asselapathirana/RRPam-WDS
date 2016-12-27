@@ -6,13 +6,19 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+
 
 class Ui_projectDataWidget(object):
+
     def setupUi(self, projectDataWidget):
         projectDataWidget.setObjectName("projectDataWidget")
         projectDataWidget.resize(424, 416)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(projectDataWidget.sizePolicy().hasHeightForWidth())
@@ -47,7 +53,11 @@ class Ui_projectDataWidget(object):
         self.no_groups.setMinimum(1)
         self.no_groups.setObjectName("no_groups")
         self.horizontalLayout_2.addWidget(self.no_groups)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40,
+            20,
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
         self.pg_verticalLayout.addLayout(self.horizontalLayout_2)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -97,7 +107,11 @@ class Ui_projectDataWidget(object):
         self.grouptocopy.setMaximumSize(QtCore.QSize(100, 16777215))
         self.grouptocopy.setObjectName("grouptocopy")
         self.horizontalLayout_4.addWidget(self.grouptocopy)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            40,
+            20,
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem1)
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
         self.gridLayout_6.addLayout(self.verticalLayout_2, 0, 0, 1, 1)
@@ -116,7 +130,11 @@ class Ui_projectDataWidget(object):
         self.verticalLayout_6.setObjectName("verticalLayout_6")
         self.assign_asset_item_parent_layout = QtWidgets.QVBoxLayout()
         self.assign_asset_item_parent_layout.setObjectName("assign_asset_item_parent_layout")
-        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            20,
+            40,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding)
         self.assign_asset_item_parent_layout.addItem(spacerItem2)
         self.verticalLayout_6.addLayout(self.assign_asset_item_parent_layout)
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents)
@@ -130,17 +148,27 @@ class Ui_projectDataWidget(object):
 
         self.retranslateUi(projectDataWidget)
         self.asset_groups_and_assignments.setCurrentIndex(1)
-        self.asset_groups_and_assignments.currentChanged['int'].connect(self.grouptocopy.setCurrentIndex)
+        self.asset_groups_and_assignments.currentChanged[
+            'int'].connect(self.grouptocopy.setCurrentIndex)
         QtCore.QMetaObject.connectSlotsByName(projectDataWidget)
 
     def retranslateUi(self, projectDataWidget):
         _translate = QtCore.QCoreApplication.translate
         projectDataWidget.setWindowTitle(_translate("projectDataWidget", "Asset Data"))
-        self.asset_groups.setToolTip(_translate("projectDataWidget", "<html><head/><body><p>Provide parameters for asset groups here. </p></body></html>"))
+        self.asset_groups.setToolTip(
+            _translate("projectDataWidget",
+                       "<html><head/><body><p>Provide parameters for asset groups here. </p></body></html>"))
         self.label.setText(_translate("projectDataWidget", "No. Groups"))
-        self.asset_groups_and_assignments.setTabText(self.asset_groups_and_assignments.indexOf(self.asset_groups), _translate("projectDataWidget", "Property Groups"))
-        self.assign_assets.setToolTip(_translate("projectDataWidget", "<html><head/><body><p>Assign each asset to an asset group here. </p></body></html>"))
+        self.asset_groups_and_assignments.setTabText(
+            self.asset_groups_and_assignments.indexOf(self.asset_groups),
+            _translate("projectDataWidget",
+                       "Property Groups"))
+        self.assign_assets.setToolTip(
+            _translate("projectDataWidget",
+                       "<html><head/><body><p>Assign each asset to an asset group here. </p></body></html>"))
         self.copytoselection.setText(_translate("projectDataWidget", "Assign to selection :"))
         self.layoutx.setTitle(_translate("projectDataWidget", "Assigned Groups"))
-        self.asset_groups_and_assignments.setTabText(self.asset_groups_and_assignments.indexOf(self.assign_assets), _translate("projectDataWidget", "Assign Assets"))
-
+        self.asset_groups_and_assignments.setTabText(
+            self.asset_groups_and_assignments.indexOf(self.assign_assets),
+            _translate("projectDataWidget",
+                       "Assign Assets"))

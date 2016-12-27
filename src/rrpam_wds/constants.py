@@ -6,6 +6,8 @@ import appdirs
 
 units = {"EURO": u"{}".format(unicodedata.lookup("EURO SIGN")), "DOLLARS": "$"}
 curve_colors = ["b", "r", "p", "g"]
+widget_select_background = 19
+widget_default_background = 10  # see http://doc.qt.io/qt-4.8/qpalette.html#ColorRole-enum
 _appdir = appdirs.user_data_dir("RRPAMWDS", "ASSELAPAT")
 # PROJECTDATA = os.path.join(_appdir, "rrpamwds.dat")
 # USERDATA = appdirs.user_data_dir(None, None)
