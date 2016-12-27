@@ -3,11 +3,13 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 import logging
 import math
 import sys
+import os
 
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
 from guiqwt.config import CONF
+from guidata import userconfig
 from guiqwt.plot import CurveDialog
 from guiqwt.styles import style_generator
 from guiqwt.styles import update_style_attr
@@ -47,11 +49,20 @@ from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
 
 # there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as
-# we need to user make.* facotry
+# we need to use make.* facotry.
 monkey_patch_guiqwt_guidata._patch_all()
 # show guiqwt where the images are.
 add_image_module_path("rrpam_wds.gui", "images")
 # this how we change an option
+
+# if there is not .config directory in the home directory, create it. 
+configfile=os.path.join(c.HOMEDIR,'.config')
+if (os.path.isfile(configfile) and (not os.path.isdir(configfile))):
+    os.unlink(configfile)
+if (not os.path.isdir(configfile)):
+    os.mkdir(configfile)
+
+CONF.set_application("rrpamwds", version=rrpam_wds.__version__)
 CONF.set("plot", "selection/distance", 10.0)
 # todo: This has to be saved as project's setting file (CONF.save provides that facility)
 
