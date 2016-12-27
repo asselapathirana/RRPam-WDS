@@ -2,14 +2,13 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
 import logging
 import math
-import sys
 import os
+import sys
 
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
 from guiqwt.config import CONF
-from guidata import userconfig
 from guiqwt.plot import CurveDialog
 from guiqwt.styles import style_generator
 from guiqwt.styles import update_style_attr
@@ -55,8 +54,8 @@ monkey_patch_guiqwt_guidata._patch_all()
 add_image_module_path("rrpam_wds.gui", "images")
 # this how we change an option
 
-# if there is not .config directory in the home directory, create it. 
-configfile=os.path.join(c.HOMEDIR,'.config')
+# if there is not .config directory in the home directory, create it.
+configfile = os.path.join(c.HOMEDIR, '.config')
 if (os.path.isfile(configfile) and (not os.path.isdir(configfile))):
     os.unlink(configfile)
 if (not os.path.isdir(configfile)):
@@ -89,11 +88,7 @@ class PropertyGroupGUI(QObject):
 
     def _selected_change_color(self, select):
         self.my_selected.setProperty("selected", False)
-        self.my_selected.setStyleSheet("""
-                       /* other rules go here */
-                       QCheckBox[selected="true"] {background-color: yellow};
-                       QCheckBox[selected="false"] {background-color: palette(base)};
-                        """)
+
         if(select):
             self.my_selected.setProperty('selected', "true")
         else:
@@ -104,14 +99,14 @@ class PropertyGroupGUI(QObject):
 
     def selected(self):
         if(hasattr(self, "my_selected")):
-            self.logger.info("returning my (%s) checkbox state" % self)
+            # self.logger.info("returning my (%s) checkbox state" % self)
             return self.my_selected.isChecked()
         self.logger.info("No checkbox in me (%s), so returning False for selected state." % self)
         return False
 
     def select(self, select=True):
         if(hasattr(self, "my_selected")):
-            self.logger.info("making me (%s) selected=%s" % (self, select))
+            # self.logger.info("making me (%s) selected=%s" % (self, select))
             self.my_selected.setChecked(select)
         else:
             self.logger.info("No checkbox in me (%s). So ignoring select request." % self)
@@ -154,6 +149,7 @@ class DataWindow(QDialog):
     def __init__(self, mainwindow, parent=None):
 
         super(DataWindow, self).__init__(parent=parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle("Data Editor")
         self.setWindowIcon(get_icon("data.png"))
         self.initialize_assetgroups()
@@ -169,7 +165,7 @@ class DataWindow(QDialog):
         if(not links):
             logger.info("Links sent was None. Ignoring request to draw!")
             return
-        logger.info("Drawing links (%s)" % links)
+        logger.info("Creating assignment items for %d links " % len(links))
 
         for link in links:
             self.add_assign_asset_item(link.id)
@@ -231,14 +227,21 @@ class DataWindow(QDialog):
 
     def connect_signals(self):
         self.ui.no_groups.valueChanged.connect(self._set_no_groups)
-        self.groups_changed.connect(self._update_grouptocopy)
+        self.groups_changed.connect(self._update_groupchoices)
         self.myselectionchanged_signal.connect(self.selected_holder)
 
-    def _update_grouptocopy(self, listofgroups):
+    def _update_groupchoices(self, listofgroups):
         logger = logging.getLogger()
-        logger.info("Updating grouptocopy choices.")
+        logger.info("Updating grouptocopy choices and my_group choices.")
         self.ui.grouptocopy.clear()
         self.ui.grouptocopy.addItems(listofgroups)
+        for myc in self.myplotitems.values():
+            t = myc.my_group.currentIndex()
+            myc.my_group.clear()
+            myc.my_group.addItems(listofgroups)
+            if(myc.my_group.count() - 1 < t):
+                t = myc.my_group.count() - 1
+            myc.my_group.setCurrentIndex(t)
 
     def customize_ui(self):
         self.spacerItem1 = QtWidgets.QSpacerItem(
@@ -362,9 +365,20 @@ class DataWindow(QDialog):
         ag.my_id.setText(id_)
         ag.label_9.setText(_translate("projectDataWidget", "Group"))
 
+        # customize style
+        ag.my_selected.setStyleSheet("""
+                           /* other rules go here */
+                           QCheckBox[selected="true"] {background-color: yellow};
+                           QCheckBox[selected="false"] {background-color: palette(base)};
+                            """)
+
         # connect signal
         ag.my_selected.stateChanged.connect(self.myselectionchanged)
         ag.my_selected.stateChanged.connect(ag._selected_change_color)
+
+        # add existing values of grouptocopy to my_group
+        [ag.my_group.addItem(self.ui.grouptocopy.itemText(i))
+         for i in range(self.ui.grouptocopy.count())]
 
         # add this to the record.
         # 1. Add _id to aq
@@ -895,9 +909,21 @@ class MainWindow(QMainWindow):
         self.mdi = QMdiArea()
         self.arrange_properties_panel()
         self.setMenu()
-        self._standard_windows()
         self.connect_project_manager()
+        self._initialize_all_components()
+
         self._manage_window_settings()
+
+    def _initialize_all_components(self):
+        self._delete_all_subwindows()
+        self._standard_windows()
+
+    def _delete_all_subwindows(self):
+        # let's close all existing subwindows.
+        self._remove_all_subwindows()
+        self.datawindow = None
+        self.networkmap = None
+        self.riskmatrix = None
 
     def arrange_properties_panel(self):
         self.qs = QSplitter(self)
@@ -962,6 +988,7 @@ class MainWindow(QMainWindow):
         logmdi.setVisible(False)
 
     def show_logwindow(self):
+        self._setup_logging()
         if(not any([x for x in self.mdi.subWindowList() if isinstance(x.widget(), LogDialog)])):
             self.addSubWindow(self.logdialog)
         self.logdialog.setVisible(True)
@@ -970,6 +997,17 @@ class MainWindow(QMainWindow):
         self.pm = PM(self.projectgui.projectproperties.dataset)
         self.projectgui._new_project_signal.connect(self.pm.new_project)
         self.pm.heres_a_project_signal.connect(self.take_up_results)
+
+    def _remove_all_subwindows(self):
+        for subw in self.mdi.subWindowList():
+            widget = subw.widget()
+            subw.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            subw.close()
+            widget.close()
+            widget.setParent(None)
+            subw.setParent(None)
+            widget.deleteLater()
+            subw.deleteLater()
 
     def _standard_windows(self):
         self.add_datawindow()
@@ -983,11 +1021,16 @@ class MainWindow(QMainWindow):
         logger = logging.getLogger()
         logger.info("Got message of change from: %s" % widget)
         if(self.update_selected_items):
+            logger.info("Responding...")
             self.update_all_plots_with_selection(widget)
+        else:
+            logger.info("Ignoring...")
 
     def update_all_plots_with_selection(self, widget):
         logger = logging.getLogger()
         logger.info("selection changed!")
+        # first switch off responding to selections
+        self.update_selected_items = False
         try:
             # firt get all subplots
             subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
@@ -999,17 +1042,15 @@ class MainWindow(QMainWindow):
             # now select the selections of 'widget' in them.
             selected_ids = [x.id_ for x in widget.get_selected_items()]
             for p in subplots:
-                # first switch off responding to selections
-                self.update_selected_items = False
                 # find corressponding items
                 targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
                 # now update
                 p.select_some_items(targets)
-                # don't forget to reset
 
         except Exception as e:
             logger = logging.getLogger()
             logger.exception("non selectable item! (%s)" % e)
+        # don't forget to reset
         self.update_selected_items = True
 
     def add_optimaltimegraph(self):
@@ -1101,6 +1142,7 @@ class MainWindow(QMainWindow):
         self._display_project(results)
 
     def _display_project(self, results=None):
+        self._initialize_all_components()
         if (not results):
             results = self.projectgui.projectproperties.dataset.get_network()
         nodes = getattr(results, "nodes", None)

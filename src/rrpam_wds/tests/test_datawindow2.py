@@ -81,6 +81,45 @@ class TC(Test_Parent):
         cnew = p.my_selected.property("selected")
         self.assertNotEqual(cdefault, cnew)
 
+    def test_my_group_initially_has_first_choice_value_selected(self):
+        self.create_a_new_project()
+        for item in self.aw.datawindow.myplotitems.values():
+            self.assertGreater(item.my_group.count(), 0)
+            self.assertEqual(item.my_group.currentIndex(), 0)
+            self.assertEqual(item.my_group.currentText(), self.aw.datawindow._getgroupname(0))
+
+    def test_if_my_groups_choice_lost_it_will_select_last_available_value(self):
+        self.create_a_new_project()
+        l=list(self.aw.datawindow.myplotitems.values())
+        it0 = l[0].my_group
+        it1 = l[1].my_group
+        it2 = l[2].my_group
+        it3 = l[5].my_group
+        self.aw.datawindow.ui.no_groups.setValue(8)  # now we have 8 groups 0 to 7
+        it0.setCurrentIndex(7)
+        it1.setCurrentIndex(6)
+        it2.setCurrentIndex(5)
+        it3.setCurrentIndex(4)
+        # now reduce choice
+        self.aw.datawindow.ui.no_groups.setValue(7)
+        self.assertTrue(
+            it0.currentIndex() ==
+            it1.currentIndex() ==
+            it2.currentIndex() + 1 ==
+            it3.currentIndex() + 2)
+        self.aw.datawindow.ui.no_groups.setValue(6)
+        self.assertTrue(
+            it0.currentIndex() ==
+            it1.currentIndex() ==
+            it2.currentIndex() ==
+            it3.currentIndex() + 1)
+        self.aw.datawindow.ui.no_groups.setValue(5)
+        self.assertTrue(
+            it0.currentIndex() ==
+            it1.currentIndex() ==
+            it2.currentIndex() ==
+            it3.currentIndex())
+
     def create_a_new_project(self):
         import tempfile
         with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:
