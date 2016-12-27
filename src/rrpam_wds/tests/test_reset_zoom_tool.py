@@ -9,7 +9,7 @@ from rrpam_wds.tests.test_utils import main
 class TC(Test_Parent):
 
     def test_toolbar_has_reset_zoom_tool(self):
-        self.win = self.aw.new_window(mainwindow=self.aw)
+        self.win = self.aw.networkmap
         tb = self.win.get_default_toolbar()
         self.assertTrue([x for x in tb.actions() if x.text() == ResetZoomTool.TITLE])
 
