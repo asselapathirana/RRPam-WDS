@@ -19,6 +19,8 @@ DEFAULT_A = 1.0e-4
 DEFAULT_N0 = 4.0e-1
 DEFAULT_age = 0
 
+DIRECTCOSTMULTIPLIER = 1000
+
 
 class ResultSet:
     pass

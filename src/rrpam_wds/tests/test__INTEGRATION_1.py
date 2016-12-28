@@ -19,6 +19,18 @@ def trigger_sub_menu_item(mainwindow, menutext, submenutext):
 
 class TC(Test_Parent):
 
+    def test_clicking_file_new_and_wait_for_datawindow_to_be_displayed(self):
+        self.test_clicking_file_new_and_wait_for_network_to_be_displayed()
+        idthings = [x for x in self.aw.datawindow.get_plot().get_items()
+                    if hasattr(x, "id_")]
+        self.assertGreater(len(idthings), 5)
+
+    def test_clicking_file_new_and_wait_for_risk_matrix_to_be_displayed(self):
+        self.test_clicking_file_new_and_wait_for_network_to_be_displayed()
+        idthings = [x for x in self.aw.riskmatrix.get_plot().get_items()
+                    if hasattr(x, "id_")]
+        self.assertGreater(len(idthings), 5)
+
     def test_clicking_file_new_and_wait_for_network_to_be_displayed(self):
         """This is the test for opening and existing project. For the moment, the project details are hard-coded.
         As we implement real project opening, this test will have to change. """
@@ -48,6 +60,7 @@ class TC(Test_Parent):
                 idthings = [x for x in self.aw.networkmap.get_plot().get_items()
                             if hasattr(x, "id_")]
                 self.assertGreater(len(idthings), 5)
+
 
 if __name__ == "__main__":
     main(TC, test=False)

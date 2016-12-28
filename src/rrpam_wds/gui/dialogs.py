@@ -160,6 +160,13 @@ class DataWindow(QDialog):
         self.connect_signals()
         self._update_all()  # always call this at the end of _init_
 
+    def getProb(self, id_, time_):
+        grname = self.myplotitems[id_].my_group.currentIndex()
+        d, grs = self.get_information()
+        gr = grs[grname]
+        A, N, age = gr
+        return N * math.exp(A * (age + time_))
+
     def draw_network(self, links):
         logger = logging.getLogger()
         if(not links):
@@ -271,13 +278,17 @@ class DataWindow(QDialog):
             return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text()), x.age.value()) for x in self.assetgrouplist]
 
     def set_information(self, results_):
+        logger = logging.getLogger()
         active = int(results_[0])  # just in case it is a string!
         results = results_[1]
         self.initialize_assetgroups()
+        logger.info("Now adding asset groups ...")
         for ct, value in enumerate(results):
+            logger.info("Now adding asset group: %d, %s" % (ct, value))
             self.add_assetgroup(ct, value)
+        self.ui.activenumbrerofgroups = active
         self.ui.no_groups.setValue(active)
-        self._set_no_groups(active)
+        # self._set_no_groups(active)
         # this is needed, as ^^ we change the value manually, signal does not
         # fire.
 
@@ -604,7 +615,7 @@ class CurveDialogWithClosable(CurveDialog):
 
 
 class RiskMatrix(CurveDialogWithClosable):
-    SCALE = 10.
+    SCALE = .01
 
     def __init__(self, name="Risk Matrix", mainwindow=None, parent=None,
                  units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
@@ -652,10 +663,10 @@ class RiskMatrix(CurveDialogWithClosable):
         self.set_axes_limits(_axes_limits)
 
     def plot_links(self, links):
+        logger = logging.getLogger()
         if (not links):
             return
         if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
-            logger = logging.getLogger()
             logger.info("The link does not have cons, prob attributes. Can not plot risk.")
             return
         adfs = [x.cons for x in links]
@@ -1116,13 +1127,19 @@ class MainWindow(QMainWindow):
             self._open_project()
 
         if q.text() == self.menuitems.save_project:
-            self.projectgui.save_project()
+            self._save_project()
 
         if q.text() == self.menuitems.save_project_as:
-            self.projectgui.save_project_as()
+            self._save_project_as()
 
         if q.text() == self.menuitems.close_project:
             self.projectgui.close_project()
+
+    def _save_project(self):
+        self.projectgui.save_project()
+
+    def _save_project_as(self):
+        self.projectgui.save_project_as()
 
     def _new_project(self):
         self.projectgui.new_project()
@@ -1151,7 +1168,22 @@ class MainWindow(QMainWindow):
         # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.datawindow.draw_network(links)
+        links = self._calculate_risk(links)
         self.riskmatrix.plot_links(links)
+
+    def _calculate_risk(self, links):
+        logger = logging.getLogger()
+        if (not links):
+            return
+        for link in links:
+            if (not hasattr(link, 'ADF')):
+                logger.info("No ADF value. I can not calcualte risk components")
+                continue
+            link.prob = self.datawindow.getProb(link.id, 0)  # 0 means now.
+            link.cons = (1. - link.ADF) * \
+                self.projectgui.projectproperties.dataset.totalcost * \
+                c.DIRECTCOSTMULTIPLIER
+        return links
 
     def addSubWindow(self, *args, **kwargs):
         self.mdi.addSubWindow(*args, **kwargs)

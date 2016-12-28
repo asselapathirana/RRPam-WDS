@@ -143,10 +143,6 @@ class ProjectGUI(QObject):
             self.logger.info("Trying to read properties from %s " % prj)
             if(self.projectproperties.dataset.read_data(prj)):
                 self.logger.info(" %s project read successfully." % prj)
-                # now update the dataWindow
-                self.parent.datawindow.set_information(
-                    self.projectproperties.dataset.projectgroup_to_save_or_load)
-                self.logger.info("Updated dataWindow")
                 return True
         except Exception as e:
             self.logger.exception("Could not load the project properties: %s" % e)
@@ -157,7 +153,10 @@ class ProjectGUI(QObject):
         # Implement the actions needed to save the project here.
         # first update any user changes in parameters
         self.rewrite_values_in_variables_with_gui()
-        self._save_project_to_dest(self.projectproperties.dataset.projectname)
+        try:
+            self._save_project_to_dest(self.projectproperties.dataset.projectname)
+        except Exception as e:
+            self.logger.exception("Exception %s " % e)
 
     def save_project_as(self):
         msg = "Save project as"
@@ -179,6 +178,10 @@ class ProjectGUI(QObject):
                 self.projectproperties.dataset.projectname = projectfile
                 self.parent.LASTPROJECT = self.projectproperties.dataset.projectname
                 self.parent._display_project()
+                # now update the dataWindow with project groups in opened project
+                self.parent.datawindow.set_information(
+                    self.projectproperties.dataset.projectgroup_to_save_or_load)
+                self.logger.info("Updated dataWindow with project groups")
                 break
             else:
                 self.logger.info("Project loading failed: Not a valid project")
@@ -215,6 +218,15 @@ class ProjectPropertiesDataset(dt.DataSet):
     _bg2 = dt.BeginGroup("Discount rate (%)")
     discountrate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)
     _eg2 = dt.EndGroup("Discount rate (%)")
+    _bx1 = dt.BeginGroup("Direct cost total system down")
+    totalcost = di.FloatItem(
+        "(x%d %s)" % (c.DIRECTCOSTMULTIPLIER,
+                      c.units['EURO']),
+        default=10,
+        min=0,
+        step=1,
+        slider=False)
+    _ex1 = dt.EndGroup("Direct cost total system down")
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
