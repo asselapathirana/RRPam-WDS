@@ -115,13 +115,25 @@ class ProjectGUI(QObject):
                                                     filter='*' + c.PROJECTEXTENSION)
         self.logger.info("Selected file for save/new project : %s " % projectfile)
         return projectfile
+    
+    def _update_results_with_groups(self):
+        """Update the self.projectproperties.dataset.results object with 
+        group information. Call this before pickling data"""
+        r=self.projectproperties.dataset.results
+        if(not r ):
+            self.logger.info("No results available yet with projectproperties. So, not updating")
+        else:
+            self.logger.info("Updating projectproperties.dataset.results with my_group")
+            for item in r.links:
+                item.asset_group=self.parent.datawindow.get_asset_group(item.id)
 
     def _save_project_to_dest(self, projectfile, epanetfile=None):
 
         self.logger.info("Getting values from datawindow..")
         # First get latest values from dataWindow
         inf = self.parent.datawindow.get_information(all=True)
-        self.projectproperties.dataset.projectgroup_to_save_or_load = inf
+        self.projectproperties.dataset.group_list_to_save_or_load = inf
+        self._update_results_with_groups()
         self.logger.info("Now writing data")
         prjname, subdir, ext = c._get_dir_and_extention(projectfile)
         self.projectproperties.dataset.write_data(prjname)
@@ -180,8 +192,14 @@ class ProjectGUI(QObject):
                 self.parent._display_project()
                 # now update the dataWindow with project groups in opened project
                 self.parent.datawindow.set_information(
-                    self.projectproperties.dataset.projectgroup_to_save_or_load)
+                    self.projectproperties.dataset.group_list_to_save_or_load)
                 self.logger.info("Updated dataWindow with project groups")
+                # since we have done both (a) displaying network and 
+                # (b) updating the asset groups, now we can assign correct asset group
+                # to each asset item
+                if(self.projectproperties.dataset.results):
+                    r=self.projectproperties.dataset.results.links
+                    self.parent.datawindow.assign_groups_to_asset_items(r)
                 break
             else:
                 self.logger.info("Project loading failed: Not a valid project")
@@ -271,8 +289,8 @@ class ProjectPropertiesDataset(dt.DataSet):
         try:
             with open(f, 'rb') as stream:
                 self.logger.info("Reading results  from %s" % f)
-                self.projectgroup_to_save_or_load = pickle.load(stream)
-                l = self.projectgroup_to_save_or_load
+                self.group_list_to_save_or_load = pickle.load(stream)
+                l = self.group_list_to_save_or_load
                 self.logger.info("read %d items, list: %s" % (len(l), l))
         except Exception as e:
                 self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
@@ -316,7 +334,7 @@ class ProjectPropertiesDataset(dt.DataSet):
         try:
             with open(f, 'wb+') as stream:
                 self.logger.info("Writing results to %s" % f)
-                pickle.dump(self.projectgroup_to_save_or_load, stream)
+                pickle.dump(self.group_list_to_save_or_load, stream)
                 return True
         except Exception as e:
                 self.logger.info("Exception writing: %s,  %s" % (f, e))

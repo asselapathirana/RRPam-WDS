@@ -159,50 +159,52 @@ class TC(Test_Parent):
             self.assertFalse(mock_get.called)
         self.run_in_total_mock_context(fn)
 
-    def run_in_total_mock_context(self, f):
-        with mock.patch.object(self.aw.projectgui,
-                               '_getSaveFileName',
-                               autospec=True) as mock__getSaveFileName:
+    def run_in_total_mock_context(self, f):       
             with mock.patch.object(self.aw.projectgui,
-                                   '_getSaveFileName2',
-                                   autospec=True) as mock__getSaveFileName2:
+                                   '_getSaveFileName',
+                                   autospec=True) as mock__getSaveFileName:
                 with mock.patch.object(self.aw.projectgui,
-                                       '_getOpenFileName',
-                                       autospec=True) as mock__getOpenFileName:
+                                       '_getSaveFileName2',
+                                       autospec=True) as mock__getSaveFileName2:
                     with mock.patch.object(self.aw.projectgui,
-                                           'check_epanetfile',
-                                           autospec=True) as mock_check_epanetfile:
+                                           '_getOpenFileName',
+                                           autospec=True) as mock__getOpenFileName:
                         with mock.patch.object(self.aw.projectgui,
-                                               '_create_empty_project',
-                                               autospec=True) as mock__create_empty_project:
-
-                            with mock.patch.object(self.aw.projectgui.projectproperties,
-                                                   'set',
-                                                   autospec=True) as mock_set:
+                                               'check_epanetfile',
+                                               autospec=True) as mock_check_epanetfile:
+                            with mock.patch.object(self.aw.projectgui,
+                                                   '_create_empty_project',
+                                                   autospec=True) as mock__create_empty_project:
+    
                                 with mock.patch.object(self.aw.projectgui.projectproperties,
-                                                       'get',
-                                                       autospec=True) as mock_get:
-                                    with mock.patch.object(self.aw.projectgui,
-                                                           '_valid_project',
-                                                           autospec=True) as mock__valid_project:
+                                                       'set',
+                                                       autospec=True) as mock_set:
+                                    with mock.patch.object(self.aw.projectgui.projectproperties,
+                                                           'get',
+                                                           autospec=True) as mock_get:
                                         with mock.patch.object(self.aw.projectgui,
-                                                               '_save_project_to_dest',
-                                                               autospec=True) as mock__save_project_to_dest:
-                                            with mock.patch.object(self.aw.pm,
-                                                                   '_new_project',
-                                                                   autospec=True):
-
-                                                mock__getSaveFileName.return_value = (
-                                                    "xxes", '*.rrp')
-                                                mock__getSaveFileName2.return_value = (
-                                                    "tmp.inp", '*.inp')
-                                                mock__create_empty_project.return_value = 'bo'
-                                                mock__getOpenFileName.return_value = (
-                                                    "gox", "*.rrp")
-                                                mock_check_epanetfile.return_value = "tmp.inp"
-                                                mock__valid_project.return_value = True
-                                                mock__save_project_to_dest.return_value = "some project"
-                                                f(mock_set, mock_get)
+                                                               '_valid_project',
+                                                               autospec=True) as mock__valid_project:
+                                            with mock.patch.object(self.aw.projectgui,
+                                                                   '_save_project_to_dest',
+                                                                   autospec=True) as mock__save_project_to_dest:
+                                                with mock.patch.object(self.aw.pm,
+                                                                       '_new_project',
+                                                                       autospec=True):
+                                               
+                                    
+                                                    self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load=None
+                                                    mock__getSaveFileName.return_value = (
+                                                        "xxes", '*.rrp')
+                                                    mock__getSaveFileName2.return_value = (
+                                                        "tmp.inp", '*.inp')
+                                                    mock__create_empty_project.return_value = 'bo'
+                                                    mock__getOpenFileName.return_value = (
+                                                        "gox", "*.rrp")
+                                                    mock_check_epanetfile.return_value = "tmp.inp"
+                                                    mock__valid_project.return_value = True
+                                                    mock__save_project_to_dest.return_value = "some project"
+                                                    f(mock_set, mock_get)
 
 
 if __name__ == "__main__":

@@ -76,12 +76,12 @@ class TC(Test_Parent):
                 os.mkdir(c._get_dir_and_extention(prjfile)[1])
                 self.assertFalse(os.path.isfile(pp.get_assetgroups_file(prjfile)))
                 self.aw.datawindow.ui.no_groups.setValue(10)
-                pp.projectgroup_to_save_or_load = self.aw.datawindow.get_information(all=True)
+                pp.group_list_to_save_or_load = self.aw.datawindow.get_information(all=True)
                 pp._write_assetgroup_data(prjfile)
                 self.assertTrue(os.path.isfile(pp.get_assetgroups_file(prjfile)))
                 self.aw.datawindow._set_no_groups(1)
                 pp._read_asset_group_data(prjfile)
-                self.aw.datawindow.set_information(pp.projectgroup_to_save_or_load)
+                self.aw.datawindow.set_information(pp.group_list_to_save_or_load)
                 self.assertEqual(self.aw.datawindow.activenumberofgroups, 10)
 
     def test_datawindow_is_derived_from_QDialog(self):

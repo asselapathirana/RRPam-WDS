@@ -85,6 +85,19 @@ class PropertyGroupGUI(QObject):
     def hide(self):
         self.active = False
         self.frame.hide()
+        
+        
+class AssetGUI(QObject):
+    
+    def __init__(self, frame, datawindow):
+        self.active = False
+        self.frame = frame
+        self.datawindow=datawindow
+        super(AssetGUI, self).__init__()   
+        
+    def my_group_changed(self, val):
+        self.datawindow.assets_group_changed_reciever(self.id_, val)
+    
 
     def _selected_change_color(self, select):
         self.my_selected.setProperty("selected", False)
@@ -109,7 +122,7 @@ class PropertyGroupGUI(QObject):
             # self.logger.info("making me (%s) selected=%s" % (self, select))
             self.my_selected.setChecked(select)
         else:
-            self.logger.info("No checkbox in me (%s). So ignoring select request." % self)
+            self.logger.info("No checkbox in me (%s). So ignoring select request." % self)    
 
 
 class LogDialog(QDialog):
@@ -155,6 +168,7 @@ class DataWindow(QDialog):
         self.initialize_assetgroups()
         self.initalize_assign_asset_groups()
         self.selected_holder = mainwindow.selected_holder
+        self.mainwindow=mainwindow
         self.setup_ui()
         self.customize_ui()
         self.connect_signals()
@@ -266,6 +280,12 @@ class DataWindow(QDialog):
     def get_selected_items(self):
         """we are mimicking get_selected_items method of guiqwt.BasePlot widget"""
         return [x for x in self.myplotitems.values() if x.selected()]
+    def get_asset_group(self, id):
+        logger=logging.getLogger()
+        try:
+            return self.myplotitems[id].my_group.currentIndex()
+        except Exception as e:
+            logger.exception("Error retrieving my_group for id %s" % id)
 
     def get_information(self, all=False):
         """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations.
@@ -276,21 +296,35 @@ class DataWindow(QDialog):
             return self.activenumberofgroups, gr
         else:
             return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text()), x.age.value()) for x in self.assetgrouplist]
+    def assign_groups_to_asset_items(self, assets):
+        logger = logging.getLogger()
+        try:
+            for item in assets:
+                it=self.myplotitems[item.id]
+                it.my_group.setCurrentIndex(item.asset_group)
+        except Exception as e:
+            logger.exception("Exception at assign_groups_to_asset_items")
+            
+            
+            
 
     def set_information(self, results_):
         logger = logging.getLogger()
-        active = int(results_[0])  # just in case it is a string!
-        results = results_[1]
-        self.initialize_assetgroups()
-        logger.info("Now adding asset groups ...")
-        for ct, value in enumerate(results):
-            logger.info("Now adding asset group: %d, %s" % (ct, value))
-            self.add_assetgroup(ct, value)
-        self.ui.activenumbrerofgroups = active
-        self.ui.no_groups.setValue(active)
-        # self._set_no_groups(active)
-        # this is needed, as ^^ we change the value manually, signal does not
-        # fire.
+        try:
+            active = int(results_[0])  # just in case it is a string!
+            results = results_[1]
+            self.initialize_assetgroups()
+            logger.info("Now adding asset groups ...")
+            for ct, value in enumerate(results):
+                logger.info("Now adding asset group: %d, %s" % (ct, value))
+                self.add_assetgroup(ct, value)
+            self.ui.activenumbrerofgroups = active
+            self.ui.no_groups.setValue(active)
+            self._set_no_groups(active)
+            # this is needed, as ^^ we change the value manually, signal does not
+            # fire.
+        except Exception:
+            logger.exception("Error in setting information:")
 
     def _set_no_groups(self, ngroups):
         # first remove that spacer
@@ -334,8 +368,11 @@ class DataWindow(QDialog):
         # need to implement multiple inheritance and make DRY
         del self.myplotitems[id_]
 
+    def assets_group_changed_reciever(self, id_, index):
+        self.mainwindow.assets_group_changed_reciever(id_)
+
     def add_assign_asset_item(self, id_):
-        ag = PropertyGroupGUI(frame=QFrame())
+        ag = AssetGUI(QFrame(), self)
         ag.assign_asset_item = QtWidgets.QFrame(self.ui.scrollAreaWidgetContents)
         ag.assign_asset_item.setObjectName("assign_asset_item")
         ag.indiviual_asset_container_layout_4 = QtWidgets.QHBoxLayout(ag.assign_asset_item)
@@ -383,9 +420,7 @@ class DataWindow(QDialog):
                            QCheckBox[selected="false"] {background-color: palette(base)};
                             """)
 
-        # connect signal
-        ag.my_selected.stateChanged.connect(self.myselectionchanged)
-        ag.my_selected.stateChanged.connect(ag._selected_change_color)
+
 
         # add existing values of grouptocopy to my_group
         [ag.my_group.addItem(self.ui.grouptocopy.itemText(i))
@@ -396,6 +431,11 @@ class DataWindow(QDialog):
         # 2. then add aq to the record
         ag.id_ = id_
         self.add_plot_item_to_record(id_, ag)
+        
+        # connect signal
+        ag.my_selected.stateChanged.connect(self.myselectionchanged)
+        ag.my_selected.stateChanged.connect(ag._selected_change_color)
+        ag.my_group.currentIndexChanged.connect(ag.my_group_changed)        
 
     def _getgroupname(self, i):
         return "G_%02d" % i
@@ -595,7 +635,15 @@ class CurveDialogWithClosable(CurveDialog):
         """When removing a plot item it should be notified to this function. See also: add_plot_item_to_record """
         # TODO : DataWindow currently copies this function
         # need to implement multiple inheritance and make DRY
-        del self.myplotitems[id_]
+        try:
+            it=self.myplotitems[id_]
+            del self.myplotitems[id_]
+            return it
+        except Exception as e:
+            # that item is not with myplotitems, so, just ignore. 
+            logger=logging.getLogger()
+            logger.exception("Exception at remove_plot_item_from_record")
+            return None
 
     def __item_removed(self, goner):
         tmplist = dict(self.myplotitems)
@@ -615,7 +663,7 @@ class CurveDialogWithClosable(CurveDialog):
 
 
 class RiskMatrix(CurveDialogWithClosable):
-    SCALE = .01
+    SCALE = 10.0
 
     def __init__(self, name="Risk Matrix", mainwindow=None, parent=None,
                  units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
@@ -659,6 +707,8 @@ class RiskMatrix(CurveDialogWithClosable):
         a = array(data).T
         min_x, min_y = min(a, axis=0)
         max_x, max_y = max(a, axis=0)
+        min_y=-10.0
+        max_y=+110.0
         _axes_limits = [min_x, max_x, min_y, max_y]
         self.set_axes_limits(_axes_limits)
 
@@ -675,12 +725,37 @@ class RiskMatrix(CurveDialogWithClosable):
         self.set_proper_axis_limits([adfs, prob])
         for link in links:
             self.plot_item(id_=link.id, data=[link.cons, link.prob], title="Point", icon="pipe.png")
+    
 
     def plot_item(self, id_, data, title="Point", icon="pipe.png"):
+        """Plot or update a plot"""
         global STYLE
-
+        logger = logging.getLogger()                
+        logger.info("Plotting : %s" % id_)
         consequence, probability = data
+        if (consequence is None):
+            try:
+                # logger.info("No value provided for consequence, trying existing value.")
+                consequence=self.myplotitems[id_][0].get_center()[0]
+            except:
+                logger.info("trying to get consequence from previous plot.. that failed too. give up.")                
+                return 
+        if (probability is None):
+            try:
+                # logger.info("No value provided for probability, trying existing value.")                
+                probability=self.myplotitems[id_][0].get_center()[1]
+            except:
+                logger.info("trying to get probability from previous plot.. that failed too. give up.")                                
+                return
+        
+        try:
+            v=self.myplotitems[id_]
+            for item in v: # then remove from plots
+                self.get_plot().removeItem(item)  # this will automatically call remove_plot_item_from_record 
+                # and remove it from myplotitems
 
+        except KeyError: # the item is not in myplotitems
+            pass
         ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
                           title=title)
         ci.shapeparam._DataSet__icon = u.get_icon('Risk')
@@ -1171,6 +1246,11 @@ class MainWindow(QMainWindow):
         links = self._calculate_risk(links)
         self.riskmatrix.plot_links(links)
 
+    def assets_group_changed_reciever(self, id_):
+        if (len(self.riskmatrix.myplotitems) > 0):
+            data=[None,100.0*self.datawindow.getProb(id_, 0)]
+            self.riskmatrix.plot_item(id_, data)
+
     def _calculate_risk(self, links):
         logger = logging.getLogger()
         if (not links):
@@ -1179,7 +1259,7 @@ class MainWindow(QMainWindow):
             if (not hasattr(link, 'ADF')):
                 logger.info("No ADF value. I can not calcualte risk components")
                 continue
-            link.prob = self.datawindow.getProb(link.id, 0)  # 0 means now.
+            link.prob = 100.0*self.datawindow.getProb(link.id, 0)  # 0 means now.
             link.cons = (1. - link.ADF) * \
                 self.projectgui.projectproperties.dataset.totalcost * \
                 c.DIRECTCOSTMULTIPLIER
