@@ -5,18 +5,19 @@ import math
 import os
 import sys
 
-from guiqwt.shapes import EllipseShape
-
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
 from guiqwt.config import CONF
 from guiqwt.plot import CurveDialog
+from guiqwt.shapes import EllipseShape
 from guiqwt.styles import style_generator
 from guiqwt.styles import update_style_attr
 from numpy import arange
 from numpy import array
-from numpy import interp, min ,max
+from numpy import interp
+from numpy import max
+from numpy import min
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -295,7 +296,6 @@ class DataWindow(QDialog):
             return self.myplotitems[id].my_age.value()
         except Exception:
             logger.exception("Error retrieving my_group for id %s" % id)
-        
 
     def get_asset_group(self, id):
         logger = logging.getLogger()
@@ -417,11 +417,11 @@ class DataWindow(QDialog):
         # add label for Age
         ag.label_10 = QtWidgets.QLabel(ag.assign_asset_item)
         ag.label_10.setObjectName("label_10")
-        ag.indiviual_asset_container_layout_4.addWidget(ag.label_10)        
+        ag.indiviual_asset_container_layout_4.addWidget(ag.label_10)
         ag.my_age = QtWidgets.QSpinBox(self.ui.groupBox)
         ag.my_age.setMaximum(999)
         ag.my_age.setObjectName("asset_age")
-        ag.indiviual_asset_container_layout_4.addWidget(ag.my_age)        
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_age)
         spacerItem3 = QtWidgets.QSpacerItem(
             40,
             20,
@@ -729,23 +729,23 @@ class RiskMatrix(CurveDialogWithClosable):
         return SCALE
 
     def set_proper_axis_limits(self):
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         try:
-            v=self.myplotitems.values()
-            all=[item for sublist in v for item in sublist]
-            all=[x.get_center() for x in all if isinstance(x,EllipseShape)]
-            a=array(all).T
-            min_x=min(a[0])
-            max_x=max(a[0])
-            min_y=min(a[1])
-            max_y=max(a[1])
+            v = self.myplotitems.values()
+            all = [item for sublist in v for item in sublist]
+            all = [x.get_center() for x in all if isinstance(x, EllipseShape)]
+            a = array(all).T
+            min_x = min(a[0])
+            max_x = max(a[0])
+            min_y = min(a[1])
+            max_y = max(a[1])
             # min_y = min(a, axis=0)
             # max_x, max_y = max(a, axis=0)
-            min_x = 0.0 # overrride 
-            tc=self.mainwindow.projectgui.projectproperties.dataset.totalcost
-            max_x = max((tc*c.DIRECTCOSTMULTIPLIER,max_x))
-            min_y = 0.0 # override 
-            max_y = max((1,max_y))
+            min_x = 0.0  # overrride
+            tc = self.mainwindow.projectgui.projectproperties.dataset.totalcost
+            max_x = max((tc * c.DIRECTCOSTMULTIPLIER, max_x))
+            min_y = 0.0  # override
+            max_y = max((1, max_y))
             _axes_limits = [min_x, max_x, min_y, max_y]
             self.set_axes_limits(_axes_limits)
         except Exception:
@@ -758,13 +758,12 @@ class RiskMatrix(CurveDialogWithClosable):
         if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
             logger.info("The link does not have cons, prob attributes. Can not plot risk.")
             return
-        adfs = [x.cons for x in links]
-        prob = [x.prob for x in links]
+        # adfs = [x.cons for x in links]
+        # prob = [x.prob for x in links]
         # first compute bounding box
         for link in links:
             self.plot_item(id_=link.id, data=[link.cons, link.prob], title="Point", icon="pipe.png")
         self.set_proper_axis_limits()
-        
 
     def replot_all(self):
         """Replots all items in myplotitems"""
@@ -1298,7 +1297,7 @@ class MainWindow(QMainWindow):
 
     def assets_group_changed_reciever(self, id_):
         if (len(self.riskmatrix.myplotitems) > 0):
-            data = [None,  self.datawindow.getProb(id_, 0)]
+            data = [None, self.datawindow.getProb(id_, 0)]
             self.riskmatrix.plot_item(id_, data)
 
     def _calculate_risk(self, links):

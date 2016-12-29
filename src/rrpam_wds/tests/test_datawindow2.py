@@ -47,7 +47,7 @@ class TC(Test_Parent):
             li.id = 'xx'
             res = self.aw._calculate_risk([li])
             mock_getProb.assert_called_once_with(li.id, 0)
-            self.assertEqual(res[0].prob, p )  
+            self.assertEqual(res[0].prob, p)
             adf = li.ADF * self.aw.projectgui.projectproperties.dataset.totalcost * \
                 c.DIRECTCOSTMULTIPLIER
             self.assertEqual(res[0].cons, adf)
