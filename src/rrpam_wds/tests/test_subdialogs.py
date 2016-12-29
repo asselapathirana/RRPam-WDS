@@ -21,14 +21,14 @@ class TC(Test_Parent):
                 pass
             else:
                 raise
-            
+
     def test_pressing_apply_button_will_call_apply_dataset_values(self):
         """set method in DataSetEditGroupBox is equivalent to pressing the Apply button. So we test that. """
-        degb=self.aw.projectgui.projectproperties
+        degb = self.aw.projectgui.projectproperties
         with mock.patch.object(self.aw.projectgui, "apply_dataset_values", autospec=True) as mock_apply_dataset_values:
             degb.set()
             self.assertTrue(mock_apply_dataset_values.called)
-            
+
     def test_calling_apply_dataset_values_will_replot_all_items_in_risk_matrix(self):
         with mock.patch.object(self.aw.riskmatrix, "replot_all") as mock_replot_all:
             self.aw.projectgui.apply_dataset_values()
@@ -171,7 +171,7 @@ class TC(Test_Parent):
             self.assertFalse(mock_get.called)
         self.run_in_total_mock_context(fn)
 
-    def run_in_total_mock_context(self, f):       
+    def run_in_total_mock_context(self, f):
             with mock.patch.object(self.aw.projectgui,
                                    '_getSaveFileName',
                                    autospec=True) as mock__getSaveFileName:
@@ -187,7 +187,7 @@ class TC(Test_Parent):
                             with mock.patch.object(self.aw.projectgui,
                                                    '_create_empty_project',
                                                    autospec=True) as mock__create_empty_project:
-    
+
                                 with mock.patch.object(self.aw.projectgui.projectproperties,
                                                        'set',
                                                        autospec=True) as mock_set:
@@ -203,9 +203,8 @@ class TC(Test_Parent):
                                                 with mock.patch.object(self.aw.pm,
                                                                        '_new_project',
                                                                        autospec=True):
-                                               
-                                    
-                                                    self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load=None
+
+                                                    self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load = None
                                                     mock__getSaveFileName.return_value = (
                                                         "xxes", '*.rrp')
                                                     mock__getSaveFileName2.return_value = (

@@ -5,6 +5,8 @@ import math
 import os
 import sys
 
+from guiqwt.shapes import EllipseShape
+
 from guidata.configtools import add_image_module_path
 from guidata.configtools import get_icon
 from guiqwt.builder import make
@@ -14,9 +16,7 @@ from guiqwt.styles import style_generator
 from guiqwt.styles import update_style_attr
 from numpy import arange
 from numpy import array
-from numpy import interp
-from numpy import max
-from numpy import min
+from numpy import interp, min ,max
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -85,19 +85,18 @@ class PropertyGroupGUI(QObject):
     def hide(self):
         self.active = False
         self.frame.hide()
-        
-        
+
+
 class AssetGUI(QObject):
-    
+
     def __init__(self, frame, datawindow):
         self.active = False
         self.frame = frame
-        self.datawindow=datawindow
-        super(AssetGUI, self).__init__()   
-        
+        self.datawindow = datawindow
+        super(AssetGUI, self).__init__()
+
     def my_group_changed(self, val):
         self.datawindow.assets_group_changed_reciever(self.id_, val)
-    
 
     def _selected_change_color(self, select):
         self.my_selected.setProperty("selected", False)
@@ -122,7 +121,7 @@ class AssetGUI(QObject):
             # self.logger.info("making me (%s) selected=%s" % (self, select))
             self.my_selected.setChecked(select)
         else:
-            self.logger.info("No checkbox in me (%s). So ignoring select request." % self)    
+            self.logger.info("No checkbox in me (%s). So ignoring select request." % self)
 
 
 class LogDialog(QDialog):
@@ -168,7 +167,7 @@ class DataWindow(QDialog):
         self.initialize_assetgroups()
         self.initalize_assign_asset_groups()
         self.selected_holder = mainwindow.selected_holder
-        self.mainwindow=mainwindow
+        self.mainwindow = mainwindow
         self.setup_ui()
         self.customize_ui()
         self.connect_signals()
@@ -176,9 +175,11 @@ class DataWindow(QDialog):
 
     def getProb(self, id_, time_):
         grname = self.myplotitems[id_].my_group.currentIndex()
+        age = self.get_age(id_)
         d, grs = self.get_information()
         gr = grs[grname]
-        A, N, age = gr
+        A = gr[0]
+        N = gr[1]
         return N * math.exp(A * (age + time_))
 
     def draw_network(self, links):
@@ -258,18 +259,18 @@ class DataWindow(QDialog):
         self.ui.grouptocopy.addItems(listofgroups)
         for myc in self.myplotitems.values():
             # listofgroups come with correct order exploit that and minimize work here.
-            co=myc.my_group.count()
-            if(co<len(listofgroups)):
+            co = myc.my_group.count()
+            if(co < len(listofgroups)):
                 myc.my_group.addItems(listofgroups[co:])
-            if (co>len(listofgroups)):
-                for i in range(len(listofgroups),co):
+            if (co > len(listofgroups)):
+                for i in range(len(listofgroups), co):
                     myc.my_group.removeItem(i)
-            #t = myc.my_group.currentIndex()
-            #myc.my_group.clear()
-            #myc.my_group.addItems(listofgroups)
-            #if(co - 1 < t):
+            # t = myc.my_group.currentIndex()
+            # myc.my_group.clear()
+            # myc.my_group.addItems(listofgroups)
+            # if(co - 1 < t):
             #    t = co - 1
-            #myc.my_group.setCurrentIndex(t)
+            # myc.my_group.setCurrentIndex(t)
 
     def customize_ui(self):
         self.spacerItem1 = QtWidgets.QSpacerItem(
@@ -287,11 +288,20 @@ class DataWindow(QDialog):
     def get_selected_items(self):
         """we are mimicking get_selected_items method of guiqwt.BasePlot widget"""
         return [x for x in self.myplotitems.values() if x.selected()]
+
+    def get_age(self, id):
+        logger = logging.getLogger()
+        try:
+            return self.myplotitems[id].my_age.value()
+        except Exception:
+            logger.exception("Error retrieving my_group for id %s" % id)
+        
+
     def get_asset_group(self, id):
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         try:
             return self.myplotitems[id].my_group.currentIndex()
-        except Exception as e:
+        except Exception:
             logger.exception("Error retrieving my_group for id %s" % id)
 
     def get_information(self, all=False):
@@ -303,17 +313,16 @@ class DataWindow(QDialog):
             return self.activenumberofgroups, gr
         else:
             return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text()), x.age.value()) for x in self.assetgrouplist]
-    def assign_groups_to_asset_items(self, assets):
+
+    def assign_values_to_asset_items(self, assets):
         logger = logging.getLogger()
         try:
             for item in assets:
-                it=self.myplotitems[item.id]
+                it = self.myplotitems[item.id]
                 it.my_group.setCurrentIndex(item.asset_group)
-        except Exception as e:
-            logger.exception("Exception at assign_groups_to_asset_items")
-            
-            
-            
+                it.my_age.setValue(item.age)
+        except Exception:
+            logger.exception("Exception at assign_values_to_asset_items")
 
     def set_information(self, results_):
         logger = logging.getLogger()
@@ -405,6 +414,14 @@ class DataWindow(QDialog):
         ag.my_group.setMaximumSize(QtCore.QSize(100, 16777215))
         ag.my_group.setObjectName("my_group")
         ag.indiviual_asset_container_layout_4.addWidget(ag.my_group)
+        # add label for Age
+        ag.label_10 = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.label_10.setObjectName("label_10")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.label_10)        
+        ag.my_age = QtWidgets.QSpinBox(self.ui.groupBox)
+        ag.my_age.setMaximum(999)
+        ag.my_age.setObjectName("asset_age")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_age)        
         spacerItem3 = QtWidgets.QSpacerItem(
             40,
             20,
@@ -419,6 +436,7 @@ class DataWindow(QDialog):
         ag.label_8.setText(_translate("projectDataWidget", "ID: "))
         ag.my_id.setText(id_)
         ag.label_9.setText(_translate("projectDataWidget", "Group"))
+        ag.label_10.setText(_translate("projectDataWidget", "Age (y)"))
 
         # customize style
         ag.my_selected.setStyleSheet("""
@@ -426,8 +444,6 @@ class DataWindow(QDialog):
                            QCheckBox[selected="true"] {background-color: yellow};
                            QCheckBox[selected="false"] {background-color: palette(base)};
                             """)
-
-
 
         # add existing values of grouptocopy to my_group
         [ag.my_group.addItem(self.ui.grouptocopy.itemText(i))
@@ -438,11 +454,12 @@ class DataWindow(QDialog):
         # 2. then add aq to the record
         ag.id_ = id_
         self.add_plot_item_to_record(id_, ag)
-        
+
         # connect signal
         ag.my_selected.stateChanged.connect(self.myselectionchanged)
         ag.my_selected.stateChanged.connect(ag._selected_change_color)
-        ag.my_group.currentIndexChanged.connect(ag.my_group_changed)        
+        ag.my_group.currentIndexChanged.connect(ag.my_group_changed)
+        ag.my_age.valueChanged.connect(ag.my_group_changed)
 
     def _getgroupname(self, i):
         return "G_%02d" % i
@@ -572,7 +589,7 @@ class CurveDialogWithClosable(CurveDialog):
     def __init__(self, *args, **kwargs):
         kwargs_ = dict(kwargs)
         del kwargs_["mainwindow"]
-        self.mainwindow=kwargs["mainwindow"]
+        self.mainwindow = kwargs["mainwindow"]
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs_)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._can_be_closed = True
@@ -644,12 +661,12 @@ class CurveDialogWithClosable(CurveDialog):
         # TODO : DataWindow currently copies this function
         # need to implement multiple inheritance and make DRY
         try:
-            it=self.myplotitems[id_]
+            it = self.myplotitems[id_]
             del self.myplotitems[id_]
             return it
-        except Exception as e:
-            # that item is not with myplotitems, so, just ignore. 
-            logger=logging.getLogger()
+        except Exception:
+            # that item is not with myplotitems, so, just ignore.
+            logger = logging.getLogger()
             logger.exception("Exception at remove_plot_item_from_record")
             return None
 
@@ -671,7 +688,6 @@ class CurveDialogWithClosable(CurveDialog):
 
 
 class RiskMatrix(CurveDialogWithClosable):
-   
 
     def __init__(self, name="Risk Matrix", mainwindow=None, parent=None,
                  units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
@@ -708,20 +724,32 @@ class RiskMatrix(CurveDialogWithClosable):
             consequence + SCALE, probability - SCALE
 
     def get_scale(self, consequence, probability, l):
-        SC=self.mainwindow.projectgui.projectproperties.dataset.SCALE # get the value on the dataset.
+        SC = self.mainwindow.projectgui.projectproperties.dataset.SCALE  # get the value on the dataset.
         SCALE = SC * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
         return SCALE
 
     def set_proper_axis_limits(self):
-        # a = array(data).T
-        # min_x, min_y = min(a, axis=0)
-        # max_x, max_y = max(a, axis=0)
-        min_x=0.0 
-        max_x=self.mainwindow.projectgui.projectproperties.dataset.totalcost*c.DIRECTCOSTMULTIPLIER
-        min_y=-10.0
-        max_y=+110.0
-        _axes_limits = [min_x, max_x, min_y, max_y]
-        self.set_axes_limits(_axes_limits)
+        logger=logging.getLogger()
+        try:
+            v=self.myplotitems.values()
+            all=[item for sublist in v for item in sublist]
+            all=[x.get_center() for x in all if isinstance(x,EllipseShape)]
+            a=array(all).T
+            min_x=min(a[0])
+            max_x=max(a[0])
+            min_y=min(a[1])
+            max_y=max(a[1])
+            # min_y = min(a, axis=0)
+            # max_x, max_y = max(a, axis=0)
+            min_x = 0.0 # overrride 
+            tc=self.mainwindow.projectgui.projectproperties.dataset.totalcost
+            max_x = max((tc*c.DIRECTCOSTMULTIPLIER,max_x))
+            min_y = 0.0 # override 
+            max_y = max((1,max_y))
+            _axes_limits = [min_x, max_x, min_y, max_y]
+            self.set_axes_limits(_axes_limits)
+        except Exception:
+            logger.exception("Error setting axis limits: ")
 
     def plot_links(self, links):
         logger = logging.getLogger()
@@ -730,48 +758,53 @@ class RiskMatrix(CurveDialogWithClosable):
         if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
             logger.info("The link does not have cons, prob attributes. Can not plot risk.")
             return
-        # adfs = [x.cons for x in links]
-        # prob = [x.prob for x in links]
+        adfs = [x.cons for x in links]
+        prob = [x.prob for x in links]
         # first compute bounding box
-        self.set_proper_axis_limits()
         for link in links:
             self.plot_item(id_=link.id, data=[link.cons, link.prob], title="Point", icon="pipe.png")
-            
+        self.set_proper_axis_limits()
+        
+
     def replot_all(self):
         """Replots all items in myplotitems"""
-        self.set_proper_axis_limits()
+        # self.set_proper_axis_limits()
         for id_, item in self.myplotitems.items():
-            self.plot_item(id_,[None,None])
-    
+            self.plot_item(id_, [None, None])
+        # now set axis limits
+        self.set_proper_axis_limits()
 
     def plot_item(self, id_, data, title="Point", icon="pipe.png"):
         """Plot or update a plot"""
         global STYLE
-        logger = logging.getLogger()                
+        logger = logging.getLogger()
         logger.info("Plotting : %s" % id_)
         consequence, probability = data
         if (consequence is None):
             try:
                 # logger.info("No value provided for consequence, trying existing value.")
-                consequence=self.myplotitems[id_][0].get_center()[0]
+                consequence = self.myplotitems[id_][0].get_center()[0]
             except:
-                logger.info("trying to get consequence from previous plot.. that failed too. give up.")                
-                return 
+                logger.info(
+                    "trying to get consequence from previous plot.. that failed too. give up.")
+                return
         if (probability is None):
             try:
-                # logger.info("No value provided for probability, trying existing value.")                
-                probability=self.myplotitems[id_][0].get_center()[1]
+                # logger.info("No value provided for probability, trying existing value.")
+                probability = self.myplotitems[id_][0].get_center()[1]
             except:
-                logger.info("trying to get probability from previous plot.. that failed too. give up.")                                
+                logger.info(
+                    "trying to get probability from previous plot.. that failed too. give up.")
                 return
-        
+
         try:
-            v=self.myplotitems[id_]
-            for item in v: # then remove from plots
-                self.get_plot().removeItem(item)  # this will automatically call remove_plot_item_from_record 
+            v = self.myplotitems[id_]
+            for item in v:  # then remove from plots
+                self.get_plot().removeItem(
+                    item)  # this will automatically call remove_plot_item_from_record
                 # and remove it from myplotitems
 
-        except KeyError: # the item is not in myplotitems
+        except KeyError:  # the item is not in myplotitems
             pass
         ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
                           title=title)
@@ -1265,7 +1298,7 @@ class MainWindow(QMainWindow):
 
     def assets_group_changed_reciever(self, id_):
         if (len(self.riskmatrix.myplotitems) > 0):
-            data=[None,100.0*self.datawindow.getProb(id_, 0)]
+            data = [None,  self.datawindow.getProb(id_, 0)]
             self.riskmatrix.plot_item(id_, data)
 
     def _calculate_risk(self, links):
@@ -1276,7 +1309,7 @@ class MainWindow(QMainWindow):
             if (not hasattr(link, 'ADF')):
                 logger.info("No ADF value. I can not calcualte risk components")
                 continue
-            link.prob = 100.0*self.datawindow.getProb(link.id, 0)  # 0 means now.
+            link.prob = self.datawindow.getProb(link.id, 0)  # 0 means now.
             link.cons = (1. - link.ADF) * \
                 self.projectgui.projectproperties.dataset.totalcost * \
                 c.DIRECTCOSTMULTIPLIER

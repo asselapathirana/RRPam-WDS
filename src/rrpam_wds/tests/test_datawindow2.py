@@ -7,12 +7,11 @@ import mock
 
 import rrpam_wds.constants as c
 from rrpam_wds.examples import networks
+from rrpam_wds.gui.dialogs import DataWindow
+from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.gui.subdialogs import ProjectGUI
 from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
-
-from rrpam_wds.gui.subdialogs import ProjectGUI
-from rrpam_wds.gui.dialogs import MainWindow, DataWindow
-import rrpam_wds.constants as c
 
 
 class TC(Test_Parent):
@@ -48,7 +47,7 @@ class TC(Test_Parent):
             li.id = 'xx'
             res = self.aw._calculate_risk([li])
             mock_getProb.assert_called_once_with(li.id, 0)
-            self.assertEqual(res[0].prob, p*100) # prob is calculated as %
+            self.assertEqual(res[0].prob, p )  
             adf = li.ADF * self.aw.projectgui.projectproperties.dataset.totalcost * \
                 c.DIRECTCOSTMULTIPLIER
             self.assertEqual(res[0].cons, adf)
@@ -111,13 +110,13 @@ class TC(Test_Parent):
         p.select()
         cnew = p.my_selected.property("selected")
         self.assertNotEqual(cdefault, cnew)
-        
+
     def test_get_asset_group_will_return_currently_selected_asset_group(self):
         self.create_a_new_project()
-        d=self.aw.datawindow
-        d.ui.no_groups.setValue(4) 
+        d = self.aw.datawindow
+        d.ui.no_groups.setValue(4)
         d.myplotitems['11'].my_group.setCurrentText(d._getgroupname(2))
-        self.assertEqual(d.get_asset_group('11'),2)
+        self.assertEqual(d.get_asset_group('11'), 2)
 
     def test_open_project_will_correctly_show_asset_groups_saved(self):
 
@@ -159,49 +158,44 @@ class TC(Test_Parent):
         self.aw.datawindow.ui.no_groups.setValue(
             3)  # we have activated 3 groups now (4 and 5 will be saved hidden)
         return sf, A1, N1, age1, A2, N2, age2
-    
+
     def test_assets_in_a_saved_project_will_have_groups(self):
         sf, A1, N1, age1, A2, N2, age2 = self.change_some_groups_in_a_new_project()
-        self.aw._save_project()            
-        
+        self.aw._save_project()
+
         with mock.patch.object(self.aw.projectgui, "_getOpenFileName", autospec=True) as mock__getOpenFileName:
             mock__getOpenFileName.return_value = (sf, "*.rrp")
-            d=self.aw.projectgui.projectproperties.dataset 
-            # check that there is no results OR no group attrib here. 
+            d = self.aw.projectgui.projectproperties.dataset
+            # check that there is no results OR no group attrib here.
             d.read_data(sf)
             for item in d.results.links:
-                self.assertTrue(hasattr(item,"asset_group"))
+                self.assertTrue(hasattr(item, "asset_group"))
 
+    @mock.patch.object(DataWindow, 'assign_values_to_asset_items')
+    @mock.patch.object(DataWindow, 'set_information')
+    @mock.patch.object(MainWindow, '_display_project')
+    @mock.patch.object(ProjectGUI, '_valid_project')
+    @mock.patch.object(ProjectGUI, '_getOpenFileName')  # note these mocks are stacked. so the argument order is 'reversed'
+    def test_open_project_calls_methods_in_right_order(
+        self, _getOpenFileName_mock, _valid_project_mock, _display_project_mock,
+            set_information_mock, assign_values_to_asset_items_mock):
 
-
-    @mock.patch.object(DataWindow, 'assign_groups_to_asset_items')
-    @mock.patch.object(DataWindow, 'set_information')    
-    @mock.patch.object(MainWindow, '_display_project')    
-    @mock.patch.object(ProjectGUI, '_valid_project')   
-    @mock.patch.object(ProjectGUI, '_getOpenFileName') # note these mocks are stacked. so the argument order is 'reversed'
-    def test_open_project_calls_methods_in_right_order(self, _getOpenFileName_mock, _valid_project_mock, _display_project_mock, 
-                                                       set_information_mock, assign_groups_to_asset_items_mock):
-        
         mock_parent = mock.Mock()
-        _valid_project_mock.return_value=True
-        _getOpenFileName_mock.return_value="gox","*.rrp"
-        mock_parent.attach_mock(_getOpenFileName_mock,"m0")
-        mock_parent.attach_mock(_valid_project_mock,"m1")        
-        mock_parent.attach_mock(_display_project_mock,"m2")
-        mock_parent.attach_mock(set_information_mock,"m3")
-        mock_parent.attach_mock(assign_groups_to_asset_items_mock,"m4")
-        k=self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load=mock.Mock()
-        a=self.aw.projectgui.projectproperties.dataset.results=mock.Mock()
-        b=self.aw.projectgui.projectproperties.dataset.results.links=mock.Mock()
+        _valid_project_mock.return_value = True
+        _getOpenFileName_mock.return_value = "gox", "*.rrp"
+        mock_parent.attach_mock(_getOpenFileName_mock, "m0")
+        mock_parent.attach_mock(_valid_project_mock, "m1")
+        mock_parent.attach_mock(_display_project_mock, "m2")
+        mock_parent.attach_mock(set_information_mock, "m3")
+        mock_parent.attach_mock(assign_values_to_asset_items_mock, "m4")
+        self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load = mock.Mock()
+        self.aw.projectgui.projectproperties.dataset.results = mock.Mock()
+        self.aw.projectgui.projectproperties.dataset.results.links = mock.Mock()
         self.aw._open_project()
-        calls=['m0','m1','m2','m3','m4'] # we are just interestded in call order, not arguments
-        self.assertTrue([x[0] for x in mock_parent.method_calls]==calls) # extract only calls, strip arguments
-        
-        
-        
-                        
-                
-        
+        calls = ['m0', 'm1', 'm2', 'm3', 'm4']
+        # we are just interestded in call order, not arguments
+        self.assertTrue([x[0] for x in mock_parent.method_calls] == calls)
+        # extract only calls, strip arguments
 
     def test_open_project_will_correctly_show_my_group_of_each_asset(self):
 

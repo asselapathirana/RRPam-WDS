@@ -33,16 +33,14 @@ class ProjectGUI(QObject):
             ProjectPropertiesDataset,
             comment="foox")
         self.projectproperties.SIG_APPLY_BUTTON_CLICKED.connect(self._apply_dataset_values)
-        
+
     def _apply_dataset_values(self):
         """This is connected to a signal. When mocking, use apply_dataset_values method."""
         self.logger.info("Me pressed.")
         self.apply_dataset_values()
-        
+
     def apply_dataset_values(self):
         self.parent.riskmatrix.replot_all()
-        
-        
 
     def check_epanetfile(self, enfile):
         if(os.path.isfile(enfile)):
@@ -126,17 +124,18 @@ class ProjectGUI(QObject):
                                                     filter='*' + c.PROJECTEXTENSION)
         self.logger.info("Selected file for save/new project : %s " % projectfile)
         return projectfile
-    
-    def _update_results_with_groups(self):
-        """Update the self.projectproperties.dataset.results object with 
+
+    def _update_results_with_gui_values(self):
+        """Update the self.projectproperties.dataset.results object with
         group information. Call this before pickling data"""
-        r=self.projectproperties.dataset.results
-        if(not r ):
+        r = self.projectproperties.dataset.results
+        if(not r):
             self.logger.info("No results available yet with projectproperties. So, not updating")
         else:
             self.logger.info("Updating projectproperties.dataset.results with my_group")
             for item in r.links:
-                item.asset_group=self.parent.datawindow.get_asset_group(item.id)
+                item.asset_group = self.parent.datawindow.get_asset_group(item.id)
+                item.age = self.parent.datawindow.get_age(item.id)
 
     def _save_project_to_dest(self, projectfile, epanetfile=None):
 
@@ -144,7 +143,7 @@ class ProjectGUI(QObject):
         # First get latest values from dataWindow
         inf = self.parent.datawindow.get_information(all=True)
         self.projectproperties.dataset.group_list_to_save_or_load = inf
-        self._update_results_with_groups()
+        self._update_results_with_gui_values()
         self.logger.info("Now writing data")
         prjname, subdir, ext = c._get_dir_and_extention(projectfile)
         self.projectproperties.dataset.write_data(prjname)
@@ -205,12 +204,12 @@ class ProjectGUI(QObject):
                 self.parent.datawindow.set_information(
                     self.projectproperties.dataset.group_list_to_save_or_load)
                 self.logger.info("Updated dataWindow with project groups")
-                # since we have done both (a) displaying network and 
+                # since we have done both (a) displaying network and
                 # (b) updating the asset groups, now we can assign correct asset group
                 # to each asset item
                 if(self.projectproperties.dataset.results):
-                    r=self.projectproperties.dataset.results.links
-                    self.parent.datawindow.assign_groups_to_asset_items(r)
+                    r = self.projectproperties.dataset.results.links
+                    self.parent.datawindow.assign_values_to_asset_items(r)
                 break
             else:
                 self.logger.info("Project loading failed: Not a valid project")
@@ -259,7 +258,6 @@ class ProjectPropertiesDataset(dt.DataSet):
     _bx2 = dt.BeginGroup("Relative size in risk matrix")
     SCALE = di.FloatItem("", default=10, min=0.0, max=+500, step=.1, slider=True)
     _ex2 = dt.EndGroup("Relative size in risk matrix")
-    
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
