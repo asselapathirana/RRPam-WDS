@@ -21,6 +21,18 @@ class TC(Test_Parent):
                 pass
             else:
                 raise
+            
+    def test_pressing_apply_button_will_call_apply_dataset_values(self):
+        """set method in DataSetEditGroupBox is equivalent to pressing the Apply button. So we test that. """
+        degb=self.aw.projectgui.projectproperties
+        with mock.patch.object(self.aw.projectgui, "apply_dataset_values", autospec=True) as mock_apply_dataset_values:
+            degb.set()
+            self.assertTrue(mock_apply_dataset_values.called)
+            
+    def test_calling_apply_dataset_values_will_replot_all_items_in_risk_matrix(self):
+        with mock.patch.object(self.aw.riskmatrix, "replot_all") as mock_replot_all:
+            self.aw.projectgui.apply_dataset_values()
+            self.assertTrue(mock_replot_all.called)
 
     def test_maindialog_has__appdir_value_that_indicates_to_a_creatable_writable_directory(self):
         from rrpam_wds.constants import _appdir

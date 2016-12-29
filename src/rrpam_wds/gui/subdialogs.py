@@ -32,6 +32,17 @@ class ProjectGUI(QObject):
             "title",
             ProjectPropertiesDataset,
             comment="foox")
+        self.projectproperties.SIG_APPLY_BUTTON_CLICKED.connect(self._apply_dataset_values)
+        
+    def _apply_dataset_values(self):
+        """This is connected to a signal. When mocking, use apply_dataset_values method."""
+        self.logger.info("Me pressed.")
+        self.apply_dataset_values()
+        
+    def apply_dataset_values(self):
+        self.parent.riskmatrix.replot_all()
+        
+        
 
     def check_epanetfile(self, enfile):
         if(os.path.isfile(enfile)):
@@ -245,6 +256,10 @@ class ProjectPropertiesDataset(dt.DataSet):
         step=1,
         slider=False)
     _ex1 = dt.EndGroup("Direct cost total system down")
+    _bx2 = dt.BeginGroup("Relative size in risk matrix")
+    SCALE = di.FloatItem("", default=10, min=0.0, max=+500, step=.1, slider=True)
+    _ex2 = dt.EndGroup("Relative size in risk matrix")
+    
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()

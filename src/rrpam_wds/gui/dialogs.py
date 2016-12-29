@@ -257,12 +257,19 @@ class DataWindow(QDialog):
         self.ui.grouptocopy.clear()
         self.ui.grouptocopy.addItems(listofgroups)
         for myc in self.myplotitems.values():
-            t = myc.my_group.currentIndex()
-            myc.my_group.clear()
-            myc.my_group.addItems(listofgroups)
-            if(myc.my_group.count() - 1 < t):
-                t = myc.my_group.count() - 1
-            myc.my_group.setCurrentIndex(t)
+            # listofgroups come with correct order exploit that and minimize work here.
+            co=myc.my_group.count()
+            if(co<len(listofgroups)):
+                myc.my_group.addItems(listofgroups[co:])
+            if (co>len(listofgroups)):
+                for i in range(len(listofgroups),co):
+                    myc.my_group.removeItem(i)
+            #t = myc.my_group.currentIndex()
+            #myc.my_group.clear()
+            #myc.my_group.addItems(listofgroups)
+            #if(co - 1 < t):
+            #    t = co - 1
+            #myc.my_group.setCurrentIndex(t)
 
     def customize_ui(self):
         self.spacerItem1 = QtWidgets.QSpacerItem(
@@ -565,6 +572,7 @@ class CurveDialogWithClosable(CurveDialog):
     def __init__(self, *args, **kwargs):
         kwargs_ = dict(kwargs)
         del kwargs_["mainwindow"]
+        self.mainwindow=kwargs["mainwindow"]
         super(CurveDialogWithClosable, self).__init__(*args, **kwargs_)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._can_be_closed = True
@@ -663,7 +671,7 @@ class CurveDialogWithClosable(CurveDialog):
 
 
 class RiskMatrix(CurveDialogWithClosable):
-    SCALE = 10.0
+   
 
     def __init__(self, name="Risk Matrix", mainwindow=None, parent=None,
                  units=units["EURO"], options={}, axes_limits=[0, 15000, 0, 100]):
@@ -700,13 +708,16 @@ class RiskMatrix(CurveDialogWithClosable):
             consequence + SCALE, probability - SCALE
 
     def get_scale(self, consequence, probability, l):
-        SCALE = self.SCALE * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
+        SC=self.mainwindow.projectgui.projectproperties.dataset.SCALE # get the value on the dataset.
+        SCALE = SC * math.pow(consequence * probability, .25) / math.pow((l[1] * l[3]), .25)
         return SCALE
 
-    def set_proper_axis_limits(self, data):
-        a = array(data).T
-        min_x, min_y = min(a, axis=0)
-        max_x, max_y = max(a, axis=0)
+    def set_proper_axis_limits(self):
+        # a = array(data).T
+        # min_x, min_y = min(a, axis=0)
+        # max_x, max_y = max(a, axis=0)
+        min_x=0.0 
+        max_x=self.mainwindow.projectgui.projectproperties.dataset.totalcost*c.DIRECTCOSTMULTIPLIER
         min_y=-10.0
         max_y=+110.0
         _axes_limits = [min_x, max_x, min_y, max_y]
@@ -719,12 +730,18 @@ class RiskMatrix(CurveDialogWithClosable):
         if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
             logger.info("The link does not have cons, prob attributes. Can not plot risk.")
             return
-        adfs = [x.cons for x in links]
-        prob = [x.prob for x in links]
+        # adfs = [x.cons for x in links]
+        # prob = [x.prob for x in links]
         # first compute bounding box
-        self.set_proper_axis_limits([adfs, prob])
+        self.set_proper_axis_limits()
         for link in links:
             self.plot_item(id_=link.id, data=[link.cons, link.prob], title="Point", icon="pipe.png")
+            
+    def replot_all(self):
+        """Replots all items in myplotitems"""
+        self.set_proper_axis_limits()
+        for id_, item in self.myplotitems.items():
+            self.plot_item(id_,[None,None])
     
 
     def plot_item(self, id_, data, title="Point", icon="pipe.png"):
