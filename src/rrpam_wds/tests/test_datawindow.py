@@ -26,42 +26,38 @@ class TC(Test_Parent):
 
     def test_set_information_sets_the_right_data(self):
         results = (
-            '2', [['.2', '.5', '20'], ['1.2e-4', '5e-1', '0'], ['1', '2', '3'], ['4', '5', '6']])
+            '2', [['.2', '.5'], ['1.2e-4', '5e-1'], ['1', '2'], ['4', '5']])
         self.aw.datawindow.set_information(results)
         self.assertEqual(self.aw.datawindow.ui.no_groups.text(), '2')
         self.assertEqual(self.aw.datawindow.assetgrouplist[1].A.text(), '1.2e-4')
-        self.assertEqual(self.aw.datawindow.assetgrouplist[3].age.text(), '6')
+        # self.assertEqual(self.aw.datawindow.assetgrouplist[3].age.text(), '6')
 
     def test_get_information_returns_the_right_data(self):
         # create some groups
         item = self.aw.datawindow.ui.no_groups
         set_text_spinbox(item, 12)
         A1 = 1.12e-4
-        age1 = 28
+        N01 = 1.34e-5
         A2 = 1.2e-4
-        age2 = 28
-        N01 = 2.2e-1
+        N02 = 2.2e-1
         one = self.aw.datawindow.assetgrouplist[11]
         set_text_textbox(one.A, A1)
         A1 = float(one.A.text())
-        set_text_spinbox(one.age, age1)
-        age1 = float(one.age.text())
+        set_text_textbox(one.N0, N01)
+        N01 = float(one.N0.text())        
         box = self.aw.datawindow.assetgrouplist[2]
         set_text_textbox(box.A, A2)
         A2 = float(box.A.text())
-        set_text_textbox(box.N0, N01)
-        N01 = float(box.N0.text())
-        set_text_spinbox(box.age, age2)
-        age2 = float(box.age.text())
+        set_text_textbox(box.N0, N02)
+        N02 = float(box.N0.text())
         set_text_spinbox(item, 4)
         QTest.keyPress(item, Qt.Key_Return)  # now we have only 4 active items
         active, values = self.aw.datawindow.get_information(all=True)
         self.assertEqual(active, 4)
         self.assertEqual(values[11][0], A1)
-        self.assertEqual(values[11][2], age1)
+        self.assertEqual(values[11][1], N01)
         self.assertEqual(values[2][0], A2)
-        self.assertEqual(values[2][1], N01)
-        self.assertEqual(values[2][2], age2)
+        self.assertEqual(values[2][1], N02)
 
     def test_saveing_and_loading_asset_groups_works_properly(self):
         pp = self.aw.projectgui.projectproperties.dataset
@@ -92,13 +88,13 @@ class TC(Test_Parent):
     def test_group_properties_can_not_have_empty_values(self):
         A = self.aw.datawindow.assetgrouplist[0].A
         N0 = self.aw.datawindow.assetgrouplist[0].N0
-        age = A = self.aw.datawindow.assetgrouplist[0].age
+        # age = A = self.aw.datawindow.assetgrouplist[0].age
         set_text_textbox(A, "", enter=True)
         set_text_textbox(N0, "", enter=True)
-        set_text_spinbox(age, "")
+        # set_text_spinbox(age, "")
         float(A.text())
         float(N0.text())
-        int(age.text())
+        # int(age.text())
         self.assertTrue(True)
 
     def test_when_attempted_to_close_datawindow_will_be_minized(self):
@@ -142,13 +138,13 @@ class TC(Test_Parent):
     def test_A_No_year_parameters_can_not_be_set_to_invalid_values(self):
         A = self.aw.datawindow.assetgrouplist[0].A
         N0 = self.aw.datawindow.assetgrouplist[0].N0
-        age = A = self.aw.datawindow.assetgrouplist[0].age
+        # age = self.aw.datawindow.assetgrouplist[0].age
         set_text_textbox(A, "1.ek58")
         set_text_textbox(N0, "ab")
-        set_text_spinbox(age, "28.8")
+        # set_text_spinbox(age, "28.8")
         float(A.text())
         float(N0.text())
-        int(age.text())
+        # int(age.text())
         self.assertTrue(True)
 
 

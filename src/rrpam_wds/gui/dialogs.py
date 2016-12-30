@@ -5,10 +5,10 @@ import math
 import os
 import sys
 
-from guidata.configtools import add_image_module_path
+import rrpam_wds.config
+
 from guidata.configtools import get_icon
 from guiqwt.builder import make
-from guiqwt.config import CONF
 from guiqwt.plot import CurveDialog
 from guiqwt.shapes import EllipseShape
 from guiqwt.styles import style_generator
@@ -42,29 +42,13 @@ import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
 from rrpam_wds.gui import _property_widget
-from rrpam_wds.gui import monkey_patch_guiqwt_guidata
 from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
 
-# there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as
-# we need to use make.* facotry.
-monkey_patch_guiqwt_guidata._patch_all()
-# show guiqwt where the images are.
-add_image_module_path("rrpam_wds.gui", "images")
-# this how we change an option
 
-# if there is not .config directory in the home directory, create it.
-configfile = os.path.join(c.HOMEDIR, '.config')
-if (os.path.isfile(configfile) and (not os.path.isdir(configfile))):
-    os.unlink(configfile)
-if (not os.path.isdir(configfile)):
-    os.mkdir(configfile)
 
-CONF.set_application("rrpamwds", version=rrpam_wds.__version__)
-CONF.set("plot", "selection/distance", 10.0)
-# todo: This has to be saved as project's setting file (CONF.save provides that facility)
 
 STYLE = style_generator()
 
@@ -308,11 +292,11 @@ class DataWindow(QDialog):
         """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations.
         if all=True, then it will return ALL items in assetgrouplist (e.g. for saving)"""
         if (not all):
-            gr = [(float(x.A.text()), float(x.N0.text()), x.age.value())
+            gr = [(float(x.A.text()), float(x.N0.text()))
                   for x in self.assetgrouplist[:self.activenumberofgroups]]
             return self.activenumberofgroups, gr
         else:
-            return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text()), x.age.value()) for x in self.assetgrouplist]
+            return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text())) for x in self.assetgrouplist]
 
     def assign_values_to_asset_items(self, assets):
         logger = logging.getLogger()
@@ -492,10 +476,10 @@ class DataWindow(QDialog):
         ag.age_label = QtWidgets.QLabel(self.ui.groupBox)
         ag.age_label.setObjectName("assetgroup_age_label")
         ag.container_layout.addWidget(ag.age_label)
-        ag.age = QtWidgets.QSpinBox(self.ui.groupBox)
-        ag.age.setMaximum(999)
-        ag.age.setObjectName("assetgroup_age")
-        ag.container_layout.addWidget(ag.age)
+        # ag.age = QtWidgets.QSpinBox(self.ui.groupBox)
+        # ag.age.setMaximum(999)
+        # ag.age.setObjectName("assetgroup_age")
+        # ag.container_layout.addWidget(ag.age)
         ag.spacer = QtWidgets.QSpacerItem(
             40,
             20,
@@ -511,14 +495,14 @@ class DataWindow(QDialog):
         ag.no_label.setText(_translate("projectDataWidget", self._getgroupname(i)))
         ag.A_label.setText(_translate("projectDataWidget", "A"))
         ag.N0_label.setText(_translate("projectDataWidget", "N0"))
-        ag.age_label.setText(_translate("projectDataWidget", "Age"))
+        # ag.age_label.setText(_translate("projectDataWidget", "Age"))
 
         # set defaults
         if(values):
             try:
                 ag.A.setText(str(values[0]))
                 ag.N0.setText(str(values[1]))
-                ag.age.setValue(int(values[2]))
+                # ag.age.setValue(int(values[2]))
             except Exception as e:
                 logger = logging.getLogger()
                 logger.exception("Error trying to set values with %s (Exception: %s)" % (values, e))
@@ -526,7 +510,7 @@ class DataWindow(QDialog):
         if(not values):
             ag.A.setText(str(c.DEFAULT_A))
             ag.N0.setText(str(c.DEFAULT_N0))
-            ag.age.setValue(int(c.DEFAULT_age))
+            # ag.age.setValue(int(c.DEFAULT_age))
 
         # Add validators
 
@@ -540,7 +524,7 @@ class DataWindow(QDialog):
         self.assetgrouplist.append(ag)
         ag.A.textChanged.connect(self._validate_property_groups)
         ag.N0.textChanged.connect(self._validate_property_groups)
-        ag.age.valueChanged.connect(self._validate_property_groups)
+        # ag.age.valueChanged.connect(self._validate_property_groups)
 
     def _validate_property_groups(self, item=None):
         logger = logging.getLogger()
@@ -554,10 +538,10 @@ class DataWindow(QDialog):
                 float(group.N0.text())
             except:
                 group.N0.setText(str(c.DEFAULT_N0))
-            try:
-                int(group.age.text())
-            except:
-                group.age.setValue(group.age.value())
+            # try:
+            #    int(group.age.text())
+            # except:
+            #    group.age.setValue(group.age.value())
 
     def get_active_groups(self):
         return [x for x in self.assetgrouplist if x.active]
@@ -599,6 +583,9 @@ class CurveDialogWithClosable(CurveDialog):
         self.enable_selection_update_signals()
         self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
         self.myplotitems = {}
+        
+        
+
 
     def enable_selection_update_signals(self, set=True):
         if(set):
@@ -946,8 +933,10 @@ class optimalTimeGraph(CurveDialogWithClosable):
                                                panels=None,
                                                wintitle=name,
                                                mainwindow=mainwindow)
+               
         if (isinstance(self.mainwindow, MainWindow)):
             self.mainwindow.optimaltimegraphs[id(self)] = self
+               
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
         if(year is None or damagecost is None or renewalcost is None):
@@ -1090,16 +1079,61 @@ class MainWindow(QMainWindow):
             settings.setValue("size", self.size())
             settings.setValue("pos", self.pos())
             settings.endGroup()
+            
+            settings.beginGroup("DataWindow")
+            settings.setValue("size", self.datawindow.parent().size())
+            settings.setValue("pos", self.datawindow.parent().pos())
+            settings.endGroup()
+            
+            settings.beginGroup("RiskPlot")
+            settings.setValue("size", self.riskmatrix.parent().size())
+            settings.setValue("pos", self.riskmatrix.parent().pos())
+            settings.endGroup()      
+            
+            settings.beginGroup("NetworkMap")
+            settings.setValue("size", self.networkmap.parent().size())
+            settings.setValue("pos", self.networkmap.parent().pos())
+            settings.endGroup()               
+            
+            settings.beginGroup("optimal_time_graphs")
+            settings.setValue("size", self.optimal_time_graphs()[0].parent().size())
+            settings.setValue("pos", self.optimal_time_graphs()[0].parent().pos())
+            settings.endGroup() 
+            
             settings.beginGroup("last_project")
             settings.setValue("LASTPROJECT", self.LASTPROJECT)
             settings.setValue("EPANETLOC", self.EPANETLOC)
             settings.endGroup()
+            
         else:
 
             settings.beginGroup("MainWindow")
             self.resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
             self.move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))
             settings.endGroup()
+            
+            settings.beginGroup("DataWindow")
+            self.datawindow.parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.datawindow.parent().move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))
+            settings.endGroup()
+            
+            settings.beginGroup("RiskPlot")
+            self.riskmatrix.parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.riskmatrix.parent().move(settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
+            settings.endGroup()        
+            
+            settings.beginGroup("NetworkMap")
+            self.networkmap.parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.networkmap.parent().move(settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
+            settings.endGroup()      
+            
+            settings.beginGroup("optimal_time_graphs")
+            self.optimal_time_graphs()[0].parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.optimal_time_graphs()[0].parent().move(settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
+            settings.endGroup()      
+            
+            
+            
             settings.beginGroup("last_project")
             self.LASTPROJECT = settings.value("LASTPROJECT", None, type=str)
             self.EPANETLOC = settings.value("EPANETLOC", None, type=str)
@@ -1107,6 +1141,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         self._manage_window_settings(save=True)
+        rrpam_wds.config.save()
         event.accept()
 
     def _setup_logging(self):
@@ -1150,6 +1185,7 @@ class MainWindow(QMainWindow):
         self.add_riskmatrix()
         self.optimaltimegraphs = {}
         self.add_optimaltimegraph()
+        self._manage_window_settings()
 
     def selected_holder(self, widget):
         """ When mocking remember do not patch slots. This is a slot. So, instead patch the function this calls below. """
@@ -1187,6 +1223,10 @@ class MainWindow(QMainWindow):
             logger.exception("non selectable item! (%s)" % e)
         # don't forget to reset
         self.update_selected_items = True
+        
+    def optimal_time_graphs(self):
+        """returnas a list of optimaltimegraphs"""
+        return list(self.optimaltimegraphs.values())
 
     def add_optimaltimegraph(self):
         wlc = optimalTimeGraph(mainwindow=self)

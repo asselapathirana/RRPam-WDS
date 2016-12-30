@@ -34,6 +34,29 @@ class TC(Test_Parent):
         p = self.aw.datawindow.getProb('11', 25)
         dp = c.DEFAULT_N0 * math.exp(c.DEFAULT_A * (25 + 0))
         self.assertAlmostEqual(p, dp, delta=0.0001)
+        
+    def test_getProb_method_will_call_get_age_method(self):
+        self.create_a_new_project()
+        with mock.patch.object(self.aw.datawindow, "get_age") as mock_get_age:
+            self.aw.datawindow.getProb('11',0)
+            mock_get_age.assert_called_once()
+            
+    def test_get_age_method_returns_age_set_at_asset_level(self):
+        sf=self.create_a_new_project()
+        link='110'
+        age=963
+        self.aw.datawindow.myplotitems[link].my_age.setValue(age)
+        self.assertEqual(self.aw.datawindow.get_age(link), age)
+        return sf, link, age
+        
+    def test_age_will_be_saved_when_project_saved_and_will_be_accurately_rertrieved_when_open(self):
+        sf, link, age=self.test_get_age_method_returns_age_set_at_asset_level()
+        self.aw._save_project()
+        self.create_a_new_project() # just so that previous values at GUI will be lost
+        with mock.patch.object(self.aw.projectgui, "_getOpenFileName") as mock__getOpenFileName:
+            mock__getOpenFileName.return_value = (sf, "*.rrp") 
+            self.aw._open_project()
+            self.assertEqual(self.aw.datawindow.get_age(link), age)
 
     def test_calculate_risk_method__calls_get_prob(self):
         """Perhaps this should logically be in a different test module."""
@@ -131,18 +154,18 @@ class TC(Test_Parent):
             self.assertEqual(d.activenumberofgroups, 3)
             self.assertEqual(d.assetgrouplist[1].A.text(), str(A1))
             self.assertEqual(d.assetgrouplist[1].N0.text(), str(N1))
-            self.assertEqual(d.assetgrouplist[1].age.value(), age1)
+            # self.assertEqual(d.assetgrouplist[1].age.value(), age1)
             self.aw.datawindow.ui.no_groups.setValue(
                 5)  # we have activated 5 groups now (open hidden values we saved)
             self.assertEqual(d.assetgrouplist[3].A.text(), str(A2))
             self.assertEqual(d.assetgrouplist[3].N0.text(), str(N2))
-            self.assertEqual(d.assetgrouplist[3].age.value(), age2)
+            # self.assertEqual(d.assetgrouplist[3].age.value(), age2)
 
     def change_some_groups_in_a_new_project(self):
         def setValues(self, i, A1, N1, age1):
             self.aw.datawindow.assetgrouplist[i].A.setText(str(A1))
             self.aw.datawindow.assetgrouplist[i].N0.setText(str(N1))
-            self.aw.datawindow.assetgrouplist[i].age.setValue(age1)
+            # self.aw.datawindow.assetgrouplist[i].age.setValue(age1)
 
         sf = self.create_a_new_project()
         # now add several property groups, set ngroups value and save
