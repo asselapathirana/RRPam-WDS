@@ -44,7 +44,7 @@ class TC(Test_Parent):
         set_text_textbox(one.A, A1)
         A1 = float(one.A.text())
         set_text_textbox(one.N0, N01)
-        N01 = float(one.N0.text())        
+        N01 = float(one.N0.text())
         box = self.aw.datawindow.assetgrouplist[2]
         set_text_textbox(box.A, A2)
         A2 = float(box.A.text())

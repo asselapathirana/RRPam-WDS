@@ -2,10 +2,7 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
 import logging
 import math
-import os
 import sys
-
-import rrpam_wds.config
 
 from guidata.configtools import get_icon
 from guiqwt.builder import make
@@ -36,6 +33,7 @@ from PyQt5.QtWidgets import QSlider
 from PyQt5.QtWidgets import QSplitter
 from PyQt5.QtWidgets import QVBoxLayout
 
+import rrpam_wds.config
 import rrpam_wds.constants as c
 import rrpam_wds.gui.subdialogs
 import rrpam_wds.gui.utils as u
@@ -46,9 +44,6 @@ from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
-
-
-
 
 STYLE = style_generator()
 
@@ -583,9 +578,6 @@ class CurveDialogWithClosable(CurveDialog):
         self.enable_selection_update_signals()
         self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
         self.myplotitems = {}
-        
-        
-
 
     def enable_selection_update_signals(self, set=True):
         if(set):
@@ -933,10 +925,10 @@ class optimalTimeGraph(CurveDialogWithClosable):
                                                panels=None,
                                                wintitle=name,
                                                mainwindow=mainwindow)
-               
+
         if (isinstance(self.mainwindow, MainWindow)):
             self.mainwindow.optimaltimegraphs[id(self)] = self
-               
+
         legend = make.legend("TR")
         self.get_plot().add_item(legend)
         if(year is None or damagecost is None or renewalcost is None):
@@ -1079,61 +1071,67 @@ class MainWindow(QMainWindow):
             settings.setValue("size", self.size())
             settings.setValue("pos", self.pos())
             settings.endGroup()
-            
+
             settings.beginGroup("DataWindow")
             settings.setValue("size", self.datawindow.parent().size())
             settings.setValue("pos", self.datawindow.parent().pos())
             settings.endGroup()
-            
+
             settings.beginGroup("RiskPlot")
             settings.setValue("size", self.riskmatrix.parent().size())
             settings.setValue("pos", self.riskmatrix.parent().pos())
-            settings.endGroup()      
-            
+            settings.endGroup()
+
             settings.beginGroup("NetworkMap")
             settings.setValue("size", self.networkmap.parent().size())
             settings.setValue("pos", self.networkmap.parent().pos())
-            settings.endGroup()               
-            
+            settings.endGroup()
+
             settings.beginGroup("optimal_time_graphs")
             settings.setValue("size", self.optimal_time_graphs()[0].parent().size())
             settings.setValue("pos", self.optimal_time_graphs()[0].parent().pos())
-            settings.endGroup() 
-            
+            settings.endGroup()
+
             settings.beginGroup("last_project")
             settings.setValue("LASTPROJECT", self.LASTPROJECT)
             settings.setValue("EPANETLOC", self.EPANETLOC)
             settings.endGroup()
-            
+
         else:
 
             settings.beginGroup("MainWindow")
             self.resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
             self.move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))
             settings.endGroup()
-            
+
             settings.beginGroup("DataWindow")
-            self.datawindow.parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.datawindow.parent().move(settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))
+            self.datawindow.parent().resize(
+                settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.datawindow.parent().move(
+                settings.value("pos", QtCore.QPoint(200, 200), type=QtCore.QPoint))
             settings.endGroup()
-            
+
             settings.beginGroup("RiskPlot")
-            self.riskmatrix.parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.riskmatrix.parent().move(settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
-            settings.endGroup()        
-            
+            self.riskmatrix.parent().resize(
+                settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.riskmatrix.parent().move(
+                settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
+            settings.endGroup()
+
             settings.beginGroup("NetworkMap")
-            self.networkmap.parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.networkmap.parent().move(settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
-            settings.endGroup()      
-            
+            self.networkmap.parent().resize(
+                settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.networkmap.parent().move(
+                settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
+            settings.endGroup()
+
             settings.beginGroup("optimal_time_graphs")
-            self.optimal_time_graphs()[0].parent().resize(settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.optimal_time_graphs()[0].parent().move(settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
-            settings.endGroup()      
-            
-            
-            
+            self.optimal_time_graphs()[0].parent().resize(
+                settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
+            self.optimal_time_graphs()[0].parent().move(
+                settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
+            settings.endGroup()
+
             settings.beginGroup("last_project")
             self.LASTPROJECT = settings.value("LASTPROJECT", None, type=str)
             self.EPANETLOC = settings.value("EPANETLOC", None, type=str)
@@ -1223,7 +1221,7 @@ class MainWindow(QMainWindow):
             logger.exception("non selectable item! (%s)" % e)
         # don't forget to reset
         self.update_selected_items = True
-        
+
     def optimal_time_graphs(self):
         """returnas a list of optimaltimegraphs"""
         return list(self.optimaltimegraphs.values())

@@ -1,11 +1,11 @@
-from rrpam_wds.gui import monkey_patch_guiqwt_guidata
-from guidata.configtools import add_image_module_path
 import os
-import rrpam_wds.constants as c
+
+from guidata.configtools import add_image_module_path
 from guiqwt.config import CONF
+
 import rrpam_wds
-
-
+import rrpam_wds.constants as c
+from rrpam_wds.gui import monkey_patch_guiqwt_guidata
 
 # there are some changes to the guiqwt classes to be done. It is not easy to do this by subclassing, as
 # we need to use make.* facotry.
@@ -25,10 +25,11 @@ DEFAULTS = {
     'plot':
     {
         "selection/distance": 10,
-        }
     }
+}
 CONF.update_defaults(DEFAULTS)
 CONF.set_application("rrpamwds", version=rrpam_wds.__version__)
+
 
 def save():
     CONF.save()

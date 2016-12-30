@@ -34,27 +34,27 @@ class TC(Test_Parent):
         p = self.aw.datawindow.getProb('11', 25)
         dp = c.DEFAULT_N0 * math.exp(c.DEFAULT_A * (25 + 0))
         self.assertAlmostEqual(p, dp, delta=0.0001)
-        
+
     def test_getProb_method_will_call_get_age_method(self):
         self.create_a_new_project()
         with mock.patch.object(self.aw.datawindow, "get_age") as mock_get_age:
-            self.aw.datawindow.getProb('11',0)
+            self.aw.datawindow.getProb('11', 0)
             mock_get_age.assert_called_once()
-            
+
     def test_get_age_method_returns_age_set_at_asset_level(self):
-        sf=self.create_a_new_project()
-        link='110'
-        age=963
+        sf = self.create_a_new_project()
+        link = '110'
+        age = 963
         self.aw.datawindow.myplotitems[link].my_age.setValue(age)
         self.assertEqual(self.aw.datawindow.get_age(link), age)
         return sf, link, age
-        
+
     def test_age_will_be_saved_when_project_saved_and_will_be_accurately_rertrieved_when_open(self):
-        sf, link, age=self.test_get_age_method_returns_age_set_at_asset_level()
+        sf, link, age = self.test_get_age_method_returns_age_set_at_asset_level()
         self.aw._save_project()
-        self.create_a_new_project() # just so that previous values at GUI will be lost
+        self.create_a_new_project()  # just so that previous values at GUI will be lost
         with mock.patch.object(self.aw.projectgui, "_getOpenFileName") as mock__getOpenFileName:
-            mock__getOpenFileName.return_value = (sf, "*.rrp") 
+            mock__getOpenFileName.return_value = (sf, "*.rrp")
             self.aw._open_project()
             self.assertEqual(self.aw.datawindow.get_age(link), age)
 
