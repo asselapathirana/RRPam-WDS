@@ -68,7 +68,11 @@ class ProjectGUI(QObject):
     def rewrite_values_in_variables_with_gui(self):
         self.logger.info("Writing: GUI>var ")
         self.log()
+        # disable events from firing
+        __status = self.projectproperties.blockSignals(True)
         self.projectproperties.set()
+        # now enable them again
+        self.projectproperties.blockSignals(__status)
 
     def new_project(self):
         self.logger.info("New Project")

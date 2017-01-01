@@ -732,23 +732,38 @@ class RiskMatrix(CurveDialogWithClosable):
 
     def plot_links(self, links):
         logger = logging.getLogger()
-        if (not links):
-            return
-        if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
-            logger.info("The link does not have cons, prob attributes. Can not plot risk.")
-            return
-        # adfs = [x.cons for x in links]
-        # prob = [x.prob for x in links]
-        # first compute bounding box
-        for link in links:
-            self.plot_item(id_=link.id, data=[link.cons, link.prob], title="Point", icon="pipe.png")
+
+        # we are plotting wholesale. So, disable signals temporily
+        with u.updates_disabled_temporarily(self.get_plot()):
+            if (not links):
+                return
+            if (not (hasattr(links[0], "cons") and hasattr(links[0], "prob"))):
+                logger.info("The link does not have cons, prob attributes. Can not plot risk.")
+                return
+            # adfs = [x.cons for x in links]
+            # prob = [x.prob for x in links]
+            # first compute bounding box
+            for link in links:
+                self.plot_item(
+                    id_=link.id,
+                    data=[link.cons,
+                          link.prob],
+                    title="Point",
+                    icon="pipe.png")
+
         self.set_proper_axis_limits()
 
     def replot_all(self):
         """Replots all items in myplotitems"""
         # self.set_proper_axis_limits()
-        for id_, item in self.myplotitems.items():
-            self.plot_item(id_, [None, None])
+
+        # we are plotting wholesale. So, disable signals temporily
+        with u.updates_disabled_temporarily(self.get_plot()):
+
+            for id_, item in self.myplotitems.items():
+                self.plot_item(id_, [None, None])
+            # now enable again
+
         # now set axis limits
         self.set_proper_axis_limits()
 
@@ -834,16 +849,19 @@ class NetworkMap(CurveDialogWithClosable):
 
     def draw_network(self, nodes, links):
         logger = logging.getLogger()
-        if(nodes):
-            logger.info("Drawing nodes")
-            self.draw_nodes(nodes)
-        # we don't want users to select grid, or nodes and they should not appear in the item list.
-        # So lock'em up.
-        self.set_all_private()
+        # we are plotting wholesale. So, disable signals temporily
+        with u.updates_disabled_temporarily(self.get_plot()):
 
-        if(links):
-            logger.info("Drawing links")
-            self.draw_links(links)
+            if(nodes):
+                logger.info("Drawing nodes")
+                self.draw_nodes(nodes)
+            # we don't want users to select grid, or nodes and they should not appear in the item list.
+            # So lock'em up.
+            self.set_all_private()
+
+            if(links):
+                logger.info("Drawing links")
+                self.draw_links(links)
         self.get_plot().do_autoscale(replot=True)
 
     def interp_curve(self, x, y):
@@ -1326,8 +1344,6 @@ class MainWindow(QMainWindow):
             results = self.projectgui.projectproperties.dataset.get_network()
         nodes = getattr(results, "nodes", None)
         links = getattr(results, "links", None)
-
-        # id_  =project.id
         self.networkmap.draw_network(nodes, links)
         self.datawindow.draw_network(links)
         links = self._calculate_risk(links)
