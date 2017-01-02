@@ -8,6 +8,7 @@ from guiqwt.curve import CurveItem
 from guiqwt.shapes import EllipseShape
 from PyQt5.QtWidgets import QApplication
 
+from rrpam_wds.examples import networks
 from rrpam_wds.project_manager import ProjectManager as PM
 from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
@@ -45,16 +46,19 @@ class TC(Test_Parent):
 
     def test_project_managers_new_project_will_cause_project_to_be_opend_in_main_window(
             self, other=None):
+        ds = self.aw.pm.project_data
         # see run_in_a_thread
         if (other):
             self = other
         with mock.patch.object(self.aw, '_display_project', autospec=True) as mock__display_project:
-            self.aw.pm.new_project()
-            self.aw.pm.wait_to_finish()
-            QApplication.processEvents()  # this is very important before the assertion.
-            # that is because we are not testing this within the Qt's main loop.
-            time.sleep(0.1)
-            mock__display_project.assert_called_with(self.aw.pm.workerthread.result)
+            with mock.patch.object(ds, "get_epanetfile", autospect=True) as mock_get_epanetfile:
+                mock_get_epanetfile.return_value = networks[0]
+                self.aw.pm.new_project()
+                self.aw.pm.wait_to_finish()
+                QApplication.processEvents()  # this is very important before the assertion.
+                # that is because we are not testing this within the Qt's main loop.
+                time.sleep(0.1)
+                mock__display_project.assert_called_with(self.aw.pm.workerthread.result)
 
     def test_project_manager_sends_a_network_and_main_window_plots_it_correctly(self, other=None):
         # first monkey patch open_project method in self.aw.pm.workerthread object

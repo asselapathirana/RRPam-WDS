@@ -9,6 +9,7 @@ import rrpam_wds.constants as c
 from rrpam_wds.examples import networks
 from rrpam_wds.gui.dialogs import DataWindow
 from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.gui.dialogs import RiskMatrix
 from rrpam_wds.gui.subdialogs import ProjectGUI
 from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
@@ -279,6 +280,25 @@ class TC(Test_Parent):
             it1.currentIndex() ==
             it2.currentIndex() ==
             it3.currentIndex())
+
+    @mock.patch.object(RiskMatrix, 'plot_item')
+    @mock.patch.object(RiskMatrix, 'set_proper_axis_limits')
+    @mock.patch.object(RiskMatrix, 'call_replot')  # note these mocks are stacked. so the argument order is 'reversed'
+    def test_assetGUI_my_group_changed_call_will_trigger_update_calls_in_right_order(
+            self, call_replot_mock, set_proper_axis_limits_mock, plot_item_mock):
+        self.create_a_new_project()
+        mock_parent = mock.Mock()
+        mock_parent.attach_mock(call_replot_mock, "m2")
+        mock_parent.attach_mock(set_proper_axis_limits_mock, "m1")
+        mock_parent.attach_mock(plot_item_mock, "m0")
+
+        calls = ['m0', 'm1', 'm2']
+        self.aw.riskmatrix.myplotitems = ['something']
+        self.aw.datawindow.myplotitems['11'].my_group_changed(99)
+
+        # we are just interestded in call order, not arguments
+        self.assertTrue([x[0] for x in mock_parent.method_calls] == calls)
+        # extract only calls, strip arguments
 
     def create_a_new_project(self):
         import tempfile

@@ -34,12 +34,15 @@ class TC(Test_Parent):
         with mock.patch.object(self.aw.projectgui, "_getOpenFileName", autospec=True) as mock__getOpenFileName:
             mock__getOpenFileName.return_value = (sf, "*.rrp")
             self.aw._open_project()
+
     def test_selecting_items_in_plots(self):
-        sf = self.create_a_new_project()
-        it=self.aw.riskmatrix.myplotitems['137'][0]
+        self.create_a_new_project()
+        it = self.aw.riskmatrix.myplotitems['137'][0]
         self.aw.riskmatrix.get_plot().select_item(it)
         self.assertTrue(self.aw.networkmap.myplotitems['137'][0].selected)
-        
+        it = self.aw.datawindow.myplotitems['233']
+        it.my_selected.setChecked(True)
+        self.assertTrue(self.aw.networkmap.myplotitems['233'][0].selected)
 
 if __name__ == "__main__":
     tc = TC()

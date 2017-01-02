@@ -11,14 +11,36 @@ from guidata.dataset.qtwidgets import DataSetEditGroupBox
 from guidata.hdf5io import HDF5Reader
 from guidata.hdf5io import HDF5Writer
 from PyQt5.QtCore import QObject
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QProgressBar
+from PyQt5.QtWidgets import QVBoxLayout
 
 import rrpam_wds.constants as c
 import rrpam_wds.gui.dialogs
 from rrpam_wds.constants import ResultSet
+
+
+class ProgressBar(QDialog):
+
+    def __init__(self, parent=None, flags=None, message=None):
+        self.message = message
+        if (not flags):
+            flags = Qt.FramelessWindowHint
+        super(ProgressBar, self).__init__(parent=parent, flags=flags)
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        lab = QLabel(message, self)
+        vbox.addWidget(lab)
+        pb = QProgressBar()
+        pb.setRange(0, 0)
+        vbox.addWidget(pb)
+        self.setLayout(vbox)
 
 
 class ProjectGUI(QObject):

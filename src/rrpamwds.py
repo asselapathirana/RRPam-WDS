@@ -10,7 +10,7 @@ from rrpam_wds import setpath  # isort:skip # NOQA
 
 
 app = QApplication([])
-if (len(sys.argv) > 1):  # first run tests
+if (len(sys.argv) > 1 and sys.argv[1] == "RUNTESTS"):  # first run tests
     import time
     win = MainWindow()
     # win.show()

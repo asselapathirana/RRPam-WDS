@@ -68,6 +68,7 @@ class PropertyGroupGUI(QObject):
 
 
 class AssetGUI(QObject):
+    logger = logging.getLogger()
 
     def __init__(self, frame, datawindow):
         self.active = False
@@ -76,6 +77,7 @@ class AssetGUI(QObject):
         super(AssetGUI, self).__init__()
 
     def my_group_changed(self, val):
+        self.logger.info("*** my group changed %s" % val)
         self.datawindow.assets_group_changed_reciever(self.id_, val)
 
     def _selected_change_color(self, select):
@@ -161,7 +163,6 @@ class DataWindow(QDialog):
         A = gr[0]
         N = gr[1]
         return N * math.exp(A * (age + time_))
-
 
     def draw_network(self, links):
         logger = logging.getLogger()
@@ -768,11 +769,15 @@ class RiskMatrix(CurveDialogWithClosable):
         # now set axis limits
         self.set_proper_axis_limits()
 
+    def call_replot(self):
+        """Calls replot() method of the default plot"""
+        self.get_plot().replot()
+
     def plot_item(self, id_, data, title="Point", icon="pipe.png"):
         """Plot or update a plot"""
         global STYLE
         logger = logging.getLogger()
-        logger.info("Plotting : %s" % id_)
+        # logger.info("Plotting : %s" % id_)
         consequence, probability = data
         if (consequence is None):
             try:
@@ -793,33 +798,36 @@ class RiskMatrix(CurveDialogWithClosable):
 
         try:
             v = self.myplotitems[id_]
-            for item in v:  # then remove from plots
-                self.get_plot().removeItem(
-                    item)  # this will automatically call remove_plot_item_from_record
-                # and remove it from myplotitems
+            # for item in v:  # then remove from plots
+            #    self.get_plot().removeItem(
+            # item)  # this will automatically call remove_plot_item_from_record
+            # and remove it from myplotitems
+
+            # just change the diameter and origin of ellipse and move the label
+            v[0].set_xdiameter(*self.get_ellipse_xaxis(consequence, probability))
+            v[1].set_pos(consequence, probability)
 
         except KeyError:  # the item is not in myplotitems
-            pass
-        ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
-                          title=title)
-        ci.shapeparam._DataSet__icon = u.get_icon('Risk')
-        ci.shapeparam._DataSet__title = title
-        param = ci.shapeparam
-        param.fill.color = QColor('red')
-        param.sel_fill.color = QColor('purple')
-        param.sel_fill.alpha = .7
-        param.sel_symbol.Marker = "NoSymbol"
-        param.sel_symbol.Color = QColor('red')
-        update_style_attr('-r', param)
-        param.update_shape(ci)
-        ci.id_ = id_  # add the id to the item before plotting.
-        self.get_plot().add_item(ci)
-        # now add a label with link id
-        la = make.label(id_, ci.get_center(), (0, 0), "C")
-        la.id_ = id_  # add the id to the item before plotting.
-        self.get_plot().add_item(la)
-        la.set_private(False)
-        self.add_plot_item_to_record(id_, [ci, la])
+            ci = make.ellipse(*self.get_ellipse_xaxis(consequence, probability),
+                              title=title)
+            ci.shapeparam._DataSet__icon = u.get_icon('Risk')
+            ci.shapeparam._DataSet__title = title
+            param = ci.shapeparam
+            param.fill.color = QColor('red')
+            param.sel_fill.color = QColor('purple')
+            param.sel_fill.alpha = .7
+            param.sel_symbol.Marker = "NoSymbol"
+            param.sel_symbol.Color = QColor('red')
+            update_style_attr('-r', param)
+            param.update_shape(ci)
+            ci.id_ = id_  # add the id to the item before plotting.
+            self.get_plot().add_item(ci)
+            # now add a label with link id
+            la = make.label(id_, ci.get_center(), (0, 0), "C")
+            la.id_ = id_  # add the id to the item before plotting.
+            self.get_plot().add_item(la)
+            la.set_private(False)
+            self.add_plot_item_to_record(id_, [ci, la])
 
 
 class NetworkMap(CurveDialogWithClosable):
@@ -849,12 +857,14 @@ class NetworkMap(CurveDialogWithClosable):
         self.draw_network(nodes, links)
 
     def draw_network(self, nodes, links):
+        app = QApplication.instance()
         logger = logging.getLogger()
         # we are plotting wholesale. So, disable signals temporily
         with u.updates_disabled_temporarily(self.get_plot()):
 
             if(nodes):
                 logger.info("Drawing nodes")
+                app.processEvents()
                 self.draw_nodes(nodes)
             # we don't want users to select grid, or nodes and they should not appear in the item list.
             # So lock'em up.
@@ -862,6 +872,7 @@ class NetworkMap(CurveDialogWithClosable):
 
             if(links):
                 logger.info("Drawing links")
+                app.processEvents()
                 self.draw_links(links)
         self.get_plot().do_autoscale(replot=True)
 
@@ -1046,8 +1057,29 @@ class MainWindow(QMainWindow):
         self.setMenu()
         self.connect_project_manager()
         self._initialize_all_components()
-
+        self._create_progressbar()
         self._manage_window_settings()
+
+    @pyqtSlot(object)
+    def _progressbar_set(self, set_):
+        self._progressbar_set_(set_)
+
+    def _progressbar_set_(self, set_):
+        logger = logging.getLogger()
+        if(set_):
+            logger.info("** I got message - calculation started")
+            self.progressbar.exec_()
+        else:
+            logger.info("** I got message - calculation ENDED")
+            self.progressbar.close()
+
+    def _create_progressbar(self):
+        self.progressbar = rrpam_wds.gui.subdialogs.ProgressBar(
+            parent=self,
+            flags=0,
+            message="Doing Hydraulic Calculations")
+        self.pm.i_start_calculations.connect(self._progressbar_set)
+        # self.pm.heres_a_project_signal.connect(self._progressbar_set)
 
     def _initialize_all_components(self):
         self._delete_all_subwindows()
@@ -1224,19 +1256,18 @@ class MainWindow(QMainWindow):
             subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
             subplots.append(self.riskmatrix.get_plot())
             subplots.append(self.networkmap.get_plot())
-            # do not append this, do this seperately. subplots.append(self.datawindow.get_plot())
+            subplots.append(self.datawindow.get_plot())
             # OK, now remove the plot represented by the argument 'widget'
             subplots = filter(lambda a: a != widget, subplots)
             # now select the selections of 'widget' in them.
             selected_ids = [x.id_ for x in widget.get_selected_items()]
             for p in subplots:
+                # if p is dataWindow, do not
                 # find corressponding items
                 targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
-                #with u.updates_disabled_temporarily(p):
-                    # now update
-                p.select_some_items(targets)
-            p=subplots.append(self.datawindow.get_plot())
-            p.select_some_items(targets)
+                # now update
+                with u.updates_disabled_temporarily(p):
+                    p.select_some_items(targets)
 
         except Exception as e:
             logger = logging.getLogger()
@@ -1349,14 +1380,23 @@ class MainWindow(QMainWindow):
         nodes = getattr(results, "nodes", None)
         links = getattr(results, "links", None)
         self.networkmap.draw_network(nodes, links)
+        app = QApplication.instance()
+        app.processEvents()
         self.datawindow.draw_network(links)
+        app.processEvents()
         links = self._calculate_risk(links)
+        app.processEvents()
         self.riskmatrix.plot_links(links)
+        app.processEvents()
 
     def assets_group_changed_reciever(self, id_):
+        logger = logging.getLogger()
+        logger.info("** I got it.")
         if (len(self.riskmatrix.myplotitems) > 0):
             data = [None, self.datawindow.getProb(id_, 0)]
             self.riskmatrix.plot_item(id_, data)
+            self.riskmatrix.set_proper_axis_limits()
+            self.riskmatrix.call_replot()
 
     def _calculate_risk(self, links):
         logger = logging.getLogger()

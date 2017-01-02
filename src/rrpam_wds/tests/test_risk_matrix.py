@@ -42,7 +42,7 @@ class TC(Test_Parent):
         self.rm.plot_item("foo", [5000.0, 50], title="foo")
         self.rm.plot_item("bar", [1000.0, 20], title="bar")
         self.rm.plot_item("bax", [8000.0, 70], title="bax")
-        self.rm.plot_item("bax", [15000.0, 100], title="bax")
+        self.rm.plot_item("baxt", [15000.0, 100], title="bax")
 
 
 if __name__ == '__main__':  # pragma: no cover

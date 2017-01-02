@@ -17,18 +17,22 @@ class WorkerThread(QThread):
         super(WorkerThread, self).__init__()
 
     def run(self):
+        self.pm.i_start_calculations.emit(True)
         self.do_the_job()
+        self.pm.i_start_calculations.emit(False)
 
     def do_the_job(self):
+
         logger = logging.getLogger()
         self.result = self.new_project()
         logger.info("..got the results")
         if (self.incomplete_result(self.result)):
+            logger.info("ERROR: But incomplete results")
             return None
 
         logger.info("Informing that I am done with calculations ...")
-
         self.pm.heres_a_project_signal.emit(self.result)
+        self.sleep(1)
 
     def incomplete_result(self, r):
         try:
@@ -50,8 +54,9 @@ class WorkerThread(QThread):
 
     def new_project(self):
         logger = logging.getLogger()
-        logger.info("starting the calculations .... ")
+
         network = self.project_data.get_epanetfile()
+        logger.info("EPANETFILE: %s; starting the calculations .... " % network)
         if(not network):
             logger.warn("I did not get an epanet network file. I quit.")
             return None
@@ -81,7 +86,7 @@ class ProjectManager(QObject):
     This means however, we can not do any GUI stuff directly in this (GUI has to run in the main thread - PyQt rule!)
     GUI stuff happens in gui.subdialogs module)
     """
-
+    i_start_calculations = pyqtSignal(object)
     heres_a_project_signal = pyqtSignal(object)
 
     def __init__(self, project_data):

@@ -3,6 +3,7 @@ import sys
 import time
 import unittest
 
+import mock
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
@@ -34,6 +35,9 @@ class Test_Parent(unittest.TestCase):
         self.app = QApplication.instance() or QApplication(sys.argv)
         self.start = time.time()
         self.aw = MainWindow()
+        self.aw.progressbar = mock.MagicMock()
+        # we set progress bar to a mock. Otherwise it will
+        # interfere with tests.
 
     def tearDown(self):
         self.stop = time.time()
