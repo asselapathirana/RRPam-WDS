@@ -162,6 +162,7 @@ class DataWindow(QDialog):
         N = gr[1]
         return N * math.exp(A * (age + time_))
 
+
     def draw_network(self, links):
         logger = logging.getLogger()
         if(not links):
@@ -1223,7 +1224,7 @@ class MainWindow(QMainWindow):
             subplots = [x.get_plot() for x in self.optimaltimegraphs.values()]
             subplots.append(self.riskmatrix.get_plot())
             subplots.append(self.networkmap.get_plot())
-            subplots.append(self.datawindow.get_plot())
+            # do not append this, do this seperately. subplots.append(self.datawindow.get_plot())
             # OK, now remove the plot represented by the argument 'widget'
             subplots = filter(lambda a: a != widget, subplots)
             # now select the selections of 'widget' in them.
@@ -1231,8 +1232,11 @@ class MainWindow(QMainWindow):
             for p in subplots:
                 # find corressponding items
                 targets = [x for x in p.get_items() if getattr(x, 'id_', None) in selected_ids]
-                # now update
+                #with u.updates_disabled_temporarily(p):
+                    # now update
                 p.select_some_items(targets)
+            p=subplots.append(self.datawindow.get_plot())
+            p.select_some_items(targets)
 
         except Exception as e:
             logger = logging.getLogger()
