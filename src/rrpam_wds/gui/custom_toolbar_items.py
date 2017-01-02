@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -25,4 +26,6 @@ class ResetZoomTool(tools.CommandTool):
 
     def activate_command(self, plot, checked):
         """Activate tool"""
+        logger = logging.getLogger()
+        logger.info("Reset scale")
         plot.do_autoscale()

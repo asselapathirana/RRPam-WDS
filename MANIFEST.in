@@ -25,16 +25,21 @@ exclude  *.old
 exclude service
 include freeze.py  
 include setupdata.py
-
+exclude ui
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib  output.txt
 recursive-exclude junk *
 recursive-exclude src *.rpt
 recursive-exclude src/rrpam_wds/tests ?.inp
 global-exclude  log.txt
+global-exclude  *.log
+global-exclude  *.log.[0-9]
 recursive-exclude service *
 
 global-exclude *.swp
+global-exclude *.bash
+global-exclude *.ui
+
 global-exclude prof.out
 
 

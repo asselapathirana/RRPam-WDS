@@ -1,37 +1,15 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import sys
-import time
-import unittest
 
 import mock
 import numpy as np
 from guiqwt.curve import CurveItem
 from guiqwt.shapes import EllipseShape
-from PyQt5.QtWidgets import QApplication
 
-from rrpam_wds.gui.dialogs import MainWindow
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
-class test_main_window(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication(sys.argv)
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Signalling tests")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_every_plot_triggers_selection_update_function_in_the_main_window(self):
         nm, rm, ot = self.plot_a_random_dataset()
@@ -115,19 +93,9 @@ class test_main_window(unittest.TestCase):
             years = [1997, 1998, 1999, 2005, 2008]
             val = random.random() / 10.
             ot.plotCurveSet(ids[i], years, [1000 * math.exp(val * (x - years[0]))
-                            for x in years], [1000 - 1000 * math.exp(-val * 2 * (x - years[0])) for x in years])
+                                            for x in years], [1000 - 1000 * math.exp(-val * 2 * (x - years[0])) for x in years])
         return nm, rm, ot
 
 
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = test_main_window()
-        ot.setUp()
-        ot.test_selecting_items_in_riskmatrix_plot_update_slections_to_match_in_other_plots()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
-
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

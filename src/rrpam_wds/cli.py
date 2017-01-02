@@ -17,6 +17,7 @@ Why does this file exist, and why not put this in __main__?
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
 import argparse
+import logging
 import sys
 
 from PyQt5.QtCore import QObject
@@ -34,7 +35,8 @@ class Main(QObject):
 
     def __init__(self, args=None):
         args = parser.parse_args(args=args)
-        print(args.names)
+        logger = logging.getLogger()
+        logger.info(args.names)
         self.app = QApplication([])
         self.win = MainWindow()
         self.win.show()
