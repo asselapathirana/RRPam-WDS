@@ -67,14 +67,14 @@ class WorkerThread(QThread):
             logger.exception("There was an error in calculations: %s" % e)
             return e
         rs = ResultSet()
-
+        rs.units = e1.units
         rs.links = list(e1.links.values())
         rs.nodes = list(e1.nodes.values())
         rs.links[0]
         rs.nodes[0]
         logger.info(
-            "Sending results set with %d nodes and %d links" %
-            (len(rs.nodes), len(rs.links)))
+            "Sending results set with UNITS: %s; %d nodes and %d links" %
+            (rs.units, len(rs.nodes), len(rs.links)))
         return rs
 
 

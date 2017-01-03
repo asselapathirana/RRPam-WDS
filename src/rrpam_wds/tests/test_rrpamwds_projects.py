@@ -1,6 +1,6 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 import logging
-import random
+import os
 import time
 
 import mock
@@ -8,6 +8,7 @@ from guiqwt.curve import CurveItem
 from guiqwt.shapes import EllipseShape
 from PyQt5.QtWidgets import QApplication
 
+import rrpam_wds.constants as c
 from rrpam_wds.examples import networks
 from rrpam_wds.project_manager import ProjectManager as PM
 from rrpam_wds.tests.test_utils import Test_Parent
@@ -60,35 +61,25 @@ class TC(Test_Parent):
                 time.sleep(0.1)
                 mock__display_project.assert_called_with(self.aw.pm.workerthread.result)
 
+    def create_a_new_project(self):
+        import tempfile
+        with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:
+            with mock.patch.object(self.aw.projectgui, '_getSaveFileName2', autospec=True) as mock__getSaveFileName2:
+                sf = os.path.join(tempfile.tempdir, "xxx3xp")
+                mock__getSaveFileName.return_value = (sf, c.PROJECTEXTENSION)
+                mock__getSaveFileName2.return_value = (networks[0], '*.inp')
+                self.aw._new_project()
+                time.sleep(.1)
+                self.app.processEvents()
+
+                # make sure the thread finishes
+                self.aw.pm.wait_to_finish()
+                self.app.processEvents()
+                time.sleep(.1)
+                return sf
+
     def test_project_manager_sends_a_network_and_main_window_plots_it_correctly(self, other=None):
-        # first monkey patch open_project method in self.aw.pm.workerthread object
-        from rrpam_wds.project_manager import WorkerThread
-
-        def custom_new_project(self):
-            logger = logging.getLogger()
-            logger.info("I am reading an epanet file")
-
-            class emptyclass:
-                pass
-            result = emptyclass()
-            import rrpam_wds.examples as ex
-            from rrpam_wds import hydraulic_services as hs
-            time.sleep(1)
-            e1 = hs.pdd_service(ex.networks[0], coords=True, adfcalc=True)
-            result.nodes = list(e1.nodes.values())
-            result.links = list(e1.links.values())
-            for link in result.links:
-                link.prob = random.random() * 100.
-                link.cons = (1 - link.ADF) * 1000
-
-            return result
-        # now monkey patch
-        WorkerThread.new_project = custom_new_project
-        self.aw.pm.new_project()
-        self.aw.pm.wait_to_finish()
-        self.app.processEvents()  # give some time for the gui to plot
-        time.sleep(3)  # give some time for the gui to plot
-
+        self.create_a_new_project()
         # now test
         # what were the original ids worker sent?
         _ids = [x.id for x in self.aw.pm.workerthread.result.links]

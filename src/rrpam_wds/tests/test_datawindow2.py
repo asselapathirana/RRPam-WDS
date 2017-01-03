@@ -30,17 +30,22 @@ class TC(Test_Parent):
         import math
         self.create_a_new_project()
         p = self.aw.datawindow.getProb('11', 0)
-        dp = c.DEFAULT_N0 * math.exp(c.DEFAULT_A * 0)
+        l = self.aw.datawindow.get_dims('11')[1]
+        dp = l / c.LENGTH_CONVERSION_FACTOR[c.FEET] * c.DEFAULT_N0 * math.exp(c.DEFAULT_A * 0)
         self.assertAlmostEqual(p, dp, delta=0.0001)
         p = self.aw.datawindow.getProb('11', 25)
-        dp = c.DEFAULT_N0 * math.exp(c.DEFAULT_A * (25 + 0))
+        dp = l / c.LENGTH_CONVERSION_FACTOR[
+            c.FEET] * c.DEFAULT_N0 * math.exp(c.DEFAULT_A * (25 + 0))
         self.assertAlmostEqual(p, dp, delta=0.0001)
 
-    def test_getProb_method_will_call_get_age_method(self):
+    def test_getProb_method_will_call_get_age_get_dims_methods(self):
         self.create_a_new_project()
         with mock.patch.object(self.aw.datawindow, "get_age") as mock_get_age:
-            self.aw.datawindow.getProb('11', 0)
-            mock_get_age.assert_called_once()
+            with mock.patch.object(self.aw.datawindow, "get_dims") as mock_get_dims:
+                mock_get_dims.return_value = (1, 1)
+                self.aw.datawindow.getProb('11', 0)
+                mock_get_age.assert_called_once()
+                mock_get_dims.assert_called_once()
 
     def test_get_age_method_returns_age_set_at_asset_level(self):
         sf = self.create_a_new_project()
@@ -51,6 +56,18 @@ class TC(Test_Parent):
         return sf, link, age
 
     def test_age_will_be_saved_when_project_saved_and_will_be_accurately_rertrieved_when_open(self):
+        sf, link, age = self.test_get_age_method_returns_age_set_at_asset_level()
+        dia, length = self.aw.datawindow.get_dims(link)
+        self.aw._save_project()
+        self.create_a_new_project()  # just so that previous values at GUI will be lost
+        with mock.patch.object(self.aw.projectgui, "_getOpenFileName") as mock__getOpenFileName:
+            mock__getOpenFileName.return_value = (sf, "*.rrp")
+            self.aw._open_project()
+            self.assertEqual(self.aw.datawindow.get_age(link), age)
+            self.assertEqual(self.aw.datawindow.get_dims(link), (dia, length))
+
+    def test_dims_will_be_saved_when_project_saved_and_will_be_accurately_rertrieved_when_open(
+            self):
         sf, link, age = self.test_get_age_method_returns_age_set_at_asset_level()
         self.aw._save_project()
         self.create_a_new_project()  # just so that previous values at GUI will be lost

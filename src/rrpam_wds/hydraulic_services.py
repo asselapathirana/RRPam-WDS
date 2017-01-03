@@ -28,6 +28,20 @@ class pdd_service(object):
         if(coords):
             self.read_coordinates(epanet_network)
         self.orig_networkfile = epanet_network
+        self._get_units()
+
+    def _get_units(self):
+        import re
+        pattern = re.compile("^\s*Units\s*([A-Z]{3})\s*$")
+        self.units = None
+        with open(self.orig_networkfile, "r") as f:
+            for line in f:
+                p = pattern.search(line)
+                if p:
+                    self.units = p.group(1)
+                    break
+        if not self.units:
+            raise Exception("Wrong file format. Can Not find 'Units XXX' entry")
 
     def read_coordinates(self, epanet_network):
         """Reads the epanet input file and extracts the coorinates of:
@@ -96,8 +110,6 @@ class pdd_service(object):
         for key, value in self.es.network.nodes.items():
             n = _Node()
             n.id = value.id
-            # n.x=value.x
-            # n.y=value.y
             self.nodes[key] = n
 
         for key, value in self.es.network.links.items():

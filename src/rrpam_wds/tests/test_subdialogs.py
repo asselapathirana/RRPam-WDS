@@ -123,7 +123,9 @@ class TC(Test_Parent):
         self.assertFalse(ds.results)
         ds.set_network(Exception())
         self.assertFalse(ds.results)
-        ds.set_network(ResultSet())
+        rs = ResultSet()
+        rs.units = "GPM"
+        ds.set_network(rs)
         self.assertTrue(ds.results)
 
     def test_calling_new_file_will_update_gui_from_data_not_otherway_around(self):
@@ -203,19 +205,21 @@ class TC(Test_Parent):
                                                 with mock.patch.object(self.aw.pm,
                                                                        '_new_project',
                                                                        autospec=True):
+                                                    with mock.patch.object(self.aw.datawindow, "set_information"):
+                                                        with mock.patch.object(self.aw, "_display_project"):
 
-                                                    self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load = None
-                                                    mock__getSaveFileName.return_value = (
-                                                        "xxes", '*.rrp')
-                                                    mock__getSaveFileName2.return_value = (
-                                                        "tmp.inp", '*.inp')
-                                                    mock__create_empty_project.return_value = 'bo'
-                                                    mock__getOpenFileName.return_value = (
-                                                        "gox", "*.rrp")
-                                                    mock_check_epanetfile.return_value = "tmp.inp"
-                                                    mock__valid_project.return_value = True
-                                                    mock__save_project_to_dest.return_value = "some project"
-                                                    f(mock_set, mock_get)
+                                                            self.aw.projectgui.projectproperties.dataset.group_list_to_save_or_load = None
+                                                            mock__getSaveFileName.return_value = (
+                                                                "xxes", '*.rrp')
+                                                            mock__getSaveFileName2.return_value = (
+                                                                "tmp.inp", '*.inp')
+                                                            mock__create_empty_project.return_value = 'bo'
+                                                            mock__getOpenFileName.return_value = (
+                                                                "gox", "*.rrp")
+                                                            mock_check_epanetfile.return_value = "tmp.inp"
+                                                            mock__valid_project.return_value = True
+                                                            mock__save_project_to_dest.return_value = "some project"
+                                                            f(mock_set, mock_get)
 
 
 if __name__ == "__main__":

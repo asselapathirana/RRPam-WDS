@@ -268,6 +268,10 @@ class ProjectPropertiesDataset(dt.DataSet):
     _bg3 = dt.BeginGroup("Epanet file of this project")
     fname = di.StringItem("", help="Epanet file of this project").set_prop("display", active=False)
     _eg3 = dt.EndGroup("Epanet file of this project")
+    _bg5 = dt.BeginGroup("Units")
+    lunits = di.StringItem("Length  : ", help="Length units").set_prop("display", active=False)
+    dunits = di.StringItem("Diameter: ", help="Diameter units").set_prop("display", active=False)
+    _eg5 = dt.EndGroup("Epanet file of this project")
     di.FileOpenItem("Select Epanet file (open)", ("inp", "eta"))
     _bg2 = dt.BeginGroup("Discount rate (%)")
     discountrate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)
@@ -336,6 +340,13 @@ class ProjectPropertiesDataset(dt.DataSet):
                 return False
         return True
 
+    def _set_units(self):
+        self.logger.info("READING UNITS ...")
+        if(self.results):
+            self.lunits, self.dunits = c.units[self.results.units]
+        else:
+            self.logger.exception("WARNING: Empty result set!!")
+
     def _read_network_data(self, projfile):
         f = self.get_nwstore_file(projfile)
 
@@ -343,6 +354,8 @@ class ProjectPropertiesDataset(dt.DataSet):
             with open(f, 'rb') as stream:
                 self.logger.info("Reading results  from %s" % f)
                 self.results = pickle.load(stream)
+                if (self.results):
+                    self._set_units()
                 return True
         except Exception as e:
                 self.logger.info("Exception reading saved results %s, %s" % (projfile, e))
@@ -400,6 +413,7 @@ class ProjectPropertiesDataset(dt.DataSet):
     def set_network(self, results):
         if (isinstance(results, ResultSet)):
             self.results = results
+            self._set_units()
             return
         else:
             self.logger.warn("There was a problem with calculations ")

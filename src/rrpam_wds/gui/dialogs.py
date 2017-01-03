@@ -158,13 +158,18 @@ class DataWindow(QDialog):
     def getProb(self, id_, time_):
         grname = self.myplotitems[id_].my_group.currentIndex()
         age = self.get_age(id_)
+        diameter, length = self.get_dims(id_)
         d, grs = self.get_information()
         gr = grs[grname]
         A = gr[0]
         N = gr[1]
-        return N * math.exp(A * (age + time_))
+        return length / c.LENGTH_CONVERSION_FACTOR[self.lunits] * N * math.exp(A * (age + time_))
 
     def draw_network(self, links):
+        # get the units
+        self.dunits = self.mainwindow.projectgui.projectproperties.dataset.dunits
+        self.lunits = self.mainwindow.projectgui.projectproperties.dataset.lunits
+
         logger = logging.getLogger()
         if(not links):
             logger.info("Links sent was None. Ignoring request to draw!")
@@ -172,7 +177,7 @@ class DataWindow(QDialog):
         logger.info("Creating assignment items for %d links " % len(links))
 
         for link in links:
-            self.add_assign_asset_item(link.id)
+            self.add_assign_asset_item(link)
         spacerItem = QtWidgets.QSpacerItem(
             20,
             40,
@@ -271,6 +276,13 @@ class DataWindow(QDialog):
         """we are mimicking get_selected_items method of guiqwt.BasePlot widget"""
         return [x for x in self.myplotitems.values() if x.selected()]
 
+    def get_dims(self, id):
+        logger = logging.getLogger()
+        try:
+            return (self.myplotitems[id].diameter_, self.myplotitems[id].length_)
+        except Exception:
+            logger.exception("Error retrieving dimensions for id %s" % id)
+
     def get_age(self, id):
         logger = logging.getLogger()
         try:
@@ -368,7 +380,7 @@ class DataWindow(QDialog):
     def assets_group_changed_reciever(self, id_, index):
         self.mainwindow.assets_group_changed_reciever(id_)
 
-    def add_assign_asset_item(self, id_):
+    def add_assign_asset_item(self, link):
         ag = AssetGUI(QFrame(), self)
         ag.assign_asset_item = QtWidgets.QFrame(self.ui.scrollAreaWidgetContents)
         ag.assign_asset_item.setObjectName("assign_asset_item")
@@ -379,10 +391,34 @@ class DataWindow(QDialog):
         ag.label_8.setObjectName("label_8")
         ag.indiviual_asset_container_layout_4.addWidget(ag.label_8)
         ag.my_id = QtWidgets.QLabel(ag.assign_asset_item)
-        ag.my_id.setMinimumSize(QtCore.QSize(100, 0))
+        ag.my_id.setMinimumSize(QtCore.QSize(50, 0))
         ag.my_id.setMaximumSize(QtCore.QSize(200, 16777215))
         ag.my_id.setObjectName("my_id")
         ag.indiviual_asset_container_layout_4.addWidget(ag.my_id)
+
+        ag.my_dia = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.my_dia.setMinimumSize(QtCore.QSize(50, 0))
+        ag.my_dia.setMaximumSize(QtCore.QSize(200, 16777215))
+        ag.my_dia.setObjectName("my_dia")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_dia)
+
+        ag.my_dia_units = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.my_dia_units.setMinimumSize(QtCore.QSize(5, 0))
+        ag.my_dia_units.setMaximumSize(QtCore.QSize(50, 16777215))
+        ag.my_dia_units.setObjectName("my_dia_units")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_dia_units)
+
+        ag.my_length = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.my_length.setMinimumSize(QtCore.QSize(50, 0))
+        ag.my_length.setMaximumSize(QtCore.QSize(200, 16777215))
+        ag.my_length.setObjectName("my_length")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_length)
+
+        ag.my_length_units = QtWidgets.QLabel(ag.assign_asset_item)
+        ag.my_length_units.setMinimumSize(QtCore.QSize(5, 0))
+        ag.my_length_units.setMaximumSize(QtCore.QSize(50, 16777215))
+        ag.my_length_units.setObjectName("my_length_units")
+        ag.indiviual_asset_container_layout_4.addWidget(ag.my_length_units)
 
         ag.my_selected = QtWidgets.QCheckBox(ag.assign_asset_item)
         ag.my_selected.setObjectName("my_selected")
@@ -415,7 +451,12 @@ class DataWindow(QDialog):
         _translate = QtCore.QCoreApplication.translate
 
         ag.label_8.setText(_translate("projectDataWidget", "ID: "))
-        ag.my_id.setText(id_)
+        ag.my_id.setText(link.id)
+        ag.my_dia.setText(str(link.diameter))
+        ag.my_dia_units.setText(self.dunits)
+        ag.my_length_units.setText(self.lunits)
+
+        ag.my_length.setText(str(link.length))
         ag.label_9.setText(_translate("projectDataWidget", "Group"))
         ag.label_10.setText(_translate("projectDataWidget", "Age (y)"))
 
@@ -433,8 +474,10 @@ class DataWindow(QDialog):
         # add this to the record.
         # 1. Add _id to aq
         # 2. then add aq to the record
-        ag.id_ = id_
-        self.add_plot_item_to_record(id_, ag)
+        ag.id_ = link.id
+        ag.length_ = link.length
+        ag.diameter_ = link.diameter
+        self.add_plot_item_to_record(link.id, ag)
 
         # connect signal
         ag.my_selected.stateChanged.connect(self.myselectionchanged)

@@ -4,7 +4,20 @@ import unicodedata
 
 import appdirs
 
-units = {"EURO": u"{}".format(unicodedata.lookup("EURO SIGN")), "DOLLARS": "$"}
+units = {"EURO": u"{}".format(unicodedata.lookup("EURO SIGN")),
+         "DOLLARS": "$",
+         'LPS': ['m', 'mm'],
+         'LPM': ['m', 'mm'],
+         'MLD': ['m', 'mm'],
+         'CMH': ['m', 'mm'],
+         'CMD': ['m', 'mm'],
+         # now imperial units
+         'CFS': ['ft', 'in'],
+         'GPM': ['ft', 'in'],
+         'MGD': ['ft', 'in'],
+         'IMGD': ['ft', 'in'],
+         'AFD': ['ft', 'in'],
+         }
 curve_colors = ["b", "r", "p", "g"]
 widget_select_background = 19
 widget_default_background = 10  # see http://doc.qt.io/qt-4.8/qpalette.html#ColorRole-enum
@@ -20,6 +33,15 @@ DEFAULT_N0 = 4.0e-3
 DEFAULT_age = 0
 
 DIRECTCOSTMULTIPLIER = 1000
+
+METERS = 'm'
+FEET = 'ft'
+KM = 'km'
+MM = 'mm'
+MILES = 'mi'
+INCHES = 'in'
+
+LENGTH_CONVERSION_FACTOR = {METERS: 1000, FEET: 5280}
 
 
 class ResultSet:

@@ -58,6 +58,16 @@ class TC(Test_Parent):
             if(link.id not in ['P1', 'P3', 'P4', 'P5', 'P9', 'P11', 'P13', 'M1', 'M2', 'PUMP1', 'PUMP2']):
                 self.assertEqual(len(link.vertices), 0)
 
+    def test_pdd_service_has_units(self):
+        self.e0 = hs.pdd_service(ex.examples.networks[0])
+        self.e1 = hs.pdd_service(ex.examples.networks[1])
+        self.e2 = hs.pdd_service(ex.examples.networks[2])
+        self.e3 = hs.pdd_service(ex.examples.networks[3])
+        self.assertEqual(self.e0.units, 'GPM')
+        self.assertEqual(self.e1.units, 'GPM')
+        self.assertEqual(self.e2.units, 'LPS')
+        self.assertEqual(self.e3.units, 'GPM')
+
 
 if __name__ == '__main__':  # pragma: no cover
     main(TC, test=False)
