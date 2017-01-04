@@ -24,7 +24,7 @@ class TC(Test_Parent):
         oldgeometry2 = QtCore.QRect(200, 150, 505, 508)
         self.aw.networkmap.parent().setGeometry(oldgeometry2)
         oldgeometry3 = QtCore.QRect(300, 200, 509, 510)
-        self.aw.optimal_time_graphs()[0].parent().setGeometry(oldgeometry3)
+        self.aw.get_optimal_time_graphs()[0].parent().setGeometry(oldgeometry3)
         oldgeometry4 = QtCore.QRect(100, 300, 511, 512)
         self.aw.datawindow.parent().setGeometry(oldgeometry4)
         self.aw.show()
@@ -37,7 +37,7 @@ class TC(Test_Parent):
         self.aw = MainWindow()
         self.assertEqual(oldgeometry1, self.aw.riskmatrix.parent().geometry())
         self.assertEqual(oldgeometry2, self.aw.networkmap.parent().geometry())
-        self.assertEqual(oldgeometry3, self.aw.optimal_time_graphs()[0].parent().geometry())
+        self.assertEqual(oldgeometry3, self.aw.get_optimal_time_graphs()[0].parent().geometry())
         self.assertEqual(oldgeometry4, self.aw.datawindow.parent().geometry())
 
     def test_main_window_remember_geometry(self):

@@ -40,7 +40,7 @@ import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
 from rrpam_wds.gui import _property_widget
-from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
+from rrpam_wds.gui.custom_toolbar_items import (ResetZoomTool, PlotWLCTool)
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
@@ -244,12 +244,22 @@ class DataWindow(QDialog):
         self.groups_changed.connect(self._update_groupchoices)
         self.myselectionchanged_signal.connect(self.selected_holder)
         self.ui.select_diameter_button.pressed.connect(self._select_all_with_this_diameter)
+        self.ui.copytoselection.pressed.connect(self._assign_group_to_selected_assets)
 
     def _deselect_all(self):
         logger = logging.getLogger()
         logger.info("Deselecting all.. ")
         [x.my_selected.setChecked(False) for x in self.myplotitems.values()]
-
+        
+    @pyqtSlot()
+    def _assign_group_to_selected_assets(self):
+        group=self.ui.grouptocopy.currentText()
+        logger = logging.getLogger()
+        logger.info("Copying group %s to selected." % group )  
+        [x.my_group.setCurrentText(group) for x in self.get_selected_items()]
+        
+        
+    @pyqtSlot()
     def _select_all_with_this_diameter(self):
         diameter=self.ui.select_diameter_combobox.currentText()
         logger = logging.getLogger()
@@ -636,7 +646,7 @@ class CurveDialogWithClosable(CurveDialog):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._can_be_closed = True
         self.get_plot().set_antialiasing(True)
-        self.add_tools()
+        # self.add_tools()
         self.selected_holder = kwargs['mainwindow'].selected_holder
         self.enable_selection_update_signals()
         self.get_plot().SIG_ITEM_REMOVED.connect(self.__item_removed)
@@ -667,10 +677,39 @@ class CurveDialogWithClosable(CurveDialog):
         self.get_plot().PREFERRED_AXES_LIMITS = axes_limits
         # now autoscale
         self.get_plot().do_autoscale()
-
-    def add_tools(self):
-        """adds the custom tools necessary"""
+    
+    def register_tools(self):
+        from guiqwt.tools import ( SaveAsTool, CopyToClipboardTool, PrintTool, HelpTool, AntiAliasingTool, AxisScaleTool)
+        logger=logging.getLogger()
+        logger.info("Registering tools")
         self.add_tool(ResetZoomTool)
+        self.register_standard_tools()
+        # self.register_other_tools()
+        self.add_tool(SaveAsTool)
+        self.add_tool(CopyToClipboardTool)
+        self.add_tool(PrintTool)
+        self.add_tool(HelpTool)        
+        # self.register_curve_tools()
+        self.add_tool(AntiAliasingTool)
+        self.add_tool(AxisScaleTool)    
+        self.get_default_tool().activate()
+        
+    def register_standard_tools(self):
+        """
+        Registering basic tools for standard plot dialog
+        --> top of the context-menu
+        """
+        from guiqwt.tools import ( SelectTool, RectZoomTool, BasePlotMenuTool, ExportItemDataTool, DisplayCoordsTool)
+        t = self.add_tool(SelectTool)
+        self.set_default_tool(t)
+        self.add_tool(RectZoomTool)
+        self.add_tool(BasePlotMenuTool, "item")
+        self.add_tool(ExportItemDataTool)
+        self.add_separator_tool()
+        self.add_tool(BasePlotMenuTool, "grid")
+        self.add_tool(BasePlotMenuTool, "axes")
+        self.add_tool(DisplayCoordsTool)
+        
 
     def setClosable(self, closable=True):
         self._can_be_closed = closable
@@ -787,7 +826,7 @@ class RiskMatrix(CurveDialogWithClosable):
             tc = self.mainwindow.projectgui.projectproperties.dataset.totalcost
             max_x = max((tc * c.DIRECTCOSTMULTIPLIER, max_x))
             min_y = 0.0  # override
-            max_y = max((1, max_y))
+            # max_y = max((1, max_y))
             _axes_limits = [min_x, max_x, min_y, max_y]
             self.set_axes_limits(_axes_limits)
         except Exception:
@@ -1026,7 +1065,18 @@ class optimalTimeGraph(CurveDialogWithClosable):
             pass
         else:
             self.plotCurveSet(name, year, damagecost, renewalcost)
-
+            
+    def _plot_selected_items(self):
+        """Plots the assets that are currently selected in other windows with this plot. """
+        logger=logging.getLogger()
+        logger.info("** Not implemented _plot_selected_items ")        
+            
+    def register_tools(self):
+        logger=logging.getLogger()
+        logger.info("Registering WLC tool")
+        self.add_tool(PlotWLCTool)
+        super(optimalTimeGraph,self).register_tools()
+        
     def closeEvent(self, evnt):
         if (not isinstance(self.mainwindow, MainWindow)):
             _can_be_closed = True
@@ -1200,8 +1250,8 @@ class MainWindow(QMainWindow):
             settings.endGroup()
 
             settings.beginGroup("optimal_time_graphs")
-            settings.setValue("size", self.optimal_time_graphs()[0].parent().size())
-            settings.setValue("pos", self.optimal_time_graphs()[0].parent().pos())
+            settings.setValue("size", self.get_optimal_time_graphs()[0].parent().size())
+            settings.setValue("pos", self.get_optimal_time_graphs()[0].parent().pos())
             settings.endGroup()
 
             settings.beginGroup("last_project")
@@ -1238,9 +1288,9 @@ class MainWindow(QMainWindow):
             settings.endGroup()
 
             settings.beginGroup("optimal_time_graphs")
-            self.optimal_time_graphs()[0].parent().resize(
+            self.get_optimal_time_graphs()[0].parent().resize(
                 settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.optimal_time_graphs()[0].parent().move(
+            self.get_optimal_time_graphs()[0].parent().move(
                 settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
             settings.endGroup()
 
@@ -1336,7 +1386,7 @@ class MainWindow(QMainWindow):
         # don't forget to reset
         self.update_selected_items = True
 
-    def optimal_time_graphs(self):
+    def get_optimal_time_graphs(self):
         """returnas a list of optimaltimegraphs"""
         return list(self.optimaltimegraphs.values())
 
