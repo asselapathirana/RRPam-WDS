@@ -34,7 +34,7 @@ class TestOptimalTimeGraph(Test_Parent):
         assert_array_almost_equal(it[1].get_data(), (year, renewalcost))
         assert_array_almost_equal(
             it[2].get_data(), (year, (damagecost + renewalcost)))
-        tg1.plotCurveSet("set2", year, damagecost + 2000, renewalcost * 1.2)
+        tg1._plotCurveSet("set2", year, damagecost + 2000, renewalcost * 1.2)
         it = [x for x in tg1.get_plot().get_items() if (
             isinstance(x, CurveItem))]
         self.assertEqual(len(it), 6)

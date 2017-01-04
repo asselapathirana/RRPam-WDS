@@ -1,4 +1,5 @@
 from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
+# -*- coding: utf-8 -*-
 
 import logging
 import math
@@ -75,6 +76,21 @@ class AssetGUI(QObject):
         self.frame = frame
         self.datawindow = datawindow
         super(AssetGUI, self).__init__()
+        
+    def get_curve_data(self):        
+        wd=c.WLCData()
+        gr=self.datawindow.assetgrouplist[self.my_group.currentIndex()]
+        wd.A=float(gr.A.text())
+        wd.N0=float(gr.N0.text())
+        wd.age=int(self.my_age.value())
+        ds=self.datawindow.mainwindow.projectgui.projectproperties.dataset
+        wd.r=ds.discountrate
+        wd.years=ds.timehorizon     
+        wd.id=self.my_id.text()
+        wd.length=float(self.length_)
+        wd.diameter=float(self.diameter_)
+        wd.lunits=self.datawindow.lunits
+        return wd
 
     def my_group_changed(self, val):
         self.logger.info("*** my group changed %s" % val)
@@ -163,7 +179,8 @@ class DataWindow(QDialog):
         gr = grs[grname]
         A = gr[0]
         N = gr[1]
-        return length / c.LENGTH_CONVERSION_FACTOR[self.lunits] * N * math.exp(A * (age + time_))
+        lunits=self.lunits
+        return c._getProb(A, time_, lunits, N, length, age)
 
     def draw_network(self, links):
         # get the units
@@ -329,11 +346,16 @@ class DataWindow(QDialog):
         """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations.
         if all=True, then it will return ALL items in assetgrouplist (e.g. for saving)"""
         if (not all):
-            gr = [(float(x.A.text()), float(x.N0.text()))
-                  for x in self.assetgrouplist[:self.activenumberofgroups]]
+            ang=self.activenumberofgroups
+            gr = self.return_group_values(ang)
             return self.activenumberofgroups, gr
         else:
-            return self.activenumberofgroups, [(float(x.A.text()), float(x.N0.text())) for x in self.assetgrouplist]
+            return self.activenumberofgroups, self.return_group_values()
+
+    def return_group_values(self, ang=None):
+        gr = [(float(x.A.text()), float(x.N0.text()), float(x.cost.text()))
+              for x in self.assetgrouplist[:ang]]
+        return gr
 
     def assign_values_to_asset_items(self, assets):
         logger = logging.getLogger()
@@ -517,7 +539,7 @@ class DataWindow(QDialog):
         return "G_%02d" % i
 
     def add_assetgroup(self, i, values=None):
-        """values will be used as (A0, N0, age)"""
+        """values will be used as (A0, N0, cost)"""
 
         ag = PropertyGroupGUI(frame=QFrame())
         ag.container_layout = QtWidgets.QHBoxLayout()
@@ -541,6 +563,18 @@ class DataWindow(QDialog):
         ag.N0.setInputMask("")
         ag.N0.setObjectName("assetgroup_N0")
         ag.container_layout.addWidget(ag.N0)
+        
+        ag.cost_label = QtWidgets.QLabel(self.ui.groupBox)
+        ag.cost_label.setObjectName("assetgroup_cost_label")
+        ag.container_layout.addWidget(ag.cost_label)
+        ag.cost = QtWidgets.QLineEdit(self.ui.groupBox)
+        ag.cost.setMaximumSize(QtCore.QSize(50, 16777215))
+        ag.cost.setInputMask("")
+        ag.cost.setObjectName("assetgroup_cost")
+        ag.container_layout.addWidget(ag.cost)        
+        
+        
+        
         ag.age_label = QtWidgets.QLabel(self.ui.groupBox)
         ag.age_label.setObjectName("assetgroup_age_label")
         ag.container_layout.addWidget(ag.age_label)
@@ -563,6 +597,7 @@ class DataWindow(QDialog):
         ag.no_label.setText(_translate("projectDataWidget", self._getgroupname(i)))
         ag.A_label.setText(_translate("projectDataWidget", "A"))
         ag.N0_label.setText(_translate("projectDataWidget", "N0"))
+        ag.cost_label.setText(_translate("projectDataWidget", "Cost(mln)"))        
         # ag.age_label.setText(_translate("projectDataWidget", "Age"))
 
         # set defaults
@@ -570,7 +605,7 @@ class DataWindow(QDialog):
             try:
                 ag.A.setText(str(values[0]))
                 ag.N0.setText(str(values[1]))
-                # ag.age.setValue(int(values[2]))
+                ag.cost.setText(str(values[2]))
             except Exception as e:
                 logger = logging.getLogger()
                 logger.exception("Error trying to set values with %s (Exception: %s)" % (values, e))
@@ -578,38 +613,39 @@ class DataWindow(QDialog):
         if(not values):
             ag.A.setText(str(c.DEFAULT_A))
             ag.N0.setText(str(c.DEFAULT_N0))
-            # ag.age.setValue(int(c.DEFAULT_age))
+            ag.cost.setText(str(c.DEFAULT_cost))
 
         # Add validators
 
         ag.valNumber = QtGui.QDoubleValidator()
         ag.A.setValidator(ag.valNumber)
         ag.N0.setValidator(ag.valNumber)
-        # ag.valInt=QtGui.QIntValidator()
-        # ag.age.setValidator(ag.valInt)
+        ag.cost.setValidator(ag.valNumber)
+
+
+        ag.A.textChanged.connect(self._validate_property_groups)
+        ag.N0.textChanged.connect(self._validate_property_groups)
+        ag.cost.textChanged.connect(self._validate_property_groups)
 
         #
         self.assetgrouplist.append(ag)
-        ag.A.textChanged.connect(self._validate_property_groups)
-        ag.N0.textChanged.connect(self._validate_property_groups)
-        # ag.age.valueChanged.connect(self._validate_property_groups)
-
+        
     def _validate_property_groups(self, item=None):
         logger = logging.getLogger()
         logger.info("Validating property groups...")
         for group in self.assetgrouplist:
             try:
                 float(group.A.text())
-            except:
+            except ValueError:
                 group.A.setText(str(c.DEFAULT_A))
             try:
                 float(group.N0.text())
-            except:
+            except ValueError:
                 group.N0.setText(str(c.DEFAULT_N0))
-            # try:
-            #    int(group.age.text())
-            # except:
-            #    group.age.setValue(group.age.value())
+            try:
+                float(group.cost.text())
+            except ValueError:
+                group.cost.setText(str(c.DEFAULT_cost))
 
     def get_active_groups(self):
         return [x for x in self.assetgrouplist if x.active]
@@ -623,6 +659,8 @@ class DataWindow(QDialog):
             super(DataWindow, self).keyPressEvent(e)
         else:
             pass
+
+
 
 
 class CurveDialogWithClosable(CurveDialog):
@@ -1064,12 +1102,14 @@ class optimalTimeGraph(CurveDialogWithClosable):
         if(year is None or damagecost is None or renewalcost is None):
             pass
         else:
-            self.plotCurveSet(name, year, damagecost, renewalcost)
+            self._plotCurveSet(name, year, damagecost, renewalcost)
             
     def _plot_selected_items(self):
         """Plots the assets that are currently selected in other windows with this plot. """
         logger=logging.getLogger()
-        logger.info("** Not implemented _plot_selected_items ")        
+        logger.info("PPP: Calling plot calculator ")
+        self.mainwindow.call_plot_calculator(id(self))
+        
             
     def register_tools(self):
         logger=logging.getLogger()
@@ -1093,11 +1133,17 @@ class optimalTimeGraph(CurveDialogWithClosable):
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
 
-    def plot_item(self, id_, data, title, icon="pipe.png"):
-        year, damagecost, renewalcost = data
-        self.add_plot_item_to_record(id_, self.plotCurveSet(title, year, damagecost, renewalcost))
+    def plot_item(self, id_, wlccurve, icon="pipe.png"):
+        """This is the way to plot a WLC curve set."""
+        try:
+            year=wlccurve.year
+            damagecost=wlccurve.damagecost
+            renewalcost=wlccurve.renewalcost
+        except AttributeError: # then it is the old calling method - a list
+            year, damagecost, renewalcost = wlccurve
+        self.add_plot_item_to_record(id_, self._plotCurveSet(id_, year, damagecost, renewalcost))
 
-    def plotCurveSet(self, id_, year, damagecost, renewalcost):
+    def _plotCurveSet(self, id_, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
         dc = make.curve(
             year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
@@ -1131,6 +1177,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
         self.get_plot().add_item(tc)
         self.curvesets.append([id_, dc, tc, rc])
         return [dc, tc, rc]
+
 
 
 class MainWindow(QMainWindow):
@@ -1176,11 +1223,19 @@ class MainWindow(QMainWindow):
     def _progressbar_set(self, set_):
         self._progressbar_set_(set_)
 
+    def call_plot_calculator(self, callerid):
+        for asset in self.datawindow.get_selected_items():
+            cd=asset.get_curve_data()
+            cd.requestingcurve=callerid
+            cd.cons=self.riskmatrix.myplotitems[cd.id][0].get_center()
+            self.pm.calculate_curves(cd)
+            
+
     def _progressbar_set_(self, set_):
         logger = logging.getLogger()
         if(set_):
             logger.info("** I got message - calculation started")
-            self.progressbar.exec_()
+            self.progressbar.show()
         else:
             logger.info("** I got message - calculation ENDED")
             self.progressbar.close()
@@ -1328,6 +1383,19 @@ class MainWindow(QMainWindow):
         self.pm = PM(self.projectgui.projectproperties.dataset)
         self.projectgui._new_project_signal.connect(self.pm.new_project)
         self.pm.heres_a_project_signal.connect(self.take_up_results)
+        self.pm.heres_a_curve_signal.connect(self._plot_wlc)
+        
+    @pyqtSlot(object)
+    def _plot_wlc(self, curve):
+        """"""
+        self._plot_wlc_(curve)
+    
+    def _plot_wlc_(self,curve):
+        logger=logging.getLogger()
+        logger.info("$$$ I got the message with a curve to plot")
+        self.optimaltimegraphs[curve.requestingcurve].plot_item(curve.id,curve)
+        
+    
 
     def _remove_all_subwindows(self):
         for subw in self.mdi.subWindowList():

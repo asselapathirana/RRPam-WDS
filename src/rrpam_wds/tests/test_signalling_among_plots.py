@@ -92,7 +92,7 @@ class TC(Test_Parent):
         for i in range(5, 8):
             years = [1997, 1998, 1999, 2005, 2008]
             val = random.random() / 10.
-            ot.plotCurveSet(ids[i], years, [1000 * math.exp(val * (x - years[0]))
+            ot._plotCurveSet(ids[i], years, [1000 * math.exp(val * (x - years[0]))
                                             for x in years], [1000 - 1000 * math.exp(-val * 2 * (x - years[0])) for x in years])
         return nm, rm, ot
 

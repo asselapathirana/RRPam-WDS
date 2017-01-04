@@ -54,7 +54,7 @@ class TC(Test_Parent):
         with mock.patch.object(otg, 'add_plot_item_to_record', autospec=True) as mock_add_plot_item_to_record:
             self.assertFalse(mock_add_plot_item_to_record.called)
             otg.plot_item(
-                "fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]], "fox")
+                "fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]])
             self.assertTrue(mock_add_plot_item_to_record.called)
 
     def test_optimaltimegraph_report_removing_to_the_register(self):
@@ -63,7 +63,7 @@ class TC(Test_Parent):
         with mock.patch.object(otg, 'remove_plot_item_from_record', autospec=True) as mock_remove_plot_item_from_record:
             self.assertFalse(mock_remove_plot_item_from_record.called)
             otg.plot_item(
-                "fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]], "fox")
+                "fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]])
             self.assertFalse(mock_remove_plot_item_from_record.called)
             nw_item = [x for x in otg.get_plot().get_items() if isinstance(x, CurveItem)][0]
             otg.get_plot().del_item(nw_item)
@@ -76,8 +76,8 @@ class TC(Test_Parent):
         otg1 = l[0]
         otg2 = l[1]
         self.assertEqual(len(otg1.myplotitems), 0)
-        otg1.plot_item("fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]], "fox")
-        otg2.plot_item("fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]], "fox")
+        otg1.plot_item("fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]])
+        otg2.plot_item("fox", [[1997, 1998, 2005, 2008], [5, 10, 25, 95], [100, 50, 25, 12]])
         self.assertEqual(len(otg1.myplotitems), 1)
         self.assertEqual(len(otg2.myplotitems), 1)
         otg_item = [x for x in otg1.get_plot().get_items() if isinstance(x, CurveItem)][0]

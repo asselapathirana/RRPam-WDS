@@ -1,6 +1,7 @@
 import logging
 import os
 import unicodedata
+import numpy as np
 
 import appdirs
 
@@ -31,6 +32,7 @@ PROJECTDATADIREXT = ".datadir"
 DEFAULT_A = 5.0e-2
 DEFAULT_N0 = 4.0e-3
 DEFAULT_age = 0
+DEFAULT_cost= 500.
 
 DIRECTCOSTMULTIPLIER = 1000
 
@@ -43,6 +45,8 @@ INCHES = 'in'
 
 LENGTH_CONVERSION_FACTOR = {METERS: 1000, FEET: 5280}
 
+def _getProb(A, time_, lunits, N, length, age):
+    return length / LENGTH_CONVERSION_FACTOR[lunits] * N * np.exp(A * (age + time_))
 
 def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -50,6 +54,27 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
 class ResultSet:
     pass
 
+class WLCData:
+    requestingcurve=None
+    id=None
+    age=DEFAULT_age
+    A=DEFAULT_A
+    N0=DEFAULT_N0
+    r=5.0
+    years=20.
+    cost=DEFAULT_cost
+    length=100.
+    lunits=METERS
+    
+class WLCCurve:
+    requestingcurve=None
+    id=None
+    wlccurveindex=0
+    year=[]
+    damagecost=[]
+    renewalcost=[]
+    id_=None
+    
 
 def _get_dir_and_extention(projectname):
     logger = logging.getLogger()
