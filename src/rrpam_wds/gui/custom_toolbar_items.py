@@ -32,7 +32,7 @@ class ResetZoomTool(tools.CommandTool):
 
 class PlotWLCTool(tools.CommandTool):
     TITLE = "Plot WLC curves for selected assets"
-    ICON = "curves.png"
+    ICON = "wlc.png"
 
     def __init__(self, manager, toolbar_id=tools.DefaultToolbarID):
 

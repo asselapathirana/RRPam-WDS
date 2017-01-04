@@ -1074,6 +1074,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
     def register_tools(self):
         logger=logging.getLogger()
         logger.info("Registering WLC tool")
+        self.add_separator_tool()
         self.add_tool(PlotWLCTool)
         super(optimalTimeGraph,self).register_tools()
         
