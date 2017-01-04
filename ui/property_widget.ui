@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>424</width>
-    <height>416</height>
+    <width>527</width>
+    <height>429</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -96,8 +96,8 @@
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>348</width>
-                         <height>292</height>
+                         <width>451</width>
+                         <height>305</height>
                         </rect>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -162,6 +162,16 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QPushButton" name="select_diameter_button">
+                    <property name="text">
+                     <string>Select diameter</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="select_diameter_combobox"/>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer_4">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -194,8 +204,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>332</width>
-                      <height>256</height>
+                      <width>435</width>
+                      <height>269</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_6">

@@ -184,6 +184,11 @@ class DataWindow(QDialog):
             QtWidgets.QSizePolicy.Minimum,
             QtWidgets.QSizePolicy.Expanding)
         self.ui.assign_asset_item_parent_layout.addItem(spacerItem)
+        
+        # now populate select_diameter_combobox with unique diameters
+        dia=[str(y) for y in sorted(set(x.diameter_ for x in self.myplotitems.values()))]
+        self.ui.select_diameter_combobox.clear()
+        self.ui.select_diameter_combobox.addItems(dia)
 
     def _update_all(self):
         self._set_no_groups(1)
@@ -238,6 +243,19 @@ class DataWindow(QDialog):
         self.ui.no_groups.valueChanged.connect(self._set_no_groups)
         self.groups_changed.connect(self._update_groupchoices)
         self.myselectionchanged_signal.connect(self.selected_holder)
+        self.ui.select_diameter_button.pressed.connect(self._select_all_with_this_diameter)
+
+    def _deselect_all(self):
+        logger = logging.getLogger()
+        logger.info("Deselecting all.. ")
+        [x.my_selected.setChecked(False) for x in self.myplotitems.values()]
+
+    def _select_all_with_this_diameter(self):
+        diameter=self.ui.select_diameter_combobox.currentText()
+        logger = logging.getLogger()
+        self._deselect_all()
+        logger.info("Selecting diameter %s " % diameter )        
+        [x.my_selected.setChecked(True) for x in self.myplotitems.values() if c.isclose(float(x.diameter_),float(diameter))]
 
     def _update_groupchoices(self, listofgroups):
         logger = logging.getLogger()
