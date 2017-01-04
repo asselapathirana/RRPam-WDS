@@ -30,6 +30,7 @@ class ResetZoomTool(tools.CommandTool):
         logger.info("Reset scale")
         plot.do_autoscale()
 
+
 class PlotWLCTool(tools.CommandTool):
     TITLE = "Plot WLC curves for selected assets"
     ICON = "wlc.png"
@@ -37,7 +38,7 @@ class PlotWLCTool(tools.CommandTool):
     def __init__(self, manager, toolbar_id=tools.DefaultToolbarID):
 
         super(PlotWLCTool, self).__init__(manager, self.TITLE, icon=self.ICON,
-                                            toolbar_id=toolbar_id)
+                                          toolbar_id=toolbar_id)
 
     def activate_command(self, plot, checked):
         """Activate tool"""

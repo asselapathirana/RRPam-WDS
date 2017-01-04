@@ -1,7 +1,6 @@
 import logging
 
 import numpy as np
-
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
@@ -9,9 +8,12 @@ from PyQt5.QtCore import pyqtSlot
 
 from rrpam_wds import hydraulic_services as hs
 from rrpam_wds.constants import ResultSet
-from rrpam_wds.constants import WLCData, WLCCurve, _getProb
+from rrpam_wds.constants import WLCCurve
+from rrpam_wds.constants import _getProb
+
 
 class WLCThread(QThread):
+
     def __init__(self, pm, project_data):
         self.pm = pm
         self.project_data = project_data
@@ -20,24 +22,24 @@ class WLCThread(QThread):
     def run(self):
         self.pm.i_start_calculations.emit(True)
         self.do_the_job()
-        self.pm.i_start_calculations.emit(False) 
-    
+        self.pm.i_start_calculations.emit(False)
+
     def do_the_job(self):
-        logger=logging.getLogger()
-        self.result=WLCCurve()
-        self.result.requestingcurve=self.project_data.requestingcurve
+        logger = logging.getLogger()
+        logger.info("Starting calculation WLCThread..")
+        self.result = WLCCurve()
+        self.result.requestingcurve = self.project_data.requestingcurve
         self._calculate()
         self.pm.heres_a_curve_signal.emit(self.result)
-        self.sleep(1)  
-        
+        self.sleep(1)
+
     def _calculate(self):
-        d=self.project_data
-        r=self.result
-        r.year=np.arange(0,d.years,1)
-        r.renewalcost = d.cost*np.exp(-r.year*d.r)
-        tmp=_getProb(d.A, r.year, d.lunits, d.N0, d.length, d.age)
+        d = self.project_data
+        r = self.result
+        r.year = np.arange(0, d.years, 1)
+        r.renewalcost = d.cost * np.exp(-r.year * d.r)
+        tmp = _getProb(d.A, r.year, d.lunits, d.N0, d.length, d.age)
         r.damagecost = np.add.accumulate(tmp)
-        
 
 
 class WorkerThread(QThread):
@@ -124,7 +126,7 @@ class ProjectManager(QObject):
     def __init__(self, project_data):
         self.project_data = project_data
         super(ProjectManager, self).__init__()
-        self.curve_threads=[]
+        self.curve_threads = []
 
     @pyqtSlot()
     def new_project(self):
@@ -134,17 +136,15 @@ class ProjectManager(QObject):
     def _new_project(self):
         self.workerthread = WorkerThread(self, self.project_data)
         self.workerthread.start()
-        
-        
+
     def calculate_curves(self, wlcdata):
         """Calculates WLC curves from data provided."""
-   
-        logger=logging.getLogger()
+
+        logger = logging.getLogger()
         logger.info("I start WLC calculations for %s" % wlcdata)
 
-        self.curve_threads.append(WLCThread(self,wlcdata))
+        self.curve_threads.append(WLCThread(self, wlcdata))
         self.curve_threads[-1].start()
-            
 
     def wait_to_finish(self):
         """if worker thread is running. this will casue the calling program to wait."""

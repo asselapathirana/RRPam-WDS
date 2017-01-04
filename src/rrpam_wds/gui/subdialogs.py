@@ -287,10 +287,11 @@ class ProjectPropertiesDataset(dt.DataSet):
     _ex2 = dt.EndGroup("Relative size in risk matrix")
     _bg2 = dt.BeginGroup("Discount rate (%)")
     discountrate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)
-    _eg2 = dt.EndGroup("Discount rate (%)")    
+    _eg2 = dt.EndGroup("Discount rate (%)")
     _bg8 = dt.BeginGroup("Time Horizon (years)")
     timehorizon = di.FloatItem("", default=20, min=1, max=+200, step=1, slider=True)
-    _eg8 = dt.EndGroup("Time Horizon (years)") 
+    _eg8 = dt.EndGroup("Time Horizon (years)")
+
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()
         self.results = None

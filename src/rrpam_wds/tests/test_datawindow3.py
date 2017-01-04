@@ -29,51 +29,64 @@ class TC(Test_Parent):
             self.assertEqual(item.my_id.text(), item.id_)
             self.assertEqual(item.my_dia.text(), str(item.diameter_))
             self.assertEqual(item.my_length.text(), str(item.length_))
-            
+
     def test_select_diameter_combobox_has_unique_diameters(self):
         self.create_a_new_project()
-        combo=self.aw.datawindow.ui.select_diameter_combobox
+        combo = self.aw.datawindow.ui.select_diameter_combobox
         AllItems = set(combo.itemText(i) for i in range(combo.count()))
-        self.assertSetEqual(AllItems,set([u'8.0', u'14.0', u'10.0', u'0.0', u'12.0', u'6.0', u'18.0']))
-        
+        self.assertSetEqual(
+            AllItems,
+            set([u'8.0',
+                 u'14.0',
+                 u'10.0',
+                 u'0.0',
+                 u'12.0',
+                 u'6.0',
+                 u'18.0']))
+
     def test_pressing_select_diameter_button_will_select_items_with_current_diameter(self):
         self.create_a_new_project()
         from PyQt5.QtTest import QTest
-        from PyQt5.QtCore import Qt         
-        self.aw.datawindow.ui.select_diameter_combobox.setCurrentIndex(3)  
-        self.assertEqual(self.aw.datawindow.ui.select_diameter_combobox.currentText(),'10.0')
+        from PyQt5.QtCore import Qt
+        self.aw.datawindow.ui.select_diameter_combobox.setCurrentIndex(3)
+        self.assertEqual(self.aw.datawindow.ui.select_diameter_combobox.currentText(), '10.0')
         QTest.mouseClick(self.aw.datawindow.ui.select_diameter_button, Qt.LeftButton)
-        sel2 = [x.id_ for x in self.aw.networkmap.get_plot().get_selected_items() if (hasattr(x, "id_"))]
-        sel  = [x.id_ for x in self.aw.datawindow.get_plot().get_selected_items() if (hasattr(x, "id_"))]
-        self.assertSetEqual(set(sel),set(['12','21', '111']))
-        self.assertSetEqual(set(sel),set(sel2))
-        self.aw.datawindow.ui.select_diameter_combobox.setCurrentIndex(2)       
-        self.assertEqual(self.aw.datawindow.ui.select_diameter_combobox.currentText(),'8.0')
-        
+        sel2 = [
+            x.id_ for x in self.aw.networkmap.get_plot().get_selected_items(
+            ) if (hasattr(x, "id_"))]
+        sel = [
+            x.id_ for x in self.aw.datawindow.get_plot().get_selected_items(
+            ) if (hasattr(x, "id_"))]
+        self.assertSetEqual(set(sel), set(['12', '21', '111']))
+        self.assertSetEqual(set(sel), set(sel2))
+        self.aw.datawindow.ui.select_diameter_combobox.setCurrentIndex(2)
+        self.assertEqual(self.aw.datawindow.ui.select_diameter_combobox.currentText(), '8.0')
+
         QTest.mouseClick(self.aw.datawindow.ui.select_diameter_button, Qt.LeftButton)
-        sel2 = [x.id_ for x in self.aw.networkmap.get_plot().get_selected_items() if (hasattr(x, "id_"))]
-        sel  = [x.id_ for x in self.aw.datawindow.get_plot().get_selected_items() if (hasattr(x, "id_"))]        
-        self.assertSetEqual(set(sel),set(['113','121']))
-      
+        nw = self.aw.networkmap.get_plot().get_selected_items()
+        sel2 = [x.id_ for x in nw if (hasattr(x, "id_"))]
+        dw = self.aw.datawindow.get_plot().get_selected_items()
+        sel = [x.id_ for x in dw if (hasattr(x, "id_"))]
+        self.assertSetEqual(set(sel), set(['113', '121']))
+
     def test_pressing_copytoselection_button_will_make_selected_assets_have_current_group(self):
         self.create_a_new_project()
         from PyQt5.QtTest import QTest
-        from PyQt5.QtCore import Qt   
-        self.test_pressing_select_diameter_button_will_select_items_with_current_diameter() # now we have 113 and 121 selected
-        dw=self.aw.datawindow
+        from PyQt5.QtCore import Qt
+        self.test_pressing_select_diameter_button_will_select_items_with_current_diameter(
+        )  # now we have 113 and 121 selected
+        dw = self.aw.datawindow
         dw.ui.no_groups.setValue(4)
-        dw.ui.grouptocopy.setCurrentText(dw._getgroupname(1)) # we have selected group G01
+        dw.ui.grouptocopy.setCurrentText(dw._getgroupname(1))  # we have selected group G01
         self.assertEqual(dw.myplotitems['113'].my_group.currentText(),
-                         dw._getgroupname(0)) # still the group of this item should be G00
-        #now click the button
+                         dw._getgroupname(0))  # still the group of this item should be G00
+        # now click the button
         QTest.mouseClick(dw.ui.copytoselection, Qt.LeftButton)
         self.assertEqual(dw.myplotitems['113'].my_group.currentText(),
-                                 dw._getgroupname(1)) # still the group of this item should be G00        
+                         dw._getgroupname(1))  # still the group of this item should be G00
         self.assertEqual(dw.myplotitems['121'].my_group.currentText(),
-                                 dw._getgroupname(1)) # still the group of this item should be G00        
+                         dw._getgroupname(1))  # still the group of this item should be G00
 
-        
-        
     def create_a_new_project(self):
         import tempfile
         with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:

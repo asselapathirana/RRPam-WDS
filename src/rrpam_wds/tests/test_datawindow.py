@@ -38,17 +38,16 @@ class TC(Test_Parent):
         set_text_spinbox(item, 12)
         A1 = 1.12e-4
         N01 = 1.34e-5
-        cost1=22.
+        cost1 = 22.
         A2 = 1.2e-4
         N02 = 2.2e-1
-        cost2=450.
         one = self.aw.datawindow.assetgrouplist[11]
         set_text_textbox(one.A, A1)
         A1 = float(one.A.text())
         set_text_textbox(one.N0, N01)
         N01 = float(one.N0.text())
         set_text_textbox(one.cost, cost1)
-        cost1 = float(one.cost.text())        
+        cost1 = float(one.cost.text())
         box = self.aw.datawindow.assetgrouplist[2]
         set_text_textbox(box.A, A2)
         A2 = float(box.A.text())
@@ -93,12 +92,12 @@ class TC(Test_Parent):
     def test_group_properties_can_not_have_empty_values(self):
         A = self.aw.datawindow.assetgrouplist[0].A
         N0 = self.aw.datawindow.assetgrouplist[0].N0
-        cost=self.aw.datawindow.assetgrouplist[0].cost
+        cost = self.aw.datawindow.assetgrouplist[0].cost
         # age = A = self.aw.datawindow.assetgrouplist[0].age
         set_text_textbox(A, "", enter=True)
         set_text_textbox(N0, "", enter=True)
         set_text_textbox(cost, "", enter=True)
-        
+
         # set_text_spinbox(age, "")
         float(A.text())
         float(N0.text())

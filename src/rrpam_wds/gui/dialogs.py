@@ -41,7 +41,8 @@ import rrpam_wds.gui.utils as u
 from rrpam_wds.constants import curve_colors
 from rrpam_wds.constants import units
 from rrpam_wds.gui import _property_widget
-from rrpam_wds.gui.custom_toolbar_items import (ResetZoomTool, PlotWLCTool)
+from rrpam_wds.gui.custom_toolbar_items import PlotWLCTool
+from rrpam_wds.gui.custom_toolbar_items import ResetZoomTool
 from rrpam_wds.logger import EmittingLogger
 from rrpam_wds.logger import setup_logging
 from rrpam_wds.project_manager import ProjectManager as PM
@@ -76,20 +77,20 @@ class AssetGUI(QObject):
         self.frame = frame
         self.datawindow = datawindow
         super(AssetGUI, self).__init__()
-        
-    def get_curve_data(self):        
-        wd=c.WLCData()
-        gr=self.datawindow.assetgrouplist[self.my_group.currentIndex()]
-        wd.A=float(gr.A.text())
-        wd.N0=float(gr.N0.text())
-        wd.age=int(self.my_age.value())
-        ds=self.datawindow.mainwindow.projectgui.projectproperties.dataset
-        wd.r=ds.discountrate
-        wd.years=ds.timehorizon     
-        wd.id=self.my_id.text()
-        wd.length=float(self.length_)
-        wd.diameter=float(self.diameter_)
-        wd.lunits=self.datawindow.lunits
+
+    def get_curve_data(self):
+        wd = c.WLCData()
+        gr = self.datawindow.assetgrouplist[self.my_group.currentIndex()]
+        wd.A = float(gr.A.text())
+        wd.N0 = float(gr.N0.text())
+        wd.age = int(self.my_age.value())
+        ds = self.datawindow.mainwindow.projectgui.projectproperties.dataset
+        wd.r = ds.discountrate
+        wd.years = ds.timehorizon
+        wd.id = self.my_id.text()
+        wd.length = float(self.length_)
+        wd.diameter = float(self.diameter_)
+        wd.lunits = self.datawindow.lunits
         return wd
 
     def my_group_changed(self, val):
@@ -179,7 +180,7 @@ class DataWindow(QDialog):
         gr = grs[grname]
         A = gr[0]
         N = gr[1]
-        lunits=self.lunits
+        lunits = self.lunits
         return c._getProb(A, time_, lunits, N, length, age)
 
     def draw_network(self, links):
@@ -201,9 +202,9 @@ class DataWindow(QDialog):
             QtWidgets.QSizePolicy.Minimum,
             QtWidgets.QSizePolicy.Expanding)
         self.ui.assign_asset_item_parent_layout.addItem(spacerItem)
-        
+
         # now populate select_diameter_combobox with unique diameters
-        dia=[str(y) for y in sorted(set(x.diameter_ for x in self.myplotitems.values()))]
+        dia = [str(y) for y in sorted(set(x.diameter_ for x in self.myplotitems.values()))]
         self.ui.select_diameter_combobox.clear()
         self.ui.select_diameter_combobox.addItems(dia)
 
@@ -267,22 +268,22 @@ class DataWindow(QDialog):
         logger = logging.getLogger()
         logger.info("Deselecting all.. ")
         [x.my_selected.setChecked(False) for x in self.myplotitems.values()]
-        
+
     @pyqtSlot()
     def _assign_group_to_selected_assets(self):
-        group=self.ui.grouptocopy.currentText()
+        group = self.ui.grouptocopy.currentText()
         logger = logging.getLogger()
-        logger.info("Copying group %s to selected." % group )  
+        logger.info("Copying group %s to selected." % group)
         [x.my_group.setCurrentText(group) for x in self.get_selected_items()]
-        
-        
+
     @pyqtSlot()
     def _select_all_with_this_diameter(self):
-        diameter=self.ui.select_diameter_combobox.currentText()
+        diameter = self.ui.select_diameter_combobox.currentText()
         logger = logging.getLogger()
         self._deselect_all()
-        logger.info("Selecting diameter %s " % diameter )        
-        [x.my_selected.setChecked(True) for x in self.myplotitems.values() if c.isclose(float(x.diameter_),float(diameter))]
+        logger.info("Selecting diameter %s " % diameter)
+        [x.my_selected.setChecked(True)
+         for x in self.myplotitems.values() if c.isclose(float(x.diameter_), float(diameter))]
 
     def _update_groupchoices(self, listofgroups):
         logger = logging.getLogger()
@@ -346,7 +347,7 @@ class DataWindow(QDialog):
         """This method returns active data of assetgrouplist (activenumberofgroups) - e.g. for calculations.
         if all=True, then it will return ALL items in assetgrouplist (e.g. for saving)"""
         if (not all):
-            ang=self.activenumberofgroups
+            ang = self.activenumberofgroups
             gr = self.return_group_values(ang)
             return self.activenumberofgroups, gr
         else:
@@ -563,7 +564,7 @@ class DataWindow(QDialog):
         ag.N0.setInputMask("")
         ag.N0.setObjectName("assetgroup_N0")
         ag.container_layout.addWidget(ag.N0)
-        
+
         ag.cost_label = QtWidgets.QLabel(self.ui.groupBox)
         ag.cost_label.setObjectName("assetgroup_cost_label")
         ag.container_layout.addWidget(ag.cost_label)
@@ -571,10 +572,8 @@ class DataWindow(QDialog):
         ag.cost.setMaximumSize(QtCore.QSize(50, 16777215))
         ag.cost.setInputMask("")
         ag.cost.setObjectName("assetgroup_cost")
-        ag.container_layout.addWidget(ag.cost)        
-        
-        
-        
+        ag.container_layout.addWidget(ag.cost)
+
         ag.age_label = QtWidgets.QLabel(self.ui.groupBox)
         ag.age_label.setObjectName("assetgroup_age_label")
         ag.container_layout.addWidget(ag.age_label)
@@ -597,7 +596,7 @@ class DataWindow(QDialog):
         ag.no_label.setText(_translate("projectDataWidget", self._getgroupname(i)))
         ag.A_label.setText(_translate("projectDataWidget", "A"))
         ag.N0_label.setText(_translate("projectDataWidget", "N0"))
-        ag.cost_label.setText(_translate("projectDataWidget", "Cost(mln)"))        
+        ag.cost_label.setText(_translate("projectDataWidget", "Cost(mln)"))
         # ag.age_label.setText(_translate("projectDataWidget", "Age"))
 
         # set defaults
@@ -622,14 +621,13 @@ class DataWindow(QDialog):
         ag.N0.setValidator(ag.valNumber)
         ag.cost.setValidator(ag.valNumber)
 
-
         ag.A.textChanged.connect(self._validate_property_groups)
         ag.N0.textChanged.connect(self._validate_property_groups)
         ag.cost.textChanged.connect(self._validate_property_groups)
 
         #
         self.assetgrouplist.append(ag)
-        
+
     def _validate_property_groups(self, item=None):
         logger = logging.getLogger()
         logger.info("Validating property groups...")
@@ -659,8 +657,6 @@ class DataWindow(QDialog):
             super(DataWindow, self).keyPressEvent(e)
         else:
             pass
-
-
 
 
 class CurveDialogWithClosable(CurveDialog):
@@ -715,10 +711,16 @@ class CurveDialogWithClosable(CurveDialog):
         self.get_plot().PREFERRED_AXES_LIMITS = axes_limits
         # now autoscale
         self.get_plot().do_autoscale()
-    
+
     def register_tools(self):
-        from guiqwt.tools import ( SaveAsTool, CopyToClipboardTool, PrintTool, HelpTool, AntiAliasingTool, AxisScaleTool)
-        logger=logging.getLogger()
+        from guiqwt.tools import (
+            SaveAsTool,
+            CopyToClipboardTool,
+            PrintTool,
+            HelpTool,
+            AntiAliasingTool,
+            AxisScaleTool)
+        logger = logging.getLogger()
         logger.info("Registering tools")
         self.add_tool(ResetZoomTool)
         self.register_standard_tools()
@@ -726,18 +728,23 @@ class CurveDialogWithClosable(CurveDialog):
         self.add_tool(SaveAsTool)
         self.add_tool(CopyToClipboardTool)
         self.add_tool(PrintTool)
-        self.add_tool(HelpTool)        
+        self.add_tool(HelpTool)
         # self.register_curve_tools()
         self.add_tool(AntiAliasingTool)
-        self.add_tool(AxisScaleTool)    
+        self.add_tool(AxisScaleTool)
         self.get_default_tool().activate()
-        
+
     def register_standard_tools(self):
         """
         Registering basic tools for standard plot dialog
         --> top of the context-menu
         """
-        from guiqwt.tools import ( SelectTool, RectZoomTool, BasePlotMenuTool, ExportItemDataTool, DisplayCoordsTool)
+        from guiqwt.tools import (
+            SelectTool,
+            RectZoomTool,
+            BasePlotMenuTool,
+            ExportItemDataTool,
+            DisplayCoordsTool)
         t = self.add_tool(SelectTool)
         self.set_default_tool(t)
         self.add_tool(RectZoomTool)
@@ -747,7 +754,6 @@ class CurveDialogWithClosable(CurveDialog):
         self.add_tool(BasePlotMenuTool, "grid")
         self.add_tool(BasePlotMenuTool, "axes")
         self.add_tool(DisplayCoordsTool)
-        
 
     def setClosable(self, closable=True):
         self._can_be_closed = closable
@@ -1103,21 +1109,20 @@ class optimalTimeGraph(CurveDialogWithClosable):
             pass
         else:
             self._plotCurveSet(name, year, damagecost, renewalcost)
-            
+
     def _plot_selected_items(self):
         """Plots the assets that are currently selected in other windows with this plot. """
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         logger.info("PPP: Calling plot calculator ")
         self.mainwindow.call_plot_calculator(id(self))
-        
-            
+
     def register_tools(self):
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         logger.info("Registering WLC tool")
         self.add_separator_tool()
         self.add_tool(PlotWLCTool)
-        super(optimalTimeGraph,self).register_tools()
-        
+        super(optimalTimeGraph, self).register_tools()
+
     def closeEvent(self, evnt):
         if (not isinstance(self.mainwindow, MainWindow)):
             _can_be_closed = True
@@ -1136,10 +1141,10 @@ class optimalTimeGraph(CurveDialogWithClosable):
     def plot_item(self, id_, wlccurve, icon="pipe.png"):
         """This is the way to plot a WLC curve set."""
         try:
-            year=wlccurve.year
-            damagecost=wlccurve.damagecost
-            renewalcost=wlccurve.renewalcost
-        except AttributeError: # then it is the old calling method - a list
+            year = wlccurve.year
+            damagecost = wlccurve.damagecost
+            renewalcost = wlccurve.renewalcost
+        except AttributeError:  # then it is the old calling method - a list
             year, damagecost, renewalcost = wlccurve
         self.add_plot_item_to_record(id_, self._plotCurveSet(id_, year, damagecost, renewalcost))
 
@@ -1177,7 +1182,6 @@ class optimalTimeGraph(CurveDialogWithClosable):
         self.get_plot().add_item(tc)
         self.curvesets.append([id_, dc, tc, rc])
         return [dc, tc, rc]
-
 
 
 class MainWindow(QMainWindow):
@@ -1225,11 +1229,10 @@ class MainWindow(QMainWindow):
 
     def call_plot_calculator(self, callerid):
         for asset in self.datawindow.get_selected_items():
-            cd=asset.get_curve_data()
-            cd.requestingcurve=callerid
-            cd.cons=self.riskmatrix.myplotitems[cd.id][0].get_center()
+            cd = asset.get_curve_data()
+            cd.requestingcurve = callerid
+            cd.cons = self.riskmatrix.myplotitems[cd.id][0].get_center()
             self.pm.calculate_curves(cd)
-            
 
     def _progressbar_set_(self, set_):
         logger = logging.getLogger()
@@ -1384,18 +1387,16 @@ class MainWindow(QMainWindow):
         self.projectgui._new_project_signal.connect(self.pm.new_project)
         self.pm.heres_a_project_signal.connect(self.take_up_results)
         self.pm.heres_a_curve_signal.connect(self._plot_wlc)
-        
+
     @pyqtSlot(object)
     def _plot_wlc(self, curve):
         """"""
         self._plot_wlc_(curve)
-    
-    def _plot_wlc_(self,curve):
-        logger=logging.getLogger()
+
+    def _plot_wlc_(self, curve):
+        logger = logging.getLogger()
         logger.info("$$$ I got the message with a curve to plot")
-        self.optimaltimegraphs[curve.requestingcurve].plot_item(curve.id,curve)
-        
-    
+        self.optimaltimegraphs[curve.requestingcurve].plot_item(curve.id, curve)
 
     def _remove_all_subwindows(self):
         for subw in self.mdi.subWindowList():
