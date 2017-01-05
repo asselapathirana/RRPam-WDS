@@ -91,7 +91,7 @@ class AssetGUI(QObject):
         wd.length = float(self.length_)
         wd.diameter = float(self.diameter_)
         wd.lunits = self.datawindow.lunits
-        wd.cost = float(gr.cost.text())*1e6/c.LENGTH_CONVERSION_FACTOR[wd.lunits]*wd.length
+        wd.cost = float(gr.cost.text()) * 1e6 / c.LENGTH_CONVERSION_FACTOR[wd.lunits] * wd.length
         return wd
 
     def my_group_changed(self, val):
@@ -793,7 +793,7 @@ class CurveDialogWithClosable(CurveDialog):
         except Exception:
             # that item is not with myplotitems, so, just ignore.
             logger = logging.getLogger()
-            logger.exception("Exception at remove_plot_item_from_record")
+            logger.info("failed to remove_plot_item_from_record")
             return None
 
     def __item_removed(self, goner):
@@ -1116,7 +1116,6 @@ class optimalTimeGraph(CurveDialogWithClosable):
         logger = logging.getLogger()
         logger.info("PPP: Calling plot calculator ")
         self.mainwindow.call_plot_calculator(id(self))
-           
 
     def register_tools(self):
         from guiqwt.tools import DeleteItemTool
@@ -1144,13 +1143,28 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
     def plot_item(self, id_, wlccurve, icon="pipe.png"):
         """This is the way to plot a WLC curve set."""
+        logger=logging.getLogger()
         try:
             year = wlccurve.year
             damagecost = wlccurve.damagecost
             renewalcost = wlccurve.renewalcost
         except AttributeError:  # then it is the old calling method - a list
             year, damagecost, renewalcost = wlccurve
+        # if the plot is already there, first erase it.
+        try:
+            self._remove_curves_with_id(id_)
+        except: 
+            logger.info("could not remove item.")
+
+        logger.info("### now plotting id: %s" % id_ )        
         self.add_plot_item_to_record(id_, self._plotCurveSet(id_, year, damagecost, renewalcost))
+        
+    def _remove_curves_with_id(self, id):
+        logger=logging.getLogger()
+        logger.info("### deleting existing curves with id: %s" % id )
+        p=self.get_plot()
+        it=[x for x in p.get_items() if hasattr(x,'id_') and x.id_ == id]
+        p.del_items(it)
 
     def _plotCurveSet(self, id_, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
@@ -1182,7 +1196,9 @@ class optimalTimeGraph(CurveDialogWithClosable):
             markeredgecolor=None, shade=None,
             curvestyle="Lines", baseline=None,
             xaxis="bottom", yaxis="left")
-        tc.id_ = id_  # add the ide to the item before plotting.
+        tc.id_ = id_  # add the id to the item before plotting.
+        dc.id_ = id_
+        rc.id_ = id_
         self.get_plot().add_item(tc)
         self.curvesets.append([id_, dc, tc, rc])
         return [dc, tc, rc]
@@ -1400,7 +1416,7 @@ class MainWindow(QMainWindow):
     def _plot_wlc_(self, curve):
         logger = logging.getLogger()
         logger.info("$$$ I got the message with a curve to plot")
-        self.optimaltimegraphs[curve.requestingcurve].plot_item(curve.id, curve)
+        self.optimaltimegraphs[curve.requestingcurve].plot_item(curve.id_, curve)
 
     def _remove_all_subwindows(self):
         for subw in self.mdi.subWindowList():

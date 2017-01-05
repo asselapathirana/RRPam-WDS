@@ -69,6 +69,7 @@ class WLCData:
     cost = DEFAULT_cost
     length = 100.
     lunits = METERS
+    cons=-999.
 
 
 class WLCCurve:
