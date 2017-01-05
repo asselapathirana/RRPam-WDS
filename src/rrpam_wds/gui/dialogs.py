@@ -929,9 +929,9 @@ class RiskMatrix(CurveDialogWithClosable):
                 consequence = self.myplotitems[id_][0].get_center()[0]
                 # but if totalcost has changed, rescale this.
                 ds = self.mainwindow.projectgui.projectproperties.dataset
-                consequence = consequence/self.myplotitems[id_][0].totalcost*ds.totalcost
-                self.myplotitems[id_][0].totalcost=ds.totalcost
-                self.myplotitems[id_][1].totalcost=ds.totalcost
+                consequence = consequence / self.myplotitems[id_][0].totalcost * ds.totalcost
+                self.myplotitems[id_][0].totalcost = ds.totalcost
+                self.myplotitems[id_][1].totalcost = ds.totalcost
             except:
                 logger.info(
                     "trying to get consequence from previous plot.. that failed too. give up.")
@@ -970,14 +970,14 @@ class RiskMatrix(CurveDialogWithClosable):
             update_style_attr('-r', param)
             param.update_shape(ci)
             ci.id_ = id_  # add the id to the item before plotting.
-            ds=self.mainwindow.projectgui.projectproperties.dataset
-            ci.totalcost = ds.totalcost # also add total cost (Direct cost total system down)
+            ds = self.mainwindow.projectgui.projectproperties.dataset
+            ci.totalcost = ds.totalcost  # also add total cost (Direct cost total system down)
             self.get_plot().add_item(ci)
             # now add a label with link id
             la = make.label(id_, ci.get_center(), (0, 0), "C")
             la.id_ = id_  # add the id to the item before plotting.
-            
-            la.totalcost = ds.totalcost # also add total cost (Direct cost total system down)
+
+            la.totalcost = ds.totalcost  # also add total cost (Direct cost total system down)
             self.get_plot().add_item(la)
             la.set_private(False)
             self.add_plot_item_to_record(id_, [ci, la])

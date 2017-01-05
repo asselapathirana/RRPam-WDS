@@ -6,36 +6,36 @@ from guiqwt.label import LabelItem
 from guiqwt.shapes import EllipseShape
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
-from rrpam_wds.gui.dialogs import RiskMatrix
 from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
 
 
 class TC(Test_Parent):
-    
+
     def test_risk_matrix_items_store_total_cost(self):
-        """Storing the total cost is important to correctly recalculate ellipses when 
+        """Storing the total cost is important to correctly recalculate ellipses when
         the value of 'direct cost of total system down' (totalcost) is changed"""
         self.test_plot_item_will_create_a_circle()
-        ds=self.aw.projectgui.projectproperties.dataset
-        mpi=self.rm.myplotitems
-        self.assertGreater(len(mpi),0)
+        ds = self.aw.projectgui.projectproperties.dataset
+        mpi = self.rm.myplotitems
+        self.assertGreater(len(mpi), 0)
         for item in mpi.values():
             for i in item:
                 self.assertEqual(ds.totalcost, i.totalcost)
-       
+
     def test_consequence_is_recalculated_when_totalcost_is_changed(self):
         self.test_plot_item_will_create_a_circle()
-        cons1 = [x.get_center()[0] for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
-        ds=self.aw.projectgui.projectproperties.dataset
-        tc1=ds.totalcost
-        ds.totalcost=tc1*10
+        cons1 = [x.get_center()[0]
+                 for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
+        ds = self.aw.projectgui.projectproperties.dataset
+        tc1 = ds.totalcost
+        ds.totalcost = tc1 * 10
         self.aw.projectgui.projectproperties.SIG_APPLY_BUTTON_CLICKED.emit()
         self.app.processEvents()
         time.sleep(0.1)
-        cons2 = [x.get_center()[0] for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
-        self.assertEqual([x*10 for x in cons1],cons2)
-            
+        cons2 = [x.get_center()[0]
+                 for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
+        self.assertEqual([x * 10 for x in cons1], cons2)
 
     def test_Risk_Map_is_derived_from_CurveDialogWithClosable(self):
         self.rm = self.aw.riskmatrix

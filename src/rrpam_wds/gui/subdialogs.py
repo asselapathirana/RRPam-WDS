@@ -432,7 +432,7 @@ class ProjectPropertiesDataset(dt.DataSet):
         return self.results
 
 
-def main():
+def main():  # pragma: no cover
     _app = QApplication([])
     if(not _app):
         raise
@@ -446,5 +446,5 @@ def main():
     # if(save):
     #    write_data(e)
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()

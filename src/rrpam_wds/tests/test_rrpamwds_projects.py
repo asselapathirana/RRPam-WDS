@@ -61,6 +61,16 @@ class TC(Test_Parent):
                 time.sleep(0.1)
                 mock__display_project.assert_called_with(self.aw.pm.workerthread.result)
 
+    def test_run_wihout_thread(self):
+        from rrpam_wds.project_manager import WorkerThread
+
+        def mock__new_project_side_effect(*args, **kwargs):
+            self.aw.pm.workerthread = WorkerThread(self.aw.pm, self.aw.pm.project_data)
+            self.aw.pm.workerthread.run()  # yes! we do not use the 'correct' call start()
+        with mock.patch.object(self.aw.pm, "_new_project") as mock__new_project:
+            mock__new_project.side_effect = mock__new_project_side_effect
+            self.test_project_managers_new_project_will_cause_project_to_be_opend_in_main_window()
+
     def create_a_new_project(self):
         import tempfile
         with mock.patch.object(self.aw.projectgui, '_getSaveFileName', autospec=True) as mock__getSaveFileName:

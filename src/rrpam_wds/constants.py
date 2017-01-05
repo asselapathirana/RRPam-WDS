@@ -72,7 +72,6 @@ class WLCData:
     cons = -999.
 
 
-
 class WLCCurve:
     requestingcurve = None
     id = None
