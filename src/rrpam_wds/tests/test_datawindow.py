@@ -26,7 +26,7 @@ class TC(Test_Parent):
 
     def test_set_information_sets_the_right_data(self):
         results = (
-            '2', [['.2', '.5'], ['1.2e-4', '5e-1'], ['1', '2'], ['4', '5']])
+            '2', [['.2', '.5', '500.0'], ['1.2e-4', '5e-1', '125.'], ['1', '2', '.1'], ['4', '5', '999.']])
         self.aw.datawindow.set_information(results)
         self.assertEqual(self.aw.datawindow.ui.no_groups.text(), '2')
         self.assertEqual(self.aw.datawindow.assetgrouplist[1].A.text(), '1.2e-4')

@@ -91,6 +91,7 @@ class AssetGUI(QObject):
         wd.length = float(self.length_)
         wd.diameter = float(self.diameter_)
         wd.lunits = self.datawindow.lunits
+        wd.cost = float(gr.cost.text())*1e6/c.LENGTH_CONVERSION_FACTOR[wd.lunits]*wd.length
         return wd
 
     def my_group_changed(self, val):
@@ -1115,12 +1116,15 @@ class optimalTimeGraph(CurveDialogWithClosable):
         logger = logging.getLogger()
         logger.info("PPP: Calling plot calculator ")
         self.mainwindow.call_plot_calculator(id(self))
+           
 
     def register_tools(self):
+        from guiqwt.tools import DeleteItemTool
         logger = logging.getLogger()
         logger.info("Registering WLC tool")
         self.add_separator_tool()
         self.add_tool(PlotWLCTool)
+        self.add_tool(DeleteItemTool)
         super(optimalTimeGraph, self).register_tools()
 
     def closeEvent(self, evnt):
@@ -1231,7 +1235,7 @@ class MainWindow(QMainWindow):
         for asset in self.datawindow.get_selected_items():
             cd = asset.get_curve_data()
             cd.requestingcurve = callerid
-            cd.cons = self.riskmatrix.myplotitems[cd.id][0].get_center()
+            cd.cons = self.riskmatrix.myplotitems[cd.id][0].get_center()[0]
             self.pm.calculate_curves(cd)
 
     def _progressbar_set_(self, set_):

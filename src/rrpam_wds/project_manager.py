@@ -37,9 +37,10 @@ class WLCThread(QThread):
         d = self.project_data
         r = self.result
         r.year = np.arange(0, d.years, 1)
-        r.renewalcost = d.cost * np.exp(-r.year * d.r)
+        r.renewalcost = d.cost * np.exp(-r.year * d.r/100.)
         tmp = _getProb(d.A, r.year, d.lunits, d.N0, d.length, d.age)
-        r.damagecost = np.add.accumulate(tmp)
+        dc=tmp*np.exp(-d.r/100.*r.year)*d.cons
+        r.damagecost = np.add.accumulate(dc)
 
 
 class WorkerThread(QThread):
