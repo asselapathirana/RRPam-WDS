@@ -40,6 +40,7 @@ class updates_disabled_temporarily:
         if (self.set2):
             self.plot.setAutoReplot(self.__arp)
             self.logger.info("setAutoReplot %s --> %s (& replotting)" % (self.__arp, True))
+            self.plot.setAutoReplot(True)
             self.plot.replot()
         # set updateAxes to Proper function and call it too
         if (self.set3):

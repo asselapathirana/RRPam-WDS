@@ -29,9 +29,9 @@ PROJECTEXTENSION = ".rrp"
 HOMEDIR = os.path.expanduser("~")
 PROJECTDATADIREXT = ".datadir"
 
-DEFAULT_A = 5.0e-2
-DEFAULT_N0 = 4.0e-3
-DEFAULT_age = 0
+DEFAULT_A = .2238
+DEFAULT_N0 = 4.92E-04
+DEFAULT_age = 20
 DEFAULT_cost = 500.
 
 DIRECTCOSTMULTIPLIER = 1000
@@ -69,7 +69,8 @@ class WLCData:
     cost = DEFAULT_cost
     length = 100.
     lunits = METERS
-    cons=-999.
+    cons = -999.
+
 
 
 class WLCCurve:

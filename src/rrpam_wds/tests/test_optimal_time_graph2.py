@@ -22,39 +22,39 @@ class TC(Test_Parent):
             tool = wlc.get_tool(PlotWLCTool)
             tool.activate()
             mock__plot_selected_items.assert_called_with()
-            
+
     def test_replotting_same_id_will_not_change_number_of_curves(self):
         self.create_a_new_project()
         self.aw.datawindow.myplotitems['11'].select()
-        self.aw.datawindow.myplotitems['111'].select()    
+        self.aw.datawindow.myplotitems['111'].select()
         wlc = self.aw.get_optimal_time_graphs()[0]
         wlc._plot_selected_items()
         for th in self.aw.pm.curve_threads:
-            th.wait()          
+            th.wait()
         self.app.processEvents()
-        time.sleep(1)        
-        plts=[x for x in wlc.get_plot().get_items() if hasattr(x,'id_') and x.id_]
-        ds=self.aw.projectgui.projectproperties.dataset
-        ds.A=.3
-        ds.N=.5
+        time.sleep(1)
+        plts = [x for x in wlc.get_plot().get_items() if hasattr(x, 'id_') and x.id_]
+        ds = self.aw.projectgui.projectproperties.dataset
+        ds.A = .3
+        ds.N = .5
         wlc._plot_selected_items()
         for th in self.aw.pm.curve_threads:
-            th.wait()          
+            th.wait()
         self.app.processEvents()
-        time.sleep(1)        
-        plts2=[x for x in wlc.get_plot().get_items() if hasattr(x,'id_') and x.id_]
-        self.assertGreater(len(plts),0)
-        self.assertEqual(len(plts),len(plts2))
-        self.assertNotEqual(plts,plts2)
-        self.aw.datawindow.myplotitems['121'].select()    
+        time.sleep(1)
+        plts2 = [x for x in wlc.get_plot().get_items() if hasattr(x, 'id_') and x.id_]
+        self.assertGreater(len(plts), 0)
+        self.assertEqual(len(plts), len(plts2))
+        self.assertNotEqual(plts, plts2)
+        self.aw.datawindow.myplotitems['121'].select()
         wlc._plot_selected_items()
         for th in self.aw.pm.curve_threads:
-            th.wait()          
+            th.wait()
         self.app.processEvents()
-        time.sleep(1)    
-        plts3=[x for x in wlc.get_plot().get_items() if hasattr(x,'id_') and x.id_]
-        self.assertEqual(len(plts2)+3,len(plts3))
-        
+        time.sleep(1)
+        plts3 = [x for x in wlc.get_plot().get_items() if hasattr(x, 'id_') and x.id_]
+        self.assertEqual(len(plts2) + 3, len(plts3))
+
     def test_calling__plot_selected_items_will_create_WLCThreads_in_project_manager(self):
         oldt = len(self.aw.pm.curve_threads)
         self.create_a_new_project()
@@ -63,7 +63,7 @@ class TC(Test_Parent):
         wlc = self.aw.get_optimal_time_graphs()[0]
         wlc._plot_selected_items()
         for th in self.aw.pm.curve_threads:
-            th.wait()        
+            th.wait()
         self.app.processEvents()
         time.sleep(1)
         newt = self.aw.pm.curve_threads

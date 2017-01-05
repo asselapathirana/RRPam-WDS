@@ -1,5 +1,7 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
 
+import time
+
 from guiqwt.label import LabelItem
 from guiqwt.shapes import EllipseShape
 
@@ -10,17 +12,39 @@ from rrpam_wds.tests.test_utils import main
 
 
 class TC(Test_Parent):
+    
+    def test_risk_matrix_items_store_total_cost(self):
+        """Storing the total cost is important to correctly recalculate ellipses when 
+        the value of 'direct cost of total system down' (totalcost) is changed"""
+        self.test_plot_item_will_create_a_circle()
+        ds=self.aw.projectgui.projectproperties.dataset
+        mpi=self.rm.myplotitems
+        self.assertGreater(len(mpi),0)
+        for item in mpi.values():
+            for i in item:
+                self.assertEqual(ds.totalcost, i.totalcost)
+       
+    def test_consequence_is_recalculated_when_totalcost_is_changed(self):
+        self.test_plot_item_will_create_a_circle()
+        cons1 = [x.get_center()[0] for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
+        ds=self.aw.projectgui.projectproperties.dataset
+        tc1=ds.totalcost
+        ds.totalcost=tc1*10
+        self.aw.projectgui.projectproperties.SIG_APPLY_BUTTON_CLICKED.emit()
+        self.app.processEvents()
+        time.sleep(0.1)
+        cons2 = [x.get_center()[0] for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
+        self.assertEqual([x*10 for x in cons1],cons2)
+            
 
     def test_Risk_Map_is_derived_from_CurveDialogWithClosable(self):
-        self.rm = RiskMatrix(mainwindow=self.aw)
-        self.aw.addSubWindow(self.rm)
-        self.rm.show()
+        self.rm = self.aw.riskmatrix
         isinstance(self.rm, CurveDialogWithClosable)
 
     def test_plot_item_will_create_a_circle(self):
-        self.rm = RiskMatrix(mainwindow=self.aw)
-        self.aw.addSubWindow(self.rm)
-        self.rm.show()
+        self.rm = self.aw.riskmatrix
+        # self.aw.addSubWindow(self.rm)
+        # self.rm.show()
         pts0 = [x for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
         self.draw_some_circles()
         pts1 = [x for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
@@ -28,9 +52,8 @@ class TC(Test_Parent):
         self.assertEqual(pts1[1].get_xdiameter(), self.rm.get_ellipse_xaxis(1000., 20.))
 
     def test_plot_item_will_create_two_entitites_circle_and_label_each_with_id_(self):
-        self.rm = RiskMatrix(mainwindow=self.aw)
-        self.aw.addSubWindow(self.rm)
-        self.rm.show()
+        self.rm = self.aw.riskmatrix
+
         pts0 = [x for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]
         self.draw_some_circles()
         pts1 = [x.id_ for x in self.rm.get_plot().get_items() if isinstance(x, EllipseShape)]

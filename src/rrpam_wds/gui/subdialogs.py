@@ -243,6 +243,7 @@ class ProjectGUI(QObject):
 
         self.logger.info("Open Project valid")
         self.rewrite_values_in_gui_with_variables()
+        self.apply_dataset_values()
         return (projectfile)
 
     def _valid_project(self, prj):

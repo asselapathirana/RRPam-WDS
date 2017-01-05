@@ -906,7 +906,6 @@ class RiskMatrix(CurveDialogWithClosable):
 
         # we are plotting wholesale. So, disable signals temporily
         with u.updates_disabled_temporarily(self.get_plot()):
-
             for id_, item in self.myplotitems.items():
                 self.plot_item(id_, [None, None])
             # now enable again
@@ -928,6 +927,11 @@ class RiskMatrix(CurveDialogWithClosable):
             try:
                 # logger.info("No value provided for consequence, trying existing value.")
                 consequence = self.myplotitems[id_][0].get_center()[0]
+                # but if totalcost has changed, rescale this.
+                ds = self.mainwindow.projectgui.projectproperties.dataset
+                consequence = consequence/self.myplotitems[id_][0].totalcost*ds.totalcost
+                self.myplotitems[id_][0].totalcost=ds.totalcost
+                self.myplotitems[id_][1].totalcost=ds.totalcost
             except:
                 logger.info(
                     "trying to get consequence from previous plot.. that failed too. give up.")
@@ -966,10 +970,14 @@ class RiskMatrix(CurveDialogWithClosable):
             update_style_attr('-r', param)
             param.update_shape(ci)
             ci.id_ = id_  # add the id to the item before plotting.
+            ds=self.mainwindow.projectgui.projectproperties.dataset
+            ci.totalcost = ds.totalcost # also add total cost (Direct cost total system down)
             self.get_plot().add_item(ci)
             # now add a label with link id
             la = make.label(id_, ci.get_center(), (0, 0), "C")
             la.id_ = id_  # add the id to the item before plotting.
+            
+            la.totalcost = ds.totalcost # also add total cost (Direct cost total system down)
             self.get_plot().add_item(la)
             la.set_private(False)
             self.add_plot_item_to_record(id_, [ci, la])
@@ -1143,7 +1151,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
     def plot_item(self, id_, wlccurve, icon="pipe.png"):
         """This is the way to plot a WLC curve set."""
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         try:
             year = wlccurve.year
             damagecost = wlccurve.damagecost
@@ -1153,17 +1161,17 @@ class optimalTimeGraph(CurveDialogWithClosable):
         # if the plot is already there, first erase it.
         try:
             self._remove_curves_with_id(id_)
-        except: 
+        except:
             logger.info("could not remove item.")
 
-        logger.info("### now plotting id: %s" % id_ )        
+        logger.info("### now plotting id: %s" % id_)
         self.add_plot_item_to_record(id_, self._plotCurveSet(id_, year, damagecost, renewalcost))
-        
+
     def _remove_curves_with_id(self, id):
-        logger=logging.getLogger()
-        logger.info("### deleting existing curves with id: %s" % id )
-        p=self.get_plot()
-        it=[x for x in p.get_items() if hasattr(x,'id_') and x.id_ == id]
+        logger = logging.getLogger()
+        logger.info("### deleting existing curves with id: %s" % id)
+        p = self.get_plot()
+        it = [x for x in p.get_items() if hasattr(x, 'id_') and x.id_ == id]
         p.del_items(it)
 
     def _plotCurveSet(self, id_, year, damagecost, renewalcost):

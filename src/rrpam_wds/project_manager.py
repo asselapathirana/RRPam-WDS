@@ -29,7 +29,7 @@ class WLCThread(QThread):
         logger.info("Starting calculation WLCThread..")
         self.result = WLCCurve()
         self.result.requestingcurve = self.project_data.requestingcurve
-        self.result.id_=self.project_data.id
+        self.result.id_ = self.project_data.id
         self._calculate()
         self.pm.heres_a_curve_signal.emit(self.result)
         self.sleep(1)
