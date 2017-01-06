@@ -311,7 +311,7 @@ class TC(Test_Parent):
 
         calls = ['m0', 'm1', 'm2']
         self.aw.riskmatrix.myplotitems = ['something']
-        self.aw.datawindow.myplotitems['11'].my_group_changed(99)
+        self.aw.datawindow.myplotitems['11'].my_values_changed(99)
 
         # we are just interestded in call order, not arguments
         self.assertTrue([x[0] for x in mock_parent.method_calls] == calls)

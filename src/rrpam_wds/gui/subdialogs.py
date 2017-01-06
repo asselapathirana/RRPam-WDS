@@ -57,12 +57,11 @@ class ProjectGUI(QObject):
         self.projectproperties.SIG_APPLY_BUTTON_CLICKED.connect(self._apply_dataset_values)
 
     def _apply_dataset_values(self):
-        """This is connected to a signal. When mocking, use apply_dataset_values method."""
+        """This is connected to a signal. When mocking, use parent.apply_dataset_values method."""
         self.logger.info("Me pressed.")
-        self.apply_dataset_values()
+        self.parent.apply_dataset_values()
 
-    def apply_dataset_values(self):
-        self.parent.riskmatrix.replot_all()
+
 
     def check_epanetfile(self, enfile):
         if(os.path.isfile(enfile)):
@@ -243,7 +242,7 @@ class ProjectGUI(QObject):
 
         self.logger.info("Open Project valid")
         self.rewrite_values_in_gui_with_variables()
-        self.apply_dataset_values()
+        self.parent.apply_dataset_values()
         return (projectfile)
 
     def _valid_project(self, prj):

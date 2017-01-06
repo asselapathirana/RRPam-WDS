@@ -15,6 +15,65 @@ from rrpam_wds.tests.test_utils import main
 
 class TC(Test_Parent):
     logger = logging.getLogger()
+    
+    
+    def test_pressing_apply_will_cause__replot_my_items_to_be_called(self):
+        wlc = self.aw.get_optimal_time_graphs()[0]        
+        with mock.patch.object(wlc,"_replot_my_items") as mock__replot_my_items:
+            self.aw.projectgui.projectproperties.SIG_APPLY_BUTTON_CLICKED.emit()
+            self.app.processEvents()
+            time.sleep(1)   
+            mock__replot_my_items.assert_called_once()
+    
+    def test_calling_replot_me_will_cause_correct_calls_to_plot_item(self):
+        """Testing replot behavior"""
+        self.create_a_new_project()
+        self.aw.datawindow.myplotitems['111'].select()
+        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc._plot_selected_items()
+        for th in self.aw.pm.curve_threads:
+            th.wait()
+        self.app.processEvents()
+        time.sleep(1)        
+        with mock.patch.object(wlc,"plot_item") as mock_plot_item:
+            # now request replot
+            wlc._replot_my_items()
+            for th in self.aw.pm.curve_threads:
+                th.wait()
+            self.app.processEvents()
+            time.sleep(.1)  
+            # now we should have calls. 
+            self.assertEqual(mock_plot_item.call_count,1)
+        
+    
+    def test_deleting_a_curve_does_not_raise_exception(self):
+        """Due to the following reasons sometimes CurvePlot.del_items is called multiple times with same item
+        which will raise ValueError. 
+        1. when we select an object, its siblings are also selected. 
+        2. when we select delete, CurvePlot is asked to remove all those selected.
+        3. At the same time optimaltimegraph has a method, which will trigger removing all related items (same id), 
+        which in-tern call del_items again.
+        
+        The del_item method is monkey-patched to render this harmless. This test make sure it works!
+        """
+        self.create_a_new_project()
+        self.aw.datawindow.myplotitems['11'].select()
+        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc._plot_selected_items()  
+        for th in self.aw.pm.curve_threads:
+            th.wait()        
+        self.app.processEvents()
+        time.sleep(.1)        
+        plts1 = [x for x in wlc.get_plot().get_items() if hasattr(x, 'id_') and x.id_]
+        # now delete a curve. 
+        wlc.get_plot().select_item(wlc.myplotitems['11'][0])
+        wlc.get_plot().del_items(wlc.myplotitems['11'])
+        wlc.get_plot().replot()
+        self.app.processEvents()
+        time.sleep(.1)
+        # now make sure the items are no longer there. 
+        plts2 = [x for x in wlc.get_plot().get_items() if hasattr(x, 'id_') and x.id_]
+        self.assertEqual(len(plts2)+3,len(plts1))
 
     def test_activating_PlotWLCTool_will_call__plot_selected_items(self):
         wlc = self.aw.get_optimal_time_graphs()[0]
@@ -32,7 +91,7 @@ class TC(Test_Parent):
         for th in self.aw.pm.curve_threads:
             th.wait()
         self.app.processEvents()
-        time.sleep(1)
+        time.sleep(.1)
         plts = [x for x in wlc.get_plot().get_items() if hasattr(x, 'id_') and x.id_]
         ds = self.aw.projectgui.projectproperties.dataset
         ds.A = .3

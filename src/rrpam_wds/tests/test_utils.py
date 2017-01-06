@@ -43,6 +43,8 @@ class Test_Parent(unittest.TestCase):
         self.stop = time.time()
         logger = logging.getLogger()
         logger.info("\ncalculation took %0.2f seconds." % (self.stop - self.start))
+        self.app.processEvents()
+        time.sleep(.1)
         self.aw = None
 
     def runTest(self):

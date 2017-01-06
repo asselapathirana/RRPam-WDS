@@ -22,6 +22,21 @@ class TC(Test_Parent):
     def get_choices(self, QComboBoxName):
         return [QComboBoxName.itemText(i) for i in range(QComboBoxName.count())]
 
+    def test_change_in_property_group_will_call_apply_dataset_values_method(self):
+        self.create_a_new_project()
+        self.aw.datawindow.ui.no_groups.setValue(3) # now we have three groups
+        asset=self.aw.datawindow.myplotitems['11']
+        asset.my_group.setCurrentText(self.aw.datawindow._getgroupname(1)) 
+        # now asset's group is G01
+        with mock.patch.object(self.aw, "apply_dataset_values") as mock_apply_dataset_values:
+            self.aw.datawindow.assetgrouplist[1].A.setText("0.12e-1")
+            self.app.processEvents()
+            time.sleep(0.1)
+            mock_apply_dataset_values.assert_called()
+            
+    
+    
+    
     def test_each_assign_asset_item_has_diameter_length_and_id(self):
         self.create_a_new_project()
         for id_, item in self.aw.datawindow.myplotitems.items():
@@ -51,12 +66,10 @@ class TC(Test_Parent):
         self.aw.datawindow.ui.select_diameter_combobox.setCurrentIndex(3)
         self.assertEqual(self.aw.datawindow.ui.select_diameter_combobox.currentText(), '10.0')
         QTest.mouseClick(self.aw.datawindow.ui.select_diameter_button, Qt.LeftButton)
-        sel2 = [
-            x.id_ for x in self.aw.networkmap.get_plot().get_selected_items(
-            ) if (hasattr(x, "id_"))]
-        sel = [
-            x.id_ for x in self.aw.datawindow.get_plot().get_selected_items(
-            ) if (hasattr(x, "id_"))]
+        nw=self.aw.networkmap.get_plot().get_selected_items()
+        sel2 = [x.id_ for x in nw if (hasattr(x, "id_"))]
+        dw=self.aw.datawindow.get_plot().get_selected_items()
+        sel = [x.id_ for x in dw if (hasattr(x, "id_"))]
         self.assertSetEqual(set(sel), set(['12', '21', '111']))
         self.assertSetEqual(set(sel), set(sel2))
         self.aw.datawindow.ui.select_diameter_combobox.setCurrentIndex(2)
@@ -68,6 +81,7 @@ class TC(Test_Parent):
         dw = self.aw.datawindow.get_plot().get_selected_items()
         sel = [x.id_ for x in dw if (hasattr(x, "id_"))]
         self.assertSetEqual(set(sel), set(['113', '121']))
+        time.sleep(1)
 
     def test_pressing_copytoselection_button_will_make_selected_assets_have_current_group(self):
         self.create_a_new_project()

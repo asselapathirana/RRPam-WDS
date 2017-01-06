@@ -53,6 +53,7 @@ STYLE = style_generator()
 class PropertyGroupGUI(QObject):
 
     logger = logging.getLogger()
+    value_changed_signal=pyqtSignal(int)
 
     def __init__(self, frame):
         self.active = False
@@ -67,7 +68,24 @@ class PropertyGroupGUI(QObject):
     def hide(self):
         self.active = False
         self.frame.hide()
+        
+    def _validate_property_groups(self, item=None):
+        logger = logging.getLogger()
+        try:
+            float(self.A.text())
+        except ValueError:
+            self.A.setText(str(c.DEFAULT_A))
+        try:
+            float(self.N0.text())
+        except ValueError:
+            self.N0.setText(str(c.DEFAULT_N0))
+        try:
+            float(self.cost.text())
+        except ValueError:
+            self.cost.setText(str(c.DEFAULT_cost))    
 
+        # finally emit change signal
+        self.value_changed_signal.emit(self.index)
 
 class AssetGUI(QObject):
     logger = logging.getLogger()
@@ -77,6 +95,7 @@ class AssetGUI(QObject):
         self.frame = frame
         self.datawindow = datawindow
         super(AssetGUI, self).__init__()
+
 
     def get_curve_data(self):
         wd = c.WLCData()
@@ -94,9 +113,16 @@ class AssetGUI(QObject):
         wd.cost = float(gr.cost.text()) * 1e6 / c.LENGTH_CONVERSION_FACTOR[wd.lunits] * wd.length
         return wd
 
-    def my_group_changed(self, val):
-        self.logger.info("*** my group changed %s" % val)
-        self.datawindow.assets_group_changed_reciever(self.id_, val)
+    @pyqtSlot(float)
+    @pyqtSlot(int)
+    @pyqtSlot(str)
+    def my_values_changed(self, val):
+        self._my_value_changed(val)
+
+    def _my_value_changed(self, val):
+        self.logger.info("*** my values changed %s" % val)
+        self.datawindow.assets_values_changed_reciever(self.id_, val)
+
 
     def _selected_change_color(self, select):
         self.my_selected.setProperty("selected", False)
@@ -214,6 +240,8 @@ class DataWindow(QDialog):
 
     def get_items(self):
         return self.myplotitems.values()
+    def get_items_with_these_ids(self,ids):
+        return [ self.myplotitems[id] for id in ids ]
 
     def select_some_items(self, list_):
         logger = logging.getLogger()
@@ -429,8 +457,8 @@ class DataWindow(QDialog):
         # need to implement multiple inheritance and make DRY
         del self.myplotitems[id_]
 
-    def assets_group_changed_reciever(self, id_, index):
-        self.mainwindow.assets_group_changed_reciever(id_)
+    def assets_values_changed_reciever(self, id_, index):
+        self.mainwindow.assets_values_changed_reciever(id_)
 
     def add_assign_asset_item(self, link):
         ag = AssetGUI(QFrame(), self)
@@ -534,8 +562,9 @@ class DataWindow(QDialog):
         # connect signal
         ag.my_selected.stateChanged.connect(self.myselectionchanged)
         ag.my_selected.stateChanged.connect(ag._selected_change_color)
-        ag.my_group.currentIndexChanged.connect(ag.my_group_changed)
-        ag.my_age.valueChanged.connect(ag.my_group_changed)
+        ag.my_group.currentIndexChanged.connect(ag.my_values_changed)
+        ag.my_age.valueChanged.connect(ag.my_values_changed)
+        
 
     def _getgroupname(self, i):
         return "G_%02d" % i
@@ -622,29 +651,18 @@ class DataWindow(QDialog):
         ag.N0.setValidator(ag.valNumber)
         ag.cost.setValidator(ag.valNumber)
 
-        ag.A.textChanged.connect(self._validate_property_groups)
-        ag.N0.textChanged.connect(self._validate_property_groups)
-        ag.cost.textChanged.connect(self._validate_property_groups)
-
+        ag.A.textChanged.connect(ag._validate_property_groups)
+        ag.N0.textChanged.connect(ag._validate_property_groups)
+        ag.cost.textChanged.connect(ag._validate_property_groups)
+        ag.value_changed_signal.connect(self.group_value_changed)
+        # also keep index of ag saved
+        ag.index=i
         #
         self.assetgrouplist.append(ag)
 
-    def _validate_property_groups(self, item=None):
-        logger = logging.getLogger()
-        logger.info("Validating property groups...")
-        for group in self.assetgrouplist:
-            try:
-                float(group.A.text())
-            except ValueError:
-                group.A.setText(str(c.DEFAULT_A))
-            try:
-                float(group.N0.text())
-            except ValueError:
-                group.N0.setText(str(c.DEFAULT_N0))
-            try:
-                float(group.cost.text())
-            except ValueError:
-                group.cost.setText(str(c.DEFAULT_cost))
+    @pyqtSlot(int)
+    def group_value_changed(self, groupindex):
+        self.mainwindow.apply_dataset_values()
 
     def get_active_groups(self):
         return [x for x in self.assetgrouplist if x.active]
@@ -795,6 +813,9 @@ class CurveDialogWithClosable(CurveDialog):
             logger = logging.getLogger()
             logger.info("failed to remove_plot_item_from_record")
             return None
+      
+        
+
 
     def __item_removed(self, goner):
         tmplist = dict(self.myplotitems)
@@ -1119,10 +1140,12 @@ class optimalTimeGraph(CurveDialogWithClosable):
         else:
             self._plotCurveSet(name, year, damagecost, renewalcost)
 
+               
+
     def _plot_selected_items(self):
         """Plots the assets that are currently selected in other windows with this plot. """
         logger = logging.getLogger()
-        logger.info("PPP: Calling plot calculator ")
+        logger.info("_plot_selected_items: Calling plot calculator ")
         self.mainwindow.call_plot_calculator(id(self))
 
     def register_tools(self):
@@ -1133,6 +1156,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
         self.add_tool(PlotWLCTool)
         self.add_tool(DeleteItemTool)
         super(optimalTimeGraph, self).register_tools()
+        
+       
 
     def closeEvent(self, evnt):
         if (not isinstance(self.mainwindow, MainWindow)):
@@ -1166,6 +1191,8 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
         logger.info("### now plotting id: %s" % id_)
         self.add_plot_item_to_record(id_, self._plotCurveSet(id_, year, damagecost, renewalcost))
+        logger.info("### now autoscaling")
+        self.get_plot().do_autoscale()
 
     def _remove_curves_with_id(self, id):
         logger = logging.getLogger()
@@ -1255,12 +1282,21 @@ class MainWindow(QMainWindow):
     def _progressbar_set(self, set_):
         self._progressbar_set_(set_)
 
-    def call_plot_calculator(self, callerid):
-        for asset in self.datawindow.get_selected_items():
+    def call_plot_calculator(self, callerid, itemids=None):
+        logger = logging.getLogger()
+        
+        if (itemids):
+            items=self.datawindow.get_items_with_these_ids(itemids)
+        else:
+            items=self.datawindow.get_selected_items()
+        for asset in items:
             cd = asset.get_curve_data()
             cd.requestingcurve = callerid
             cd.cons = self.riskmatrix.myplotitems[cd.id][0].get_center()[0]
+            logger.info("Calling calculate_curves with %s with id:%s" %(cd, cd.id))
             self.pm.calculate_curves(cd)
+            self.pm.curve_thread.wait()
+            
 
     def _progressbar_set_(self, set_):
         logger = logging.getLogger()
@@ -1277,7 +1313,6 @@ class MainWindow(QMainWindow):
             flags=0,
             message="Doing Hydraulic Calculations")
         self.pm.i_start_calculations.connect(self._progressbar_set)
-        # self.pm.heres_a_project_signal.connect(self._progressbar_set)
 
     def _initialize_all_components(self):
         self._delete_all_subwindows()
@@ -1303,6 +1338,17 @@ class MainWindow(QMainWindow):
 
         self.qs.addWidget(self.mdi)
         self.setCentralWidget(self.qs)
+    
+    def apply_dataset_values(self):
+        self.riskmatrix.replot_all() 
+        self._replot_wlc_items()
+
+    def _replot_wlc_items(self):
+        logger=logging.getLogger()
+        for wlc in self.optimaltimegraphs.values():
+            logger.info("##### WLC ## : calling calculator for %s" % wlc)
+            self.call_plot_calculator(id(wlc), itemids=wlc.myplotitems.keys())        
+
 
     def _manage_window_settings(self, save=False):
         """ if (save=False) At application initialization, will set the application GUI geometry and components
@@ -1598,7 +1644,7 @@ class MainWindow(QMainWindow):
         self.riskmatrix.plot_links(links)
         app.processEvents()
 
-    def assets_group_changed_reciever(self, id_):
+    def assets_values_changed_reciever(self, id_):
         logger = logging.getLogger()
         logger.info("** I got it.")
         if (len(self.riskmatrix.myplotitems) > 0):
@@ -1606,6 +1652,8 @@ class MainWindow(QMainWindow):
             self.riskmatrix.plot_item(id_, data)
             self.riskmatrix.set_proper_axis_limits()
             self.riskmatrix.call_replot()
+        for wlc in self.optimaltimegraphs.values():
+            self._replot_wlc_items()
 
     def _calculate_risk(self, links):
         logger = logging.getLogger()

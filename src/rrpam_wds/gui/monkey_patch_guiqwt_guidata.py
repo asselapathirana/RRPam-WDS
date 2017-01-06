@@ -19,6 +19,7 @@ def _patch_all():
     _patch_curve_do_autoscale()
     _patch_curveitem_hit_test()
     _patch_curveplot___del__()
+    _patch_baseplot_del_items()
     # _patch_floatarraywidget_edit_array()
 
 
@@ -39,7 +40,19 @@ def _patch_all():
 # now monkey-patch
 # FloatArrayWidget.edit_array = custom_edit_array
 
-
+def _patch_baseplot_del_items():
+    orig_del_items = CurvePlot.del_items # backup 
+    def custom_del_items(self, items):
+        """Override so that ValueError is ignored"""
+        try:
+            orig_del_items(self, items)
+        except ValueError as e:
+            logger = logging.getLogger()
+            logger.info("Here %s is expected. No harm done." % e)    
+    # now monkey patch
+    CurvePlot.del_items=custom_del_items
+    
+            
 def _patch_curveplot___del__():
     """1. Close a subwindow within qmidarea. 2. Close the application
     It crashes with the message:
