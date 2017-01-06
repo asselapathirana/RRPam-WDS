@@ -53,7 +53,7 @@ STYLE = style_generator()
 class PropertyGroupGUI(QObject):
 
     logger = logging.getLogger()
-    value_changed_signal=pyqtSignal(int)
+    value_changed_signal = pyqtSignal(int)
 
     def __init__(self, frame):
         self.active = False
@@ -68,9 +68,8 @@ class PropertyGroupGUI(QObject):
     def hide(self):
         self.active = False
         self.frame.hide()
-        
+
     def _validate_property_groups(self, item=None):
-        logger = logging.getLogger()
         try:
             float(self.A.text())
         except ValueError:
@@ -82,10 +81,11 @@ class PropertyGroupGUI(QObject):
         try:
             float(self.cost.text())
         except ValueError:
-            self.cost.setText(str(c.DEFAULT_cost))    
+            self.cost.setText(str(c.DEFAULT_cost))
 
         # finally emit change signal
         self.value_changed_signal.emit(self.index)
+
 
 class AssetGUI(QObject):
     logger = logging.getLogger()
@@ -95,7 +95,6 @@ class AssetGUI(QObject):
         self.frame = frame
         self.datawindow = datawindow
         super(AssetGUI, self).__init__()
-
 
     def get_curve_data(self):
         wd = c.WLCData()
@@ -122,7 +121,6 @@ class AssetGUI(QObject):
     def _my_value_changed(self, val):
         self.logger.info("*** my values changed %s" % val)
         self.datawindow.assets_values_changed_reciever(self.id_, val)
-
 
     def _selected_change_color(self, select):
         self.my_selected.setProperty("selected", False)
@@ -240,8 +238,9 @@ class DataWindow(QDialog):
 
     def get_items(self):
         return self.myplotitems.values()
-    def get_items_with_these_ids(self,ids):
-        return [ self.myplotitems[id] for id in ids ]
+
+    def get_items_with_these_ids(self, ids):
+        return [self.myplotitems[id] for id in ids]
 
     def select_some_items(self, list_):
         logger = logging.getLogger()
@@ -564,7 +563,6 @@ class DataWindow(QDialog):
         ag.my_selected.stateChanged.connect(ag._selected_change_color)
         ag.my_group.currentIndexChanged.connect(ag.my_values_changed)
         ag.my_age.valueChanged.connect(ag.my_values_changed)
-        
 
     def _getgroupname(self, i):
         return "G_%02d" % i
@@ -656,7 +654,7 @@ class DataWindow(QDialog):
         ag.cost.textChanged.connect(ag._validate_property_groups)
         ag.value_changed_signal.connect(self.group_value_changed)
         # also keep index of ag saved
-        ag.index=i
+        ag.index = i
         #
         self.assetgrouplist.append(ag)
 
@@ -813,9 +811,6 @@ class CurveDialogWithClosable(CurveDialog):
             logger = logging.getLogger()
             logger.info("failed to remove_plot_item_from_record")
             return None
-      
-        
-
 
     def __item_removed(self, goner):
         tmplist = dict(self.myplotitems)
@@ -1108,7 +1103,7 @@ class NetworkMap(CurveDialogWithClosable):
             self.get_plot().add_item(la)
 
 
-class optimalTimeGraph(CurveDialogWithClosable):
+class WLCWindow(CurveDialogWithClosable):
 
     def __init__(self, name="Whole life cost", mainwindow=None, year=None,
                  damagecost=None, renewalcost=None, units=units["EURO"],
@@ -1121,14 +1116,14 @@ class optimalTimeGraph(CurveDialogWithClosable):
 
         self.curvesets = []
 
-        super(optimalTimeGraph, self).__init__(edit=False,
-                                               icon="wlc.svg",
-                                               toolbar=True,
-                                               options=options,
-                                               parent=parent,
-                                               panels=None,
-                                               wintitle=name,
-                                               mainwindow=mainwindow)
+        super(WLCWindow, self).__init__(edit=False,
+                                        icon="wlc.svg",
+                                        toolbar=True,
+                                        options=options,
+                                        parent=parent,
+                                        panels=None,
+                                        wintitle=name,
+                                        mainwindow=mainwindow)
 
         if (isinstance(self.mainwindow, MainWindow)):
             self.mainwindow.optimaltimegraphs[id(self)] = self
@@ -1139,8 +1134,6 @@ class optimalTimeGraph(CurveDialogWithClosable):
             pass
         else:
             self._plotCurveSet(name, year, damagecost, renewalcost)
-
-               
 
     def _plot_selected_items(self):
         """Plots the assets that are currently selected in other windows with this plot. """
@@ -1155,9 +1148,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
         self.add_separator_tool()
         self.add_tool(PlotWLCTool)
         self.add_tool(DeleteItemTool)
-        super(optimalTimeGraph, self).register_tools()
-        
-       
+        super(WLCWindow, self).register_tools()
 
     def closeEvent(self, evnt):
         if (not isinstance(self.mainwindow, MainWindow)):
@@ -1169,7 +1160,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
             _can_be_closed = False
 
         if _can_be_closed:
-            super(optimalTimeGraph, self).closeEvent(evnt)
+            super(WLCWindow, self).closeEvent(evnt)
         else:
             evnt.ignore()
             self.setWindowState(QtCore.Qt.WindowMinimized)
@@ -1204,7 +1195,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
     def _plotCurveSet(self, id_, year, damagecost, renewalcost):
         c = curve_colors[len(self.curvesets) % len(curve_colors)]
         dc = make.curve(
-            year, damagecost, title="Damage Cost", color=c, linestyle="DashLine",
+            year, damagecost, title="%s: Damage Cost" % id_, color=c, linestyle="DashLine",
             linewidth=3, marker=None,
             markersize=None,
             markerfacecolor=None,
@@ -1214,7 +1205,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
         dc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(dc)
         rc = make.curve(
-            year, renewalcost, title="Renewal Cost", color=c, linestyle="DotLine",
+            year, renewalcost, title="%s: Renewal Cost" % id_, color=c, linestyle="DotLine",
             linewidth=3, marker=None,
             markersize=None,
             markerfacecolor=None,
@@ -1224,7 +1215,7 @@ class optimalTimeGraph(CurveDialogWithClosable):
         rc.id_ = id_  # add the ide to the item before plotting.
         self.get_plot().add_item(rc)
         tc = make.curve(
-            year, array(damagecost) + array(renewalcost), title="Total Cost", color=c, linestyle=None,
+            year, array(damagecost) + array(renewalcost), title="%s: Total Cost" % id_, color=c, linestyle=None,
             linewidth=5, marker=None,
             markersize=None,
             markerfacecolor=None,
@@ -1284,19 +1275,18 @@ class MainWindow(QMainWindow):
 
     def call_plot_calculator(self, callerid, itemids=None):
         logger = logging.getLogger()
-        
+
         if (itemids):
-            items=self.datawindow.get_items_with_these_ids(itemids)
+            items = self.datawindow.get_items_with_these_ids(itemids)
         else:
-            items=self.datawindow.get_selected_items()
+            items = self.datawindow.get_selected_items()
         for asset in items:
             cd = asset.get_curve_data()
             cd.requestingcurve = callerid
             cd.cons = self.riskmatrix.myplotitems[cd.id][0].get_center()[0]
-            logger.info("Calling calculate_curves with %s with id:%s" %(cd, cd.id))
+            logger.info("Calling calculate_curves with %s with id:%s" % (cd, cd.id))
             self.pm.calculate_curves(cd)
             self.pm.curve_thread.wait()
-            
 
     def _progressbar_set_(self, set_):
         logger = logging.getLogger()
@@ -1338,17 +1328,16 @@ class MainWindow(QMainWindow):
 
         self.qs.addWidget(self.mdi)
         self.setCentralWidget(self.qs)
-    
+
     def apply_dataset_values(self):
-        self.riskmatrix.replot_all() 
+        self.riskmatrix.replot_all()
         self._replot_wlc_items()
 
     def _replot_wlc_items(self):
-        logger=logging.getLogger()
+        logger = logging.getLogger()
         for wlc in self.optimaltimegraphs.values():
             logger.info("##### WLC ## : calling calculator for %s" % wlc)
-            self.call_plot_calculator(id(wlc), itemids=wlc.myplotitems.keys())        
-
+            self.call_plot_calculator(id(wlc), itemids=wlc.myplotitems.keys())
 
     def _manage_window_settings(self, save=False):
         """ if (save=False) At application initialization, will set the application GUI geometry and components
@@ -1526,7 +1515,7 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             logger = logging.getLogger()
-            logger.exception("non selectable item! (%s)" % e)
+            logger.info("non selectable item! (%s)" % e)
         # don't forget to reset
         self.update_selected_items = True
 
@@ -1535,7 +1524,7 @@ class MainWindow(QMainWindow):
         return list(self.optimaltimegraphs.values())
 
     def add_optimaltimegraph(self):
-        wlc = optimalTimeGraph(mainwindow=self)
+        wlc = WLCWindow(mainwindow=self)
         self.mdi.addSubWindow(wlc)
         wlc.show()
 
@@ -1577,33 +1566,35 @@ class MainWindow(QMainWindow):
     def windowaction(self, q):
         logger = logging.getLogger()
         logger.info("Menu: %s" % q.text())
+        try:
+            if q.text() == self.menuitems.new_wlc:
+                self.add_optimaltimegraph()
 
-        if q.text() == self.menuitems.new_wlc:
-            self.add_optimaltimegraph()
+            if q.text() == self.menuitems.cascade:
+                self.mdi.cascadeSubWindows()
 
-        if q.text() == self.menuitems.cascade:
-            self.mdi.cascadeSubWindows()
+            if q.text() == self.menuitems.tiled:
+                self.mdi.tileSubWindows()
 
-        if q.text() == self.menuitems.tiled:
-            self.mdi.tileSubWindows()
+            if q.text() == self.menuitems.show_log:
+                self.show_logwindow()
 
-        if q.text() == self.menuitems.show_log:
-            self.show_logwindow()
+            if q.text() == self.menuitems.new_project:
+                self._new_project()
 
-        if q.text() == self.menuitems.new_project:
-            self._new_project()
+            if q.text() == self.menuitems.open_project:
+                self._open_project()
 
-        if q.text() == self.menuitems.open_project:
-            self._open_project()
+            if q.text() == self.menuitems.save_project:
+                self._save_project()
 
-        if q.text() == self.menuitems.save_project:
-            self._save_project()
+            if q.text() == self.menuitems.save_project_as:
+                self._save_project_as()
 
-        if q.text() == self.menuitems.save_project_as:
-            self._save_project_as()
-
-        if q.text() == self.menuitems.close_project:
-            self.projectgui.close_project()
+            if q.text() == self.menuitems.close_project:
+                self.projectgui.close_project()
+        except Exception as e:
+            logger.warn("Error executing command %s " % e)
 
     def _save_project(self):
         self.projectgui.save_project()

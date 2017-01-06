@@ -1,3 +1,4 @@
+import copy
 import logging
 
 import numpy as np
@@ -11,16 +12,14 @@ from rrpam_wds.constants import ResultSet
 from rrpam_wds.constants import WLCCurve
 from rrpam_wds.constants import _getProb
 
-import copy
-
 
 class WLCThread(QThread):
 
     def __init__(self, pm, project_data):
         self.pm = pm
-        self.project_data = copy.deepcopy(project_data)
+        self.project_data = copy.copy(project_data)
         logger = logging.getLogger()
-        logger.info("MY ID IS : %s" % self.project_data.id)        
+        logger.info("MY ID IS : %s" % self.project_data.id)
         super(WLCThread, self).__init__()
 
     def run(self):
@@ -34,10 +33,9 @@ class WLCThread(QThread):
         self.result = WLCCurve()
         self.result.requestingcurve = self.project_data.requestingcurve
         self.result.id_ = self.project_data.id
-        self.pm.callwithmyid(self.result.id_) # this call is purely for testing. 
+        self.pm.callwithmyid(self.result.id_)  # this call is purely for testing.
         self._calculate()
         self.pm.heres_a_curve_signal.emit(self.result)
-
 
     def _calculate(self):
         d = self.project_data
@@ -53,10 +51,10 @@ class WorkerThread(QThread):
 
     def __init__(self, pm, project_data):
         self.pm = pm
-        self.project_data = copy.deepcopy(project_data) # for this thread, this is not essential 
+        self.project_data = copy.copy(project_data)  # for this thread, this is not essential
         # as we do not call this more than one at a time. But if we do, this copy.copy(x) method of
-        # assignment is essentail. Otherwise, all threads will have the last value of project_data 
-        # as self.project_data will be just a reference to the original object. 
+        # assignment is essentail. Otherwise, all threads will have the last value of project_data
+        # as self.project_data will be just a reference to the original object.
         super(WorkerThread, self).__init__()
 
     def run(self):
@@ -136,7 +134,7 @@ class ProjectManager(QObject):
     def __init__(self, project_data):
         self.project_data = project_data
         super(ProjectManager, self).__init__()
-        # self.curve_threads = []
+        self.curve_thread = QThread()
 
     @pyqtSlot()
     def new_project(self):
@@ -152,11 +150,10 @@ class ProjectManager(QObject):
 
         logger = logging.getLogger()
         logger.info("I start WLC calculations for %s (id: %s)" % (wlcdata, wlcdata.id))
-        self.curve_thread=WLCThread(self, wlcdata)
+        self.curve_thread = WLCThread(self, wlcdata)
         self.curve_thread.start()
 
-        
-    def callwithmyid(self, id_): # this method is purely for testing. 
+    def callwithmyid(self, id_):  # this method is purely for testing.
         pass
 
     def wait_to_finish(self):

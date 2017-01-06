@@ -61,8 +61,6 @@ class ProjectGUI(QObject):
         self.logger.info("Me pressed.")
         self.parent.apply_dataset_values()
 
-
-
     def check_epanetfile(self, enfile):
         if(os.path.isfile(enfile)):
             self.logger.info("EPANET valid file check. To be implemented")

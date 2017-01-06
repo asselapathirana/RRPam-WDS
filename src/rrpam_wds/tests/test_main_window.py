@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QMdiArea
 
 from rrpam_wds.gui.dialogs import NetworkMap
 from rrpam_wds.gui.dialogs import RiskMatrix
-from rrpam_wds.gui.dialogs import optimalTimeGraph
+from rrpam_wds.gui.dialogs import WLCWindow
 from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
 
@@ -35,8 +35,8 @@ class test_main_window(Test_Parent):
         self.aw.add_networkmap()  # try adding a nm
         self.aw._standard_windows()  # this will add only an extra optimaltimegraph
         list2 = self.aw.mdi.subWindowList()
-        list1 = [x for x in list1 if not isinstance(x.widget(), optimalTimeGraph)]
-        list2 = [x for x in list2 if not isinstance(x.widget(), optimalTimeGraph)]
+        list1 = [x for x in list1 if not isinstance(x.widget(), WLCWindow)]
+        list2 = [x for x in list2 if not isinstance(x.widget(), WLCWindow)]
         self.assertEqual(len(list1), len(list2))
 
     def test_attempting_to_close_will_minimize_network_map_and_risk_matrix_and_the_last_optimal_time_graph(
@@ -57,7 +57,7 @@ class test_main_window(Test_Parent):
 
     def test_multiple_optimal_time_graphs_can_be_added(self):
         list1 = self.aw.mdi.subWindowList()
-        self.assertTrue(len([x for x in list1 if (isinstance(x.widget(), optimalTimeGraph))]), 1)
+        self.assertTrue(len([x for x in list1 if (isinstance(x.widget(), WLCWindow))]), 1)
         self.aw.add_optimaltimegraph()
         self.assertEqual(len(list1) + 1, len(self.aw.mdi.subWindowList()))
 

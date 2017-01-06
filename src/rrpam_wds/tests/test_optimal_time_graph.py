@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_array_almost_equal
 
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
-from rrpam_wds.gui.dialogs import optimalTimeGraph
+from rrpam_wds.gui.dialogs import WLCWindow
 from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
 
@@ -13,8 +13,8 @@ class TestOptimalTimeGraph(Test_Parent):
 
     def test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
-        tg1 = optimalTimeGraph(name="set1", damagecost=None, renewalcost=None,
-                               year=None, parent=self.aw, mainwindow=self.aw)
+        tg1 = WLCWindow(name="set1", damagecost=None, renewalcost=None,
+                        year=None, parent=self.aw, mainwindow=self.aw)
         self.assertIsInstance(tg1, CurveDialogWithClosable)
         self.aw.addSubWindow(tg1)
 
@@ -23,7 +23,7 @@ class TestOptimalTimeGraph(Test_Parent):
         year = np.arange(0, 50, 1)
         damagecost = year**2.1
         renewalcost = (100 - year)**1.9
-        tg1 = optimalTimeGraph(
+        tg1 = WLCWindow(
             "set1", year=year, damagecost=damagecost, renewalcost=renewalcost,
             parent=self.aw, mainwindow=self.aw)
         self.aw.addSubWindow(tg1)
