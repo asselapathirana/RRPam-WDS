@@ -18,7 +18,7 @@ class TC(Test_Parent):
         self.create_a_new_project()
         self.aw.datawindow.myplotitems['11'].select()
         self.aw.datawindow.myplotitems['111'].select()
-        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc = self.aw.get_wlc_windows()[0]
         with mock.patch.object(self.aw.pm, "callwithmyid", autospec=True) as mock_callwithmyid:
             # now call
             wlc._plot_selected_items()

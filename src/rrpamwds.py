@@ -14,7 +14,7 @@ if (len(sys.argv) > 1 and sys.argv[1] == "RUNTESTS"):  # first run tests
     import time
     win = MainWindow()
     # win.show()
-    import rrpam_wds.tests.test_optimal_time_graph as og
+    import rrpam_wds.tests.test_wlc_window as og
     og.main(test=False, mainwindow=win)
     import rrpam_wds.tests.test_main_window as mw
     win = None

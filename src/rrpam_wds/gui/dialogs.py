@@ -1371,9 +1371,9 @@ class MainWindow(QMainWindow):
             settings.setValue("pos", self.networkmap.parent().pos())
             settings.endGroup()
 
-            settings.beginGroup("optimal_time_graphs")
-            settings.setValue("size", self.get_optimal_time_graphs()[0].parent().size())
-            settings.setValue("pos", self.get_optimal_time_graphs()[0].parent().pos())
+            settings.beginGroup("wlc_windows")
+            settings.setValue("size", self.get_wlc_windows()[0].parent().size())
+            settings.setValue("pos", self.get_wlc_windows()[0].parent().pos())
             settings.endGroup()
 
             settings.beginGroup("last_project")
@@ -1409,10 +1409,10 @@ class MainWindow(QMainWindow):
                 settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
             settings.endGroup()
 
-            settings.beginGroup("optimal_time_graphs")
-            self.get_optimal_time_graphs()[0].parent().resize(
+            settings.beginGroup("wlc_windows")
+            self.get_wlc_windows()[0].parent().resize(
                 settings.value("size", QtCore.QSize(400, 400), type=QtCore.QSize))
-            self.get_optimal_time_graphs()[0].parent().move(
+            self.get_wlc_windows()[0].parent().move(
                 settings.value("pos", QtCore.QPoint(100, 100), type=QtCore.QPoint))
             settings.endGroup()
 
@@ -1519,7 +1519,7 @@ class MainWindow(QMainWindow):
         # don't forget to reset
         self.update_selected_items = True
 
-    def get_optimal_time_graphs(self):
+    def get_wlc_windows(self):
         """returnas a list of optimaltimegraphs"""
         return list(self.optimaltimegraphs.values())
 

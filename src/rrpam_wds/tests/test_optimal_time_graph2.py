@@ -27,7 +27,7 @@ class TC(Test_Parent):
         """Testing replot behavior"""
         self.create_a_new_project()
         self.aw.datawindow.myplotitems['111'].select()
-        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc = self.aw.get_wlc_windows()[0]
         wlc._plot_selected_items()
         self.aw.pm.curve_thread.wait()
         self.app.processEvents()
@@ -53,7 +53,7 @@ class TC(Test_Parent):
         """
         self.create_a_new_project()
         self.aw.datawindow.myplotitems['11'].select()
-        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc = self.aw.get_wlc_windows()[0]
         wlc._plot_selected_items()
         self.aw.pm.curve_thread.wait()
         self.app.processEvents()
@@ -70,7 +70,7 @@ class TC(Test_Parent):
         self.assertEqual(len(plts2) + 3, len(plts1))
 
     def test_activating_PlotWLCTool_will_call__plot_selected_items(self):
-        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc = self.aw.get_wlc_windows()[0]
         with mock.patch.object(wlc, "_plot_selected_items") as mock__plot_selected_items:
             tool = wlc.get_tool(PlotWLCTool)
             tool.activate()
@@ -80,7 +80,7 @@ class TC(Test_Parent):
         self.create_a_new_project()
         self.aw.datawindow.myplotitems['11'].select()
         self.aw.datawindow.myplotitems['111'].select()
-        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc = self.aw.get_wlc_windows()[0]
         wlc._plot_selected_items()
         self.aw.pm.curve_thread.wait()
         self.app.processEvents()
@@ -110,7 +110,7 @@ class TC(Test_Parent):
         self.create_a_new_project()
         self.aw.datawindow.myplotitems['11'].select()
         self.aw.datawindow.myplotitems['111'].select()
-        wlc = self.aw.get_optimal_time_graphs()[0]
+        wlc = self.aw.get_wlc_windows()[0]
         wlc._plot_selected_items()
         self.app.processEvents()
         time.sleep(1)
@@ -145,7 +145,7 @@ class TC(Test_Parent):
         self.aw.add_optimaltimegraph()
         self.aw.add_optimaltimegraph()
         # now we have 3 wlc windows
-        wlcw = self.aw.get_optimal_time_graphs()
+        wlcw = self.aw.get_wlc_windows()
         a1 = self.aw.datawindow.myplotitems['11']
         a2 = self.aw.datawindow.myplotitems['111']
         a3 = self.aw.datawindow.myplotitems['121']
