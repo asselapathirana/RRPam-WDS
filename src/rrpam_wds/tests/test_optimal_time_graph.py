@@ -9,7 +9,7 @@ from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
 
 
-class TestOptimalTimeGraph(Test_Parent):
+class TC(Test_Parent):
 
     def test_optimalTimeGraph_is_derived_from_CurveDialogWithClosable(self):
         """optimalTimeGraph should be derived from CurveDialogWithClosable class"""
@@ -44,4 +44,4 @@ class TestOptimalTimeGraph(Test_Parent):
             it[5].get_data(), (year, (damagecost + 2000 + renewalcost * 1.2)))
 
 if __name__ == "__main__":
-    main(TestOptimalTimeGraph, test=False)
+    main(TC, test=False)

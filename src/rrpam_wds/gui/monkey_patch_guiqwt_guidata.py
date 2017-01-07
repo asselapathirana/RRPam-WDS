@@ -47,7 +47,7 @@ def _patch_baseplot_del_items():
         """Override so that ValueError is ignored"""
         try:
             orig_del_items(self, items)
-        except ValueError as e:
+        except ValueError:
             pass
             # logger = logging.getLogger()
             # logger.info("Here %s is expected. No harm done." % e)
@@ -73,7 +73,7 @@ RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
             orig___del__(self)
         except:
             pass
-        
+
         #  logger = logging.getLogger()
         #  logger.info("Better to fix me later.")
 

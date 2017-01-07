@@ -80,9 +80,9 @@ class TC(Test_Parent):
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.save_project)
             self.assertTrue(mock_save_project.called)
 
-    def test_clicking_close_project_will_call_close_project_method_in_subdialogs_project_class(
+    def test_clicking_close_project_will_call_close_project_method(
             self):
-        with mock.patch.object(self.aw.projectgui, 'close_project', autospec=True) as mock_close_project:
+        with mock.patch.object(self.aw, 'close_project', autospec=True) as mock_close_project:
             self.assertFalse(mock_close_project.called)
             trigger_sub_menu_item(self.aw, self.aw.menuitems.file, self.aw.menuitems.close_project)
             self.assertTrue(mock_close_project.called)

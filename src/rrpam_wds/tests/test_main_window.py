@@ -13,7 +13,7 @@ from rrpam_wds.tests.test_utils import Test_Parent
 from rrpam_wds.tests.test_utils import main
 
 
-class test_main_window(Test_Parent):
+class TC(Test_Parent):
     logger = logging.getLogger()
 
     def test_mainwindow_is_derived_from_QMainWindow(self):
@@ -109,4 +109,4 @@ class test_main_window(Test_Parent):
         self.assertTrue(True)
 
 if __name__ == "__main__":
-    main(test_main_window, test=False)
+    main(TC, test=False)

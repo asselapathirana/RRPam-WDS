@@ -50,10 +50,17 @@ class ProjectGUI(QObject):
     def __init__(self, parent):
         super(ProjectGUI, self).__init__()
         self.parent = parent
+        self._connect_project_properties()
+
+    def _reset_data(self):
+        self.projectproperties.dataset._reset_values()
+        self.rewrite_values_in_gui_with_variables()
+
+    def _connect_project_properties(self):
         self.projectproperties = DataSetEditGroupBox(
-            "title",
+            "Project Data",
             ProjectPropertiesDataset,
-            comment="foox")
+            comment="Parameters common to all assets")
         self.projectproperties.SIG_APPLY_BUTTON_CLICKED.connect(self._apply_dataset_values)
 
     def _apply_dataset_values(self):
@@ -99,6 +106,9 @@ class ProjectGUI(QObject):
         if(self._new_project()):
             # now we inform the project_manager to do the calculation
             self._new_project_signal.emit()
+            return True
+        else:
+            return False
 
     def _new_project(self):
         epanetfile, filter = self._getSaveFileName2(self.parent,
@@ -199,14 +209,18 @@ class ProjectGUI(QObject):
         # first update any user changes in parameters
         self.rewrite_values_in_variables_with_gui()
         try:
-            self._save_project_to_dest(self.projectproperties.dataset.projectname)
+            return self._save_project_to_dest(self.projectproperties.dataset.projectname)
         except Exception as e:
             self.logger.exception("Exception %s " % e)
+            return False
 
     def save_project_as(self):
         msg = "Save project as"
         self.projectproperties.dataset.projectname = self.get_save_filename(msg)
-        self.save_project()
+        if(self.projectproperties.dataset.projectname):
+            return self.save_project()
+        else:
+            return None
 
     def open_project(self):
         while (True):
@@ -253,9 +267,6 @@ class ProjectGUI(QObject):
         self.logger.info("Now calling try_loading_project_properties ")
         return self.try_loading_project_properties(prj)
 
-    def close_project(self):
-        self.logger.info("Close Project")
-
 
 class ProjectPropertiesDataset(dt.DataSet):
 
@@ -289,6 +300,12 @@ class ProjectPropertiesDataset(dt.DataSet):
     _bg8 = dt.BeginGroup("Time Horizon (years)")
     timehorizon = di.FloatItem("", default=20, min=1, max=+200, step=1, slider=True)
     _eg8 = dt.EndGroup("Time Horizon (years)")
+
+    def _reset_values(self):
+        self.projectname = None
+        self.fname = None
+        self.lunits = None
+        self.dunits = None
 
     def __init__(self, title=None, comment=None, icon=''):
         self.logger = logging.getLogger()

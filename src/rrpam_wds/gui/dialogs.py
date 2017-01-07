@@ -1234,6 +1234,7 @@ class MainWindow(QMainWindow):
 
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
+    EXIT_CODE_REBOOT = 191919197
 
     class MenuItems:
         pass
@@ -1268,6 +1269,9 @@ class MainWindow(QMainWindow):
         self._initialize_all_components()
         self._create_progressbar()
         self._manage_window_settings()
+        self.reset_save()
+        self.reset_save_as()
+        self.reset_close()
 
     @pyqtSlot(object)
     def _progressbar_set(self, set_):
@@ -1329,9 +1333,27 @@ class MainWindow(QMainWindow):
         self.qs.addWidget(self.mdi)
         self.setCentralWidget(self.qs)
 
+    def reset_save(self, enable=False):
+        """Resets the need saving state. """
+        self.saveaction.setEnabled(enable)
+
+    def reset_save_as(self, enable=False):
+        """Resets the save-as state"""
+        self.saveasaction.setEnabled(enable)
+
+    def reset_close(self, enable=False):
+        """Resets the close project state"""
+        self.closeaction.setEnabled(enable)
+
+    def something_changed(self):
+        """This method is what responds to all changes of project properties and asset (group) level properties.
+        Good place to monitor if anything has changed from new/opened state. """
+        self.reset_save(enable=True)
+
     def apply_dataset_values(self):
         self.riskmatrix.replot_all()
         self._replot_wlc_items()
+        self.something_changed()
 
     def _replot_wlc_items(self):
         logger = logging.getLogger()
@@ -1464,6 +1486,8 @@ class MainWindow(QMainWindow):
     def _remove_all_subwindows(self):
         for subw in self.mdi.subWindowList():
             widget = subw.widget()
+            if(isinstance(widget, LogDialog)):
+                continue
             subw.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             subw.close()
             widget.close()
@@ -1551,12 +1575,12 @@ class MainWindow(QMainWindow):
         bar.setNativeMenuBar(False)  # disable different treatment in Mac OS
         file = bar.addMenu(self.menuitems.file)
         file.addAction(self.menuitems.new_project)
-        file.addAction(self.menuitems.save_project)
-        file.addAction(self.menuitems.save_project_as)
+        self.saveaction = file.addAction(self.menuitems.save_project)
+        self.saveasaction = file.addAction(self.menuitems.save_project_as)
         file.addAction(self.menuitems.open_project)
         file.addAction(self.menuitems.new_wlc)
         file.addAction(self.menuitems.show_log)
-        file.addAction(self.menuitems.close_project)
+        self.closeaction = file.addAction(self.menuitems.close_project)
         file.triggered[QAction].connect(self.windowaction)
         file2 = bar.addMenu(self.menuitems.view)
         file2.addAction(self.menuitems.cascade)
@@ -1592,22 +1616,55 @@ class MainWindow(QMainWindow):
                 self._save_project_as()
 
             if q.text() == self.menuitems.close_project:
-                self.projectgui.close_project()
+                self._close_project()
         except Exception as e:
             logger.warn("Error executing command %s " % e)
 
     def _save_project(self):
-        self.projectgui.save_project()
+        if(self.projectgui.save_project()):
+            self.reset_save()
 
     def _save_project_as(self):
-        self.projectgui.save_project_as()
+        if(self.projectgui.save_project_as()):
+            self.reset_save()
 
     def _new_project(self):
-        self.projectgui.new_project()
+        if(self.projectgui.new_project()):
+            self.reset_save()
+            self.reset_save_as(True)
+            self.reset_close(True)
 
     def _open_project(self):
         """Opening a project"""
-        self.projectgui.open_project()
+        if(self.projectgui.open_project()):
+            self.reset_save()
+            self.reset_save_as(True)
+            self.reset_close(True)
+
+    def _close_project(self):
+        if(self.close_project()):
+            self.reset_save_as(False)
+            self.reset_close(False)
+
+    def close_project(self):
+        close = True
+        if(self.saveaction.isEnabled()):
+            from PyQt5.QtWidgets import QMessageBox
+            msgBox = QMessageBox()
+            msgBox.setText("Current project has been modified.")
+            msgBox.setInformativeText("Do you want to save your changes first?")
+            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            msgBox.setDefaultButton(QMessageBox.Save)
+            ret = msgBox.exec_()
+
+            if (ret == QMessageBox.Save):
+                if(not self._save_project()):
+                    close = False
+            if (ret == QMessageBox.Cancel):
+                close = False
+        if(close):
+            from PyQt5.QtWidgets import qApp
+            qApp.exit(self.EXIT_CODE_REBOOT)
 
     @pyqtSlot(object)
     def take_up_results(self, results):
@@ -1645,6 +1702,7 @@ class MainWindow(QMainWindow):
             self.riskmatrix.call_replot()
         for wlc in self.optimaltimegraphs.values():
             self._replot_wlc_items()
+        self.something_changed()
 
     def _calculate_risk(self, links):
         logger = logging.getLogger()
