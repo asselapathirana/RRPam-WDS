@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging
+# import logging
 
 import numpy as np
 from guidata.py3compat import maxsize
@@ -48,8 +48,9 @@ def _patch_baseplot_del_items():
         try:
             orig_del_items(self, items)
         except ValueError as e:
-            logger = logging.getLogger()
-            logger.info("Here %s is expected. No harm done." % e)
+            pass
+            # logger = logging.getLogger()
+            # logger.info("Here %s is expected. No harm done." % e)
     # now monkey patch
     CurvePlot.del_items = custom_del_items
 
@@ -71,8 +72,10 @@ RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
         try:
             orig___del__(self)
         except:
-            logger = logging.getLogger()
-            logger.info("Better to fix me later.")
+            pass
+        
+        #  logger = logging.getLogger()
+        #  logger.info("Better to fix me later.")
 
     # now monkey patch
     CurvePlot.__del__ = custom__del__
