@@ -1234,7 +1234,6 @@ class MainWindow(QMainWindow):
 
     """The maion 'container' of the application. This is a multi-document interface where all other
     windows live in."""
-    EXIT_CODE_REBOOT = 191919197
 
     class MenuItems:
         pass
@@ -1664,7 +1663,8 @@ class MainWindow(QMainWindow):
                 close = False
         if(close):
             from PyQt5.QtWidgets import qApp
-            qApp.exit(self.EXIT_CODE_REBOOT)
+            from rrpamwds import EXIT_CODE_REBOOT
+            qApp.exit(EXIT_CODE_REBOOT)
 
     @pyqtSlot(object)
     def take_up_results(self, results):
