@@ -1646,6 +1646,12 @@ class MainWindow(QMainWindow):
             self.reset_close(False)
 
     def close_project(self):
+        if(self.should_i_save_first()):
+            from PyQt5.QtWidgets import qApp
+            from rrpamwds import EXIT_CODE_REBOOT
+            qApp.exit(EXIT_CODE_REBOOT)
+
+    def should_i_save_first(self):
         close = True
         if(self.saveaction.isEnabled()):
             from PyQt5.QtWidgets import QMessageBox
@@ -1661,10 +1667,7 @@ class MainWindow(QMainWindow):
                     close = False
             if (ret == QMessageBox.Cancel):
                 close = False
-        if(close):
-            from PyQt5.QtWidgets import qApp
-            from rrpamwds import EXIT_CODE_REBOOT
-            qApp.exit(EXIT_CODE_REBOOT)
+        return close
 
     @pyqtSlot(object)
     def take_up_results(self, results):
