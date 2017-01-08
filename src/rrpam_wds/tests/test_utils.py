@@ -47,9 +47,9 @@ class Test_Parent(unittest.TestCase):
         time.sleep(1)
         self.aw = None
 
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+    # def runTest(self):
+    #     """ otherwise python 2.7 returns an error
+    #     ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
 
 
 def clt(tc, fn, mainwindow=None):  # pragma: no cover
@@ -66,6 +66,8 @@ def main(cls, test=True, mainwindow=None):  # pragma: no cover
     if(test):
         unittest.main(verbosity=2)
     else:
+        def runTest(): pass
+        cls.runTest=runTest        
         tc = cls()
         for a in dir(tc):
             if (a.startswith('test_')):  # test_sync
