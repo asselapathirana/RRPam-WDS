@@ -1,3 +1,5 @@
+from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
+from rrpam_wds import setpath  # isort:skip # NOQA
 # ^ above line is needed to make sure the path is correctly set (under frozen conditions)
 
 import os
@@ -43,9 +45,6 @@ def main(argv=[]):
             app.processEvents()
 
         from rrpam_wds.gui.dialogs import MainWindow
-
-        from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
-        from rrpam_wds import setpath  # isort:skip # NOQA
 
         from guidata.configtools import get_icon
 
