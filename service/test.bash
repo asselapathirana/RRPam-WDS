@@ -40,6 +40,7 @@ do
     conda install `head -n1 requirements_conda.txt`
     python ./service/installreq.py 
     pytest  --cov --cov-report=term-missing -vv
+    echo "Tests done!"
     coverage combine --append
     coverage report
  

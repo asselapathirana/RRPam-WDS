@@ -1,18 +1,16 @@
 from rrpam_wds.gui import set_pyqt_api  # isort:skip # NOQA
-import sys
-import time
-import unittest
+import logging
 
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
-from PyQt5.QtWidgets import QApplication
 
 import rrpam_wds.examples as ex
 from rrpam_wds import hydraulic_services as hs
 from rrpam_wds.gui.dialogs import CurveDialogWithClosable
-from rrpam_wds.gui.dialogs import MainWindow
 from rrpam_wds.gui.dialogs import NetworkMap
+from rrpam_wds.tests.test_utils import Test_Parent
+from rrpam_wds.tests.test_utils import main
 
 
 def draw_a_network(aw, network=ex.networks[0], nodes=True, links=True):
@@ -27,31 +25,10 @@ def draw_a_network(aw, network=ex.networks[0], nodes=True, links=True):
         links = None
     nwm = NetworkMap(name="foo", nodes=nodes, links=links, parent=aw, mainwindow=aw)
     aw.addSubWindow(nwm)
-    aw.show()
-
     return e1, nwm
 
 
-class TestNetworkMap(unittest.TestCase):
-    start = 0
-    stop = 0
-
-    def setUp(self):
-        global start
-        self.app = QApplication(sys.argv)
-        start = time.time()
-        self.aw = MainWindow()
-        self.aw.setWindowTitle("Testing optimal time graph")
-
-    def tearDown(self):
-        global stop
-        stop = time.time()
-        print("\ncalculation took %0.2f seconds." % (stop - start))
-        self.aw = None
-
-    def runTest(self):
-        """ otherwise python 2.7 returns an error
-        ValueError: no such test method in <class 'myapp.tests.SessionTestCase'>: runTest"""
+class TC(Test_Parent):
 
     def test_NetworkMap_is_derived_from_CurveDialogWithClosable(self):
         """NetworkMaph should be derived from CurveDialogWithClosable class"""
@@ -77,7 +54,8 @@ class TestNetworkMap(unittest.TestCase):
         xmax = max([x[0] for x in coords])
         ymin = min([x[1] for x in coords])
         ymax = max([x[1] for x in coords])
-        print(xmin, xmax, ymin, ymax)
+        logger = logging.getLogger()
+        logger.info("values xmin=%s xmax=%s ymin=%s ymax=%s " % (xmin, xmax, ymin, ymax))
         plot = nwm.get_plot()
         _xmin, _xmax = plot.get_axis_limits("bottom")
         _ymin, _ymax = plot.get_axis_limits("left")
@@ -119,10 +97,13 @@ class TestNetworkMap(unittest.TestCase):
         ay = curve.yAxis()
         px = plot.transform(ax, pos[0])
         py = plot.transform(ay, pos[1])
-        print(pos[0], pos[1], px, py, curve.title().text())
+        logger = logging.getLogger()
+        logger.info(curve.title().text())
         QTest.mouseClick(plot, Qt.RightButton, pos=QPoint(px, py), delay=10.)
-        print(plot.get_selected_items())
-        print(nwm.get_plot().get_selected_items())
+        logger = logging.getLogger()
+        logger.info(str(plot.get_selected_items()))
+        logger = logging.getLogger()
+        logger.info((nwm.get_plot().get_selected_items()))
         # this test does not work yet.
         # todo: fix this test to work.
 
@@ -161,15 +142,5 @@ class TestNetworkMap(unittest.TestCase):
         self.assertEqual(link.curveparam._DataSet__icon, u.get_icon(l))
 
 
-def drive(test=True):  # pragma: no cover
-    if(test):
-        unittest.main(verbosity=2)
-    else:
-        ot = TestNetworkMap()
-        ot.setUp()
-        ot.test_links_and_their_labels_do_have_id_s()
-        ot.aw.show()
-        sys.exit(ot.app.exec_())
-
 if __name__ == '__main__':  # pragma: no cover
-    drive(test=False)
+    main(TC, test=False)

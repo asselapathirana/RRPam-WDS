@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# import logging
+
 import numpy as np
 from guidata.py3compat import maxsize
 from guiqwt.curve import CurveItem
@@ -9,11 +11,48 @@ from guiqwt.curve import seg_dist
 from PyQt5.QtCore import QPointF
 
 
+# from rrpam_wds.gui.utils import table_editor
+
+
 def _patch_all():
     _patch_item_list()
     _patch_curve_do_autoscale()
     _patch_curveitem_hit_test()
     _patch_curveplot___del__()
+    _patch_baseplot_del_items()
+    # _patch_floatarraywidget_edit_array()
+
+
+# def _patch_floatarraywidget_edit_array():
+# no need to # save the original
+# orig_edit_array = FloatArrayWidget.edit_array
+#
+# def custom_edit_array(self):
+# """Open an array editor dialog"""
+# parent = self.parent_layout.parent
+# label = self.item.get_prop_value("display", "label")
+# editor = arrayeditor.ArrayEditor(parent)
+#
+# ret = table_editor(self.parent_layout.parent, self.arr)
+# if (ret):
+# self.update(self.arr)
+#
+# now monkey-patch
+# FloatArrayWidget.edit_array = custom_edit_array
+
+def _patch_baseplot_del_items():
+    orig_del_items = CurvePlot.del_items  # backup
+
+    def custom_del_items(self, items):
+        """Override so that ValueError is ignored"""
+        try:
+            orig_del_items(self, items)
+        except ValueError:
+            pass
+            # logger = logging.getLogger()
+            # logger.info("Here %s is expected. No harm done." % e)
+    # now monkey patch
+    CurvePlot.del_items = custom_del_items
 
 
 def _patch_curveplot___del__():
@@ -33,7 +72,10 @@ RuntimeError: wrapped C/C++ object of type QwtPlotCanvas has been deleted
         try:
             orig___del__(self)
         except:
-            print("Better to fix me later.")
+            pass
+
+        #  logger = logging.getLogger()
+        #  logger.info("Better to fix me later.")
 
     # now monkey patch
     CurvePlot.__del__ = custom__del__

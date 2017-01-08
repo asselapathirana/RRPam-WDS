@@ -20,7 +20,7 @@ environment:
     #PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
     #                  # of 32 bit and 64 bit builds are needed, move this
     #                  # to the matrix section.
-    CONDA_DEPENDENCIES: "pyqt=5.*  numpy scipy pillow Cython matplotlib" # keep this sync with requirements_conda.txt
+    CONDA_DEPENDENCIES: "pyqt=5.*  numpy scipy pillow Cython h5py" # keep this sync with requirements_conda.txt
     # need to automate reading in that file and remove hardcoding these!
 
   matrix:

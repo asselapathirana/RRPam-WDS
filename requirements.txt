@@ -18,4 +18,7 @@ coveralls
 pytest-cov
 docutils
 cx_freeze
-
+pyyaml 
+appdirs
+dill
+pytest-faulthandler

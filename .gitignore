@@ -2,6 +2,9 @@
 
 # C extensions
 *.so
+# log files
+*.log
+*.log.[0-9]
 
 # Packages
 *.egg
@@ -80,4 +83,4 @@ src/screenshot-*.jpg
 log.txt
 prof.out
 output.txt
-
+*.prof

@@ -18,9 +18,12 @@ author_email = sd.author_email
 url = sd.url
 
 start_file = './src/rrpamwds.pyw'
+icon = "./src/rrpam_wds/gui/images/main_logo.ico"
 
 if (len(sys.argv) > 1 and str.lower(sys.argv[1]) == "debug"):
     start_file = './src/rrpamwds.py'
+    sys.argv.pop()
+
 
 print("tragetting start file %s" % (start_file))
 
@@ -52,7 +55,8 @@ if (not qtlibloc):
 sys.modules["PyQt4"] = None  # block loading PyQt4 to avoid conflicts with PyQt5!
 dist = dh.Distribution()
 dist.setup(name, version, description, start_file, includes=[])
-dist.add_modules('PyQt5', 'guidata', 'guiqwt', 'matplotlib')
+# dist.add_modules('PyQt5', 'guidata', 'guiqwt', 'matplotlib')
+dist.add_modules('PyQt5', 'guidata', 'guiqwt')
 dist.build_cx_freeze()  # use `build_py2exe` to use py2exe instead
 
 src_files = os.listdir(qtlibloc)
@@ -75,22 +79,22 @@ def copy_necessary_files(sys, os, glob, dest, shutil):
     l = os.path.dirname(sys.executable)
     loc = os.path.join(l, "Library", "bin")
     if (os.path.isdir(loc)):
-        for file in glob.glob(os.path.join(loc, "mkl*.dll")):
+        for file in glob.glob(os.path.join(loc, "mkl_core.dll")):
             print("Copying mkl library  %s" % (file))
             shutil.copy(file, dest)
-        for file in glob.glob(os.path.join(loc, "libiomp5md.dll")):
-            print("Copying library  %s" % (file))
-            shutil.copy(file, dest)
+        # for file in glob.glob(os.path.join(loc, "libiomp5md.dll")):
+        #    print("Copying library  %s" % (file))
+        #    shutil.copy(file, dest)
 
-    loc = os.path.join(l, "Lib", "email")
-    dst = os.path.join(dest, "email")
-    if ((not os.path.isdir(dst)) and os.path.isdir(loc)):
-        print("Copying %s" % (loc))
-        shutil.copytree(loc, dst)
+    # loc = os.path.join(l, "Lib", "email")
+    # dst = os.path.join(dest, "email")
+    # if ((not os.path.isdir(dst)) and os.path.isdir(loc)):
+    #    print("Copying %s" % (loc))
+    #    shutil.copytree(loc, dst)
 
-    loc = os.path.join(l, "Lib", "uu.py")
-    if (os.path.isfile(loc)):
-        print("Copying %s" % (loc))
-        shutil.copy(loc, dest)
+    # loc = os.path.join(l, "Lib", "uu.py")
+    # if (os.path.isfile(loc)):
+    #    print("Copying %s" % (loc))
+    #    shutil.copy(loc, dest)
 
 copy_necessary_files(sys, os, glob, dest, shutil)

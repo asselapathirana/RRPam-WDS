@@ -16,3 +16,6 @@ fixing isort errors:
 isort <filename> 
 isort *.py  src -rc -v
 
+###### 
+pytest segfaulting try instaling 
+pytest-faulthandler
