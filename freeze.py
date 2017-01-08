@@ -22,6 +22,8 @@ icon = "./src/rrpam_wds/gui/images/main_logo.ico"
 
 if (len(sys.argv) > 1 and str.lower(sys.argv[1]) == "debug"):
     start_file = './src/rrpamwds.py'
+    sys.argv.pop()
+    
 
 print("tragetting start file %s" % (start_file))
 
@@ -52,7 +54,7 @@ if (not qtlibloc):
 
 sys.modules["PyQt4"] = None  # block loading PyQt4 to avoid conflicts with PyQt5!
 dist = dh.Distribution()
-dist.setup(name, version, description, start_file, includes=[], icon=icon)
+dist.setup(name, version, description, start_file, includes=[])
 dist.add_modules('PyQt5', 'guidata', 'guiqwt', 'matplotlib')
 dist.build_cx_freeze()  # use `build_py2exe` to use py2exe instead
 

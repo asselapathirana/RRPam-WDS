@@ -7,5 +7,5 @@ if sys.platform == "win32":
     myappid = 'asselapathirana.rrpamwds.%s'%version # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
-if __name__=="__main__":
-    rrpamwds.main()
+# does not work in frozen form when __name__=="__main__" used!
+rrpamwds.main()
