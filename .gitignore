@@ -84,3 +84,5 @@ log.txt
 prof.out
 output.txt
 *.prof
+*.build
+
