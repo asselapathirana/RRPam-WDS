@@ -90,7 +90,7 @@ def copy_necessary_files(sys, os, glob, dest, shutil):
     dst = os.path.join(dest, "numpy")
     if ((not os.path.isdir(dst)) and os.path.isdir(loc)):
         print("Copying %s" % (loc))
-        shutil.copytree(loc, dst)        
+        shutil.copytree(loc, dst)         
 
     # loc = os.path.join(l, "Lib", "email")
     # dst = os.path.join(dest, "email")
