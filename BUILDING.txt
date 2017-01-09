@@ -19,3 +19,8 @@ isort *.py  src -rc -v
 ###### 
 pytest segfaulting try instaling 
 pytest-faulthandler
+
+# Numpy errors in frozen versions
+Usually it is to do with cx_freeze failing to pick up correct mkl files. 
+in python installation check the file mkl-<version>.json for a list of files. 
+Then check including missing files one by one. 

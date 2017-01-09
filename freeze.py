@@ -82,9 +82,9 @@ def copy_necessary_files(sys, os, glob, dest, shutil):
         for file in glob.glob(os.path.join(loc, "mkl_core.dll")):
             print("Copying mkl library  %s" % (file))
             shutil.copy(file, dest)
-        # for file in glob.glob(os.path.join(loc, "libiomp5md.dll")):
-        #    print("Copying library  %s" % (file))
-        #    shutil.copy(file, dest)
+        for file in glob.glob(os.path.join(loc, "libiomp5md.dll")):
+            print("Copying library  %s" % (file))
+            shutil.copy(file, dest)
 
     # loc = os.path.join(l, "Lib", "email")
     # dst = os.path.join(dest, "email")
