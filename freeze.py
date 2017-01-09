@@ -67,7 +67,7 @@ if (not qtlibloc):
 
 sys.modules["PyQt4"] = None  # block loading PyQt4 to avoid conflicts with PyQt5!
 dist = dh.Distribution()
-dist.setup(name, version, description, start_file, includes=[])
+dist.setup(name, version, description, start_file, includes=[], icon=icon)
 # dist.add_modules('PyQt5', 'guidata', 'guiqwt', 'matplotlib')
 dist.add_modules('PyQt5', 'guidata', 'guiqwt')
 dist.build_cx_freeze()  # use `build_py2exe` to use py2exe instead

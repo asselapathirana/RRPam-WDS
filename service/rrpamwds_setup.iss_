@@ -26,7 +26,7 @@ InfoBeforeFile={rootlocation}service\pre_install.txt
 InfoAfterFile={rootlocation}service\post_install.txt
 OutputDir={rootlocation}service
 OutputBaseFilename=setup
-SetupIconFile={rootlocation}service\rrpamwds.ico
+SetupIconFile={rootlocation}\src\rrpam_wds\gui\images\main_logo.ico
 Compression=lzma
 SolidCompression=yes
 
