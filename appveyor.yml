@@ -80,7 +80,9 @@ install:
 build: false
 
 test_script:
-  - pytest -v
+# devide the test suite into two test runs. 
+  - pytest -v -k "not (test_c or test_s)"
+  - pytest -v -k "(test_c or test_s)"
   - conda env export > service\appveyor_environment.yml
   - if "%PYTHON_VERSION%" == "3.4" python freeze.py > service\freeze.log
 
