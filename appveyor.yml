@@ -81,10 +81,10 @@ build: false
 
 test_script:
 # devide the test suite into four test runs. 
-  - pytest -v -k "not (test_c or test_s or test_rrpamwds_projects.py or test_units.py)"
+  - pytest -v -k "not (test_c or test_s or will_have_correct_units or test_project_manager)"
   - pytest -v -k "(test_c or test_s)"
-  - pytest -v -k "(test_units.py)"
-  - pytest -v -k "(test_rrpamwds_projects.py)"
+  - pytest -v -k "(will_have_correct_units)"
+  - pytest -v -k "(test_project_manager)"
   - conda env export > service\appveyor_environment.yml
   - if "%PYTHON_VERSION%" == "3.4" python freeze.py > service\freeze.log
 
