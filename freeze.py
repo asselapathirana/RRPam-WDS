@@ -6,6 +6,19 @@ import sys
 import setupdata as sd
 from guidata import disthelpers as dh
 
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            copytree(s, d, symlinks, ignore)
+        else:
+            if not os.path.exists(d) or os.stat(s).st_mtime - os.stat(d).st_mtime > 1:
+                shutil.copy2(s, d)
+
 dest = "./dist/"
 
 
@@ -88,15 +101,17 @@ def copy_necessary_files(sys, os, glob, dest, shutil):
         #    
     loc = os.path.join(l, "Lib", "site-packages", "numpy")
     dst = os.path.join(dest, "numpy")
-    if ((not os.path.isdir(dst)) and os.path.isdir(loc)):
+    if ( os.path.isdir(loc)):
         print("Copying %s" % (loc))
-        shutil.copytree(loc, dst)         
+        copytree(loc, dst)   
+    else:
+        print("can not find %s " % loc)
 
     # loc = os.path.join(l, "Lib", "email")
     # dst = os.path.join(dest, "email")
     # if ((not os.path.isdir(dst)) and os.path.isdir(loc)):
     #    print("Copying %s" % (loc))
-    #    shutil.copytree(loc, dst)
+    #    copytree(loc, dst)
 
     # loc = os.path.join(l, "Lib", "uu.py")
     # if (os.path.isfile(loc)):
