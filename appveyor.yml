@@ -87,7 +87,7 @@ test_script:
   - pytest -v -k "test_project_manager"
   - conda env export > service\appveyor_environment.yml
   - if "%PYTHON_VERSION%" == "3.4" python freeze.py > service\freeze.log
-  - sphinx-build  docs dist/docs
+  - sphinx-build  docs dist/docs_
 
 after_test:
 #hack! 
