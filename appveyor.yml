@@ -85,9 +85,9 @@ test_script:
   - pytest -v -k "test_c or test_s"
   - pytest -v -k "will_have_correct_units"
   - pytest -v -k "test_project_manager"
-  - sphinx-build  docs dist/docs
   - conda env export > service\appveyor_environment.yml
   - if "%PYTHON_VERSION%" == "3.4" python freeze.py > service\freeze.log
+  - sphinx-build  docs dist/docs
 
 after_test:
 #hack! 
