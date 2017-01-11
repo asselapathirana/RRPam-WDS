@@ -166,8 +166,8 @@ class HelpDialog(QDialog):
             dir_ = os.path.dirname(sys.executable)
         else:
             # unfrozen
-            dir_ = os.path.dirname(os.path.realpath(__file__))
-        self.docsroot = os.path.join(dir_, os.path.pardir, os.path.pardir, c.DOCROOT)
+            dir_ = os.path.join(os.path.dirname(os.path.realpath(__file__)),os.path.pardir, os.path.pardir)
+        self.docsroot = os.path.join(dir_, c.DOCROOT)
         self.helpwindow.linkClicked.connect(self.linkClickedSlot)
 
     pyqtSlot(object)
@@ -1685,14 +1685,16 @@ class MainWindow(QMainWindow):
             self.help = HelpDialog(parent=self)
             self.addSubWindow(self.help)
         if(not about):
-            self.help.helpwindow.load(
-                QUrl.fromLocalFile(os.path.join(self.help.docsroot, "usage.html")))
+            page = "usage.html"
             self.help.setWindowTitle("Help")
         else:
             self.help.setWindowTitle("About RRPAMWDS")
-            self.help.helpwindow.load(
-                QUrl.fromLocalFile(os.path.join(self.help.docsroot, "about.html")))
-
+            page = "about.html"
+            
+        link=os.path.join(self.help.docsroot, page)
+        self.help.helpwindow.load(
+                QUrl.fromLocalFile(link))      
+        logger.info("Tried to open : %s" % link)
         self.help.show()
         self.help.activateWindow()
 

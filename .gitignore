@@ -55,6 +55,7 @@ output/*/index.html
 docs/_build
 dist/docs_
 src/docs_
+docs_
 
 .DS_Store
 *~
