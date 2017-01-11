@@ -1282,7 +1282,12 @@ class MainWindow(QMainWindow):
         if (itemids):
             items = self.datawindow.get_items_with_these_ids(itemids)
         else:
-            items = self.datawindow.get_selected_items()
+            if (itemids is None): 
+                # itemsids== None this means it is a call to plot new items. If it is [] (not None) that means 
+                # actually it is a call from _replot_wlc_items where we must not make any new plots!
+                items = self.datawindow.get_selected_items()
+            else:
+                return 
         for asset in items:
             cd = asset.get_curve_data()
             cd.requestingcurve = callerid

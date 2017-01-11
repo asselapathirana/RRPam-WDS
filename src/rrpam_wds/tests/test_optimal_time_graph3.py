@@ -27,6 +27,17 @@ class TC(Test_Parent):
             time.sleep(.1)
             calls = [mock.call('11'), mock.call('111')]
             mock_callwithmyid.assert_has_calls(calls, any_order=True)
+            
+    def test_BUG_FIX_just_changing_a_value_would_not_create_a_new_wlc_window(self):
+        self.create_a_new_project()
+        self.aw.datawindow.myplotitems['11'].select()    
+        c=list(self.aw.optimaltimegraphs.values())[0]
+        oldc=dict(c.myplotitems)
+        self.aw.datawindow.myplotitems['11'].my_age.setValue(250)
+        self.app.processEvents()
+        time.sleep(0.1)
+        newc=c.myplotitems
+        self.assertEqual(oldc,newc)
 
     def create_a_new_project(self):
         import tempfile

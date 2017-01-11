@@ -24,7 +24,7 @@ if os.getenv('SPELLCHECK'):
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'RRPam-WDS'
-year = '2016'
+year = '2017'
 author = 'Assela Pathirana'
 copyright = '{0}, {1}'.format(year, author)
 version = release = '0.1.0'
