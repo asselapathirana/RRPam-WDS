@@ -28,10 +28,10 @@ do
     pip install    sphinxcontrib-spelling
     pip install    pyenchant
     export SPELLCHECK=1
-    sphinx-build -b spelling docs docs_
+    sphinx-build -b spelling docs src/docs_
     python setup.py check --strict --metadata --restructuredtext
-    sphinx-build -b html docs docs_
-    sphinx-build -b linkcheck docs docs_
+    sphinx-build -b html docs src/docs_
+    sphinx-build -b linkcheck docs src/docs_
 
 
     check-manifest 

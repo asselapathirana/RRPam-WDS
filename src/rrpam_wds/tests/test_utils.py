@@ -67,7 +67,7 @@ def main(cls, test=True, mainwindow=None):  # pragma: no cover
         unittest.main(verbosity=2)
     else:
         def runTest(): pass
-        cls.runTest=runTest        
+        cls.runTest = runTest
         tc = cls()
         for a in dir(tc):
             if (a.startswith('test_')):  # test_sync

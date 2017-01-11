@@ -95,15 +95,15 @@ def copy_necessary_files(sys, os, glob, dest, shutil):
         for file in glob.glob(os.path.join(loc, "mkl_core.dll")):
             print("Copying mkl library  %s" % (file))
             shutil.copy(file, dest)
-        #for file in glob.glob(os.path.join(loc, "libiomp5md.dll")):
+        # for file in glob.glob(os.path.join(loc, "libiomp5md.dll")):
         #    print("Copying library  %s" % (file))
         #    shutil.copy(file, dest)
-        #    
+        #
     loc = os.path.join(l, "Lib", "site-packages", "numpy")
     dst = os.path.join(dest, "numpy")
-    if ( os.path.isdir(loc)):
+    if (os.path.isdir(loc)):
         print("Copying %s" % (loc))
-        copytree(loc, dst)   
+        copytree(loc, dst)
     else:
         print("can not find %s " % loc)
 

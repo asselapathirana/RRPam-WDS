@@ -35,6 +35,7 @@ global-exclude  log.txt
 global-exclude  *.log
 global-exclude  *.log.[0-9]
 recursive-exclude service *
+recursive-exclude src/docs_ *
 
 global-exclude *.swp
 global-exclude *.bash
