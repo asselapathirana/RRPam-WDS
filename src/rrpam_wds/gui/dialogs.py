@@ -3,6 +3,7 @@ from rrpam_wds.gui import set_pyqt_api   # isort:skip # NOQA
 
 import logging
 import math
+import os
 import sys
 
 from guidata.configtools import get_icon
@@ -20,9 +21,12 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
+from PyQt5.QtWebKitWidgets import QWebPage
+from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QDialog
@@ -146,6 +150,35 @@ class AssetGUI(QObject):
             self.my_selected.setChecked(select)
         else:
             self.logger.info("No checkbox in me (%s). So ignoring select request." % self)
+
+
+class HelpDialog(QDialog):
+
+    def __init__(self, parent=None):
+        super(HelpDialog, self).__init__()
+        self.parent = parent
+        self.helpwindow = QWebView()
+        self.helpwindow.page().setLinkDelegationPolicy(QWebPage.DelegateExternalLinks)
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.helpwindow)
+        if getattr(sys, 'frozen', False):
+            # frozen
+            dir_ = os.path.dirname(sys.executable)
+        else:
+            # unfrozen
+            dir_ = os.path.join(os.path.dirname(os.path.realpath(__file__)),os.path.pardir, os.path.pardir)
+        self.docsroot = os.path.join(dir_, c.DOCROOT)
+        self.helpwindow.linkClicked.connect(self.linkClickedSlot)
+
+    pyqtSlot(object)
+
+    def linkClickedSlot(self, url):
+        from PyQt5.QtGui import QDesktopServices
+        QDesktopServices.openUrl(url)
+
+    def closeEvent(self, evnt):
+        evnt.ignore()
+        self.parent._close_help()
 
 
 class LogDialog(QDialog):
@@ -1240,6 +1273,9 @@ class MainWindow(QMainWindow):
     menuitems = MenuItems
     menuitems.file = "&File"
     menuitems.view = "&View"
+    menuitems.help = "&Help"
+    menuitems.about = "&About RRPAMWDS"
+    menuitems.guide = "&User Guide"
     menuitems.new_wlc = "New &WLC window"
     menuitems.cascade = "&Cascade"
     menuitems.tiled = "&Tiled"
@@ -1271,6 +1307,7 @@ class MainWindow(QMainWindow):
         self.reset_save()
         self.reset_save_as()
         self.reset_close()
+        self.help = None
 
     @pyqtSlot(object)
     def _progressbar_set(self, set_):
@@ -1282,12 +1319,12 @@ class MainWindow(QMainWindow):
         if (itemids):
             items = self.datawindow.get_items_with_these_ids(itemids)
         else:
-            if (itemids is None): 
-                # itemsids== None this means it is a call to plot new items. If it is [] (not None) that means 
+            if (itemids is None):
+                # itemsids== None this means it is a call to plot new items. If it is [] (not None) that means
                 # actually it is a call from _replot_wlc_items where we must not make any new plots!
                 items = self.datawindow.get_selected_items()
             else:
-                return 
+                return
         for asset in items:
             cd = asset.get_curve_data()
             cd.requestingcurve = callerid
@@ -1490,7 +1527,7 @@ class MainWindow(QMainWindow):
     def _remove_all_subwindows(self):
         for subw in self.mdi.subWindowList():
             widget = subw.widget()
-            if(isinstance(widget, LogDialog)):
+            if(isinstance(widget, LogDialog) or isinstance(widget, HelpDialog)):
                 continue
             subw.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             subw.close()
@@ -1590,6 +1627,10 @@ class MainWindow(QMainWindow):
         file2.addAction(self.menuitems.cascade)
         file2.addAction(self.menuitems.tiled)
         file2.triggered[QAction].connect(self.windowaction)
+        file3 = bar.addMenu(self.menuitems.help)
+        self.aboutaction = file3.addAction(self.menuitems.about)
+        self.guideaction = file3.addAction(self.menuitems.guide)
+        file3.triggered[QAction].connect(self.windowaction)
 
     def windowaction(self, q):
         logger = logging.getLogger()
@@ -1621,8 +1662,44 @@ class MainWindow(QMainWindow):
 
             if q.text() == self.menuitems.close_project:
                 self._close_project()
+
+            if q.text() == self.menuitems.guide:
+                self._show_help()
+
+            if q.text() == self.menuitems.about:
+                self._show_about()
+
         except Exception as e:
             logger.warn("Error executing command %s " % e)
+
+    def _close_help(self):
+        self.help.setVisible(False)
+        help = [x for x in self.mdi.subWindowList() if isinstance(x.widget(), HelpDialog)][0]
+        help.setVisible(False)
+
+    def _show_help(self, about=False):
+
+        logger = logging.getLogger()
+        logger.info("Showing help..")
+        if(not self.help):
+            self.help = HelpDialog(parent=self)
+            self.addSubWindow(self.help)
+        if(not about):
+            page = "usage.html"
+            self.help.setWindowTitle("Help")
+        else:
+            self.help.setWindowTitle("About RRPAMWDS")
+            page = "about.html"
+            
+        link=os.path.join(self.help.docsroot, page)
+        self.help.helpwindow.load(
+                QUrl.fromLocalFile(link))      
+        logger.info("Tried to open : %s" % link)
+        self.help.show()
+        self.help.activateWindow()
+
+    def _show_about(self):
+        self._show_help(about=True)
 
     def _save_project(self):
         if(self.projectgui.save_project()):
@@ -1733,6 +1810,7 @@ class MainWindow(QMainWindow):
 def main():  # pragma: no cover
     app = QApplication(sys.argv)
     ex = MainWindow()
+    # ex.addSubWindow(HelpDialog(parent=ex))
     ex.show()
     sys.exit(app.exec_())
 

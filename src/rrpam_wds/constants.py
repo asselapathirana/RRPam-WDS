@@ -45,6 +45,8 @@ INCHES = 'in'
 
 LENGTH_CONVERSION_FACTOR = {METERS: 1000, FEET: 5280}
 
+DOCROOT = "docs_"
+
 
 def _getProb(A, time_, lunits, N, length, age):
     return length / LENGTH_CONVERSION_FACTOR[lunits] * N * np.exp(A * (age + time_))

@@ -4,7 +4,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-
+   
    readme
    installation
    usage
@@ -12,6 +12,7 @@ Contents
    contributing
    authors
    changelog
+   about
 
 Indices and tables
 ==================
