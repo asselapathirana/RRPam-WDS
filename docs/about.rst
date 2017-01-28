@@ -7,7 +7,7 @@ Life Cost Analysis concepts using water distribution networks as examples.
 
 The intended use of the tool is for `Asset Management Classes <https://www.unesco-ihe.org/asset-management>`_. 
 
-The software was developed by `Assela Pathirana <http://assela.pathirana.net>`_
+The software was developed by `Assela Pathirana <http://assela.pathirana.net/index.php?title=Assela_Pathirana>`_
 
 
 Development was supported with a grant under the `Global Partnership for Water and Development facility <https://www.unesco-ihe.org/global-partnership-water-and-development>`_ of 
@@ -26,4 +26,4 @@ Copyright: Assela Pathirana, 2016, 2017 (All rights reserved).
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see `http://www.gnu.org/licenses/ <http://www.gnu.org/lice.nses/>`_
+    along with this program.  If not, see `http://www.gnu.org/licenses/ <http://www.gnu.org/licenses/>`_
