@@ -292,7 +292,7 @@ class ProjectPropertiesDataset(dt.DataSet):
         slider=False)
     _ex1 = dt.EndGroup("Direct cost total system down")
     _bx2 = dt.BeginGroup("Relative size in risk matrix")
-    SCALE = di.FloatItem("", default=10, min=0.0, max=+500, step=.1, slider=True)
+    SCALE = di.FloatItem("", default=0.001, min=0.0, max=+1000, step=.01)
     _ex2 = dt.EndGroup("Relative size in risk matrix")
     _bg2 = dt.BeginGroup("Discount rate (%)")
     discountrate = di.FloatItem("", default=10, min=-5, max=+50, step=0.1, slider=True)

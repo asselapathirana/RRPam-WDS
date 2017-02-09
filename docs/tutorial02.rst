@@ -2,7 +2,7 @@
 Getting Started
 ===============
 .. Attention::
-    Make sure that you have the required data ready before starting on this section. Refer to section :ref:`requirements_`.
+    Make sure that you have the required data ready before starting on this section. Refer to section :doc:`Requirements </tutorial01>`.
 
 There are a number of example EPANET 2.0 network files provided with RRPAM-WDS. They are available at :code:`rrpam_wds\examples` directory relative to your RRPAM-WDS installation. (e.g. In windows this is usually :code:`C:\Program Files (x86)\rrpam-wds\rrpam_wds\examples`) For this walk-though we use the example :code:`Adjumani_network_simplified2.inp`. This network is a hypothetical case loosely based on a actual case study from Sub-Saharan Africa.
 

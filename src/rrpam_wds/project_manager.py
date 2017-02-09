@@ -36,17 +36,15 @@ class WLCThread(QThread):
         self.pm.callwithmyid(self.result.id_)  # this call is purely for testing.
         self._calculate()
         self.pm.heres_a_curve_signal.emit(self.result)
-        
-    
 
     def _calculate(self):
         """TODO: Add a test to compare this calculation with a manually done calculation"""
         d = self.project_data
         r = self.result
         r.year = np.arange(0, d.years, 1)
-        r.renewalcost = d.cost /(1+ d.r / 100.)**r.year
+        r.renewalcost = d.cost / (1 + d.r / 100.)**r.year
         tmp = _getProb(d.A, r.year, d.lunits, d.N0, d.length, d.age)
-        dc = tmp /(1+ d.r / 100.)**r.year * d.cons
+        dc = tmp / (1 + d.r / 100.)**r.year * d.cons
         r.damagecost = np.add.accumulate(dc)
 
 
