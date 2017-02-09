@@ -1,6 +1,8 @@
 
 Changelog
 =========
+* A major error calculating NPV fixed.
+
 * Documentation updated
 
 * First usable version
