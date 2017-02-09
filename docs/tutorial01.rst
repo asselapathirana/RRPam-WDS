@@ -51,7 +51,7 @@ In RRPAM-WDS we use the exponential background-aging model after Shamir and Howa
 
     :math:`t` - Age of the asset (pipe)
 
-    :math:`N_0` and :math: `A`  - Aging parameters
+    :math:`N_0` and :math:`A`  - Aging parameters
 
 There are a number of techniques to estimate values of the aging parameters (e.g. empirical fit to pipe failure history if available) These techniques are beyond the scope of this tutorial. [3]_
 

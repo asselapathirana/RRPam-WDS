@@ -12,3 +12,5 @@ Tutorial pages
 
    tutorial01
    tutorial02
+   tutorial03
+   tutorial04
