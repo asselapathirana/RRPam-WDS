@@ -7,3 +7,9 @@ conda
 Indices
 changelog
 tox
+RRPAM-WDS
+EPANET
+EPANET 2.0
+Shamir
+inp
+net
