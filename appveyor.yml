@@ -10,6 +10,7 @@ matrix:
 environment:
   access_token:
       secure: MD1NLo5TVq91rOlFoo4+S3ko6bkwo3cFOfNYlpZjeDh8P0exIasW+E5ErwkCbXjJ
+
   global:
     # Used by qthelpers to close widgets after a defined time
     TEST_CI: True
@@ -104,6 +105,18 @@ artifacts:
   - path: service\appveyor_environment.yml
   - path: '**\screenshot-*.jpg'
   
+  
+deploy:
+  description: 'New release'
+  provider: GitHub
+  auth_token:
+    secure: CkjTw2Oe2pEwHIhW0SgRCYotHgFpwtzjtTEDIjaRoo5+9X8MkFHP6qZhA9iV1Y9H # your encrypted token from GitHub
+  artifact: service\*.exe            # upload all NuGet packages to release assets
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # dep
 
 on_success:
 - ps: >-
