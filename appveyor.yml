@@ -101,6 +101,7 @@ after_test:
 
 artifacts:
   - path: service\*.exe 
+    name: windowsinstallation
   - path: service\*.log
   - path: service\appveyor_environment.yml
   - path: '**\screenshot-*.jpg'
@@ -111,7 +112,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: CkjTw2Oe2pEwHIhW0SgRCYotHgFpwtzjtTEDIjaRoo5+9X8MkFHP6qZhA9iV1Y9H # your encrypted token from GitHub
-  artifact: service\*.exe            # upload all NuGet packages to release assets
+  artifact: windowsinstallation            
   draft: false
   prerelease: false
   on:
