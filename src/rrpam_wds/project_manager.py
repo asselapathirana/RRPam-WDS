@@ -38,7 +38,7 @@ class WLCThread(QThread):
         self.pm.heres_a_curve_signal.emit(self.result)
 
     def _calculate(self):
-        """TODO: Add a test to compare this calculation with a manually done calculation"""
+        """WLC calculation done here"""
         d = self.project_data
         r = self.result
         r.year = np.arange(0, d.years, 1)
