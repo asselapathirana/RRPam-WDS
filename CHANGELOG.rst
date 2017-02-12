@@ -3,6 +3,7 @@ Changelog
 =========
 
 0.4.0 (2017-02-12)
+--------------------
 
 * Bug related to  python 2.7  fixed
 
