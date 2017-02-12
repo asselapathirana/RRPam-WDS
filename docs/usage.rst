@@ -8,4 +8,4 @@ If you have installed as a python package (e.g. using pip install RRPAM-WDS), th
 
      python -mrrpam_wds
 
-This should open the RRPAM-WDS desktop application. Then follow the `tutorial <tutorial.rst>`_.
+This should open the RRPAM-WDS desktop application. Then follow the :doc:`tutorial </tutorial>`
