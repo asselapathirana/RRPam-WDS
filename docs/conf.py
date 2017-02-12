@@ -14,6 +14,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',    
 ]
 if os.getenv('SPELLCHECK'):
     extensions += 'sphinxcontrib.spelling',
