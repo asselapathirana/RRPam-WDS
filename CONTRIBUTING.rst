@@ -53,11 +53,11 @@ To set up `RRPam-WDS` for local development:
 
 	(a) First make sure that miniconda `http://conda.pydata.org/miniconda.html` is installed (following command should work) ::
 
-   conda
+             conda
 
 	(b) Then, from the top directory (where setup.py is)  run the command::
 
-   ./service/test.bash           
+            ./service/test.bash           
 
 
 5. Commit your changes and push your branch to GitHub::
