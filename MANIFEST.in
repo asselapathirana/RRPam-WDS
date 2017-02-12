@@ -19,6 +19,7 @@ include requirements.txt
 include requirements_conda.txt
 include tox.ini .travis.yml appveyor.yml
 include docs/mydictionary.txt
+include readme_.rst
 
 exclude BUILDING.txt
 exclude  *.old
