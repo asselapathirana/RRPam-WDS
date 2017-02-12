@@ -4,7 +4,7 @@ Installation
 
 Install on windows
 ------------------
-Download the latest self-extracting installation files from `github release page of `RRPAMWDS project <https://github.com/asselapathirana/RRPam-WDS/releases>`_. Double click on the downloaded file to install it.
+Download the latest self-extracting installation files from `github release page of RRPAMWDS project <https://github.com/asselapathirana/RRPam-WDS/releases/latest>`_. Double click on the downloaded file to install it.
 
 Install as a python package
 ----------------------------
