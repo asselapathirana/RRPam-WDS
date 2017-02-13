@@ -1,6 +1,6 @@
 __all__ = ['name', 'version', 'license', 'description', 'author', 'author_email', 'url']
 name = 'rrpam-wds'
-version = '0.4.0'
+version = '0.4.1'
 license = 'GPLV3'
 description = 'Risk-based renewal planning for asset management of water distribution systems'
 author = 'Assela Pathirana'
