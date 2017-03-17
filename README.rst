@@ -1,3 +1,5 @@
+.. include:: readme_.rst
+
 ========
 Overview
 ========
@@ -59,7 +61,7 @@ Overview
 .. end-badges
 
 
-.. include:: readme_.rst
+
 
 
 
