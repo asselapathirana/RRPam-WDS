@@ -78,3 +78,12 @@ notifications:
   email:
     on_success: never
     on_failure: always
+
+deploy:
+
+    provider: pypi
+    user: "assela"
+    password:
+        secure: "CMjLBNBWHDOvDW0+J3kmRjeYQatdrNfp8CIPNYQfutHC9iL/0mb59ZLUCI1Nzbyp3CqHrYvQSf5PdDIKi2PC6QK/YL0z+M00w2xitE7KIp39B0+h65Np1eFkXnuCZ6DldfCwcwgb3QbxxHosqPgeb109YLObGXoMAN9NLBZA27YvwyKDh2Y/+DYtQcm6vUifEtgFMdYzXfjTNgi/NY/IcrMk6LhryzVl1BN73Rt99xNVtdGypKEmQan+kjhSJNHUKhtRnUXIbnXaGTyoM3VshSKcpFwGB3pGOOhPa3o+vdKxUpb7eFW7/48lYflciEsIydYyk1ne+Kr085AmqVZr6mT/qG8pGP3UINL52c7IHYeso9MeyXKugDE2KBQH/ONC9QUAymUQFj0vTZ8AZzfHxnloxTWrrKhkEEgoUyC8npcWxfDpTBBldCaBo0/fRmJnx4SQ6N46bjQ5gOkkMwgmMV+an0Qd7NjZrpI6LqDJTGwD3lo757B7nsqqfkftvItFD/ZFvap4tc5EnqAbI8YahAq/m1tHTD7clbo/naf4KclOZpGd8jElkN2lcRpCx9zpJ1k7XW3n3Yoyut5AKTHkxbHuGKzjpxpOEuomkZ/o3YKEORnZfar2U48jjtXyNFrcmrRTUjOIUz3Crx0GAuTCr9jCE/5IYRUudCf9qPPi1gY="
+
+
