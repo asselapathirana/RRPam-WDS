@@ -24,3 +24,8 @@ pytest-faulthandler
 Usually it is to do with cx_freeze failing to pick up correct mkl files. 
 in python installation check the file mkl-<version>.json for a list of files. 
 Then check including missing files one by one. 
+
+
+# cx_freeze 
+set QT_QPA_PLATFORM_PLUGIN_PATH=C:\python\WinPython-64bit-3.4.4.2Qt5\python-3.4.4.amd64\Lib\site-packages\PyQt5\plugins\platforms
+python freeze.py

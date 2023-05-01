@@ -20,16 +20,16 @@ handlers:
         maxBytes: 10485760 # 10MB
         backupCount: 20
         encoding: utf8
-
+    -
     error_file_handler:
         class: logging.handlers.RotatingFileHandler
         level: ERROR
         formatter: simple
-        filename:  /tmp/error.log 
+        filename:  /tmp/error.log
         maxBytes: 10485760 # 10MB
         backupCount: 20
         encoding: utf8
-        
+
     emitting_logger:
         class: rrpam_wds.logger.EmittingLogger
         level: INFO
@@ -37,10 +37,11 @@ handlers:
         
 root: 
     level: INFO
-    handlers: [console, info_file_handler, error_file_handler, emitting_logger]
+    #handlers: [console, info_file_handler, error_file_handler, emitting_logger]
+    handlers: [console, emitting_logger]
     
 rrpam_wds: 
     level: INFO
-    handlers: [console, info_file_handler, error_file_handler, emitting_logger]
-
+    #handlers: [console, info_file_handler, error_file_handler, emitting_logger]
+    handlers: [console, emitting_logger]
 ...
